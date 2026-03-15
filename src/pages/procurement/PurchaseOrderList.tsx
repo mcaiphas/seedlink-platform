@@ -1,0 +1,4 @@
+import { AdminListPage } from '@/components/AdminListPage';
+import { Badge } from '@/components/ui/badge';
+import { AdminPage } from '@/components/AdminPage';
+export default function PurchaseOrderList() { return <AdminPage><AdminListPage title="Purchase Orders" tableName="purchase_orders" selectQuery="*, suppliers(supplier_name)" searchPlaceholder="Search POs..." searchFields={['po_number']} columns={[{label:'PO #',key:'po_number',sortable:true,render:r=><span className="font-medium font-mono text-primary">{r.po_number}</span>},{label:'Supplier',key:'supplier_id',render:r=>(r.suppliers as any)?.supplier_name||'—'},{label:'Total',key:'total_amount',sortable:true,render:r=>`${r.currency_code} ${Number(r.total_amount||0).toFixed(2)}`},{label:'Status',key:'status',render:r=><Badge variant="secondary">{r.status}</Badge>},{label:'Date',key:'order_date',sortable:true,render:r=>new Date(r.order_date).toLocaleDateString()}]} /></AdminPage>; }
