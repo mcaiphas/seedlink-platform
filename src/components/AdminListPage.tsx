@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DataPageShell, EmptyState } from './DataPageShell';
+import { QueryStatusBanner } from './QueryStatusBanner';
+import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
@@ -29,17 +31,32 @@ export function AdminListPage({
 }: AdminListPageProps) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [queryStatus, setQueryStatus] = useState<QueryStatus>('loading');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState(orderBy);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(0);
 
   useEffect(() => {
+    setLoading(true);
+    setQueryStatus('loading');
+    setErrorMessage(null);
+
     supabase.from(tableName as any).select(selectQuery).order(orderBy, { ascending: false }).limit(500)
       .then(({ data: d, error: e }) => {
-        if (e) setError(e.message);
-        else setData(d || []);
+        if (e) {
+          const classified = classifyError(e);
+          setQueryStatus(classified.status);
+          setErrorMessage(classified.message);
+          setData([]);
+        } else if (!d || d.length === 0) {
+          setQueryStatus('empty');
+          setData([]);
+        } else {
+          setQueryStatus('success');
+          setData(d);
+        }
         setLoading(false);
       });
   }, [tableName, selectQuery, orderBy]);
@@ -56,7 +73,7 @@ export function AdminListPage({
         );
       }
     }
-    result.sort((a, b) => {
+    result = [...result].sort((a, b) => {
       const av = a[sortKey] ?? '';
       const bv = b[sortKey] ?? '';
       const cmp = typeof av === 'number' ? av - bv : String(av).localeCompare(String(bv));
@@ -75,10 +92,18 @@ export function AdminListPage({
     else { setSortKey(key); setSortDir('asc'); }
   };
 
+  const statusDesc = queryStatus === 'success' || queryStatus === 'empty'
+    ? `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`
+    : undefined;
+
   return (
-    <DataPageShell title={title} description={description || `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`}
-      loading={loading} error={error} searchValue={search} onSearchChange={setSearch}
+    <DataPageShell title={title} description={description || statusDesc}
+      loading={loading} searchValue={search} onSearchChange={setSearch}
       searchPlaceholder={searchPlaceholder} action={action}>
+
+      {queryStatus !== 'success' && queryStatus !== 'loading' && queryStatus !== 'empty' && (
+        <QueryStatusBanner status={queryStatus} message={errorMessage || undefined} tableName={tableName} />
+      )}
 
       {filters && <div className="flex flex-wrap items-center gap-2 mb-2">{filters}</div>}
 
@@ -107,7 +132,7 @@ export function AdminListPage({
                 ))}
               </TableRow>
             ))}
-            {paged.length === 0 && <EmptyState message="No records found" colSpan={columns.length} />}
+            {paged.length === 0 && <EmptyState message={queryStatus === 'empty' ? 'No records found' : 'No matching records'} colSpan={columns.length} />}
           </TableBody>
         </Table>
       </div>

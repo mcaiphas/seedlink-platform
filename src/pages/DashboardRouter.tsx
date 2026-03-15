@@ -3,13 +3,13 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Loader2 } from "lucide-react";
 
 const ROLE_ROUTES: Record<string, string> = {
-  super_admin: "/admin",
-  admin: "/admin",
-  farmer: "/farmer",
-  supplier: "/supplier",
-  buyer: "/buyer",
-  trainer: "/trainer",
-  logistics_partner: "/logistics",
+  super_admin: "/",
+  admin: "/",
+  farmer: "/farms",
+  supplier: "/products",
+  buyer: "/orders",
+  trainer: "/courses",
+  logistics_partner: "/delivery-requests",
 };
 
 export default function DashboardRouter() {
@@ -27,6 +27,8 @@ export default function DashboardRouter() {
     return <Navigate to="/onboarding" replace />;
   }
 
-  const route = ROLE_ROUTES[roleName || ""] || "/farmer";
+  // super_admin and admin go to Dashboard (/ which renders Dashboard component)
+  // Other roles go to their primary module
+  const route = ROLE_ROUTES[roleName || ""] || "/farms";
   return <Navigate to={route} replace />;
 }
