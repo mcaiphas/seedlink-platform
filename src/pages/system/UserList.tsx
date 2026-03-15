@@ -7,6 +7,7 @@ import { QueryStatusBanner } from '@/components/QueryStatusBanner';
 import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function UserList() {
   const { isAdmin, loading: adminLoading } = useAdmin();
@@ -24,10 +25,9 @@ export default function UserList() {
     if (!isAdmin) { setLoading(false); return; }
 
     async function load() {
-      // Fetch profiles (simple query, no joins)
       const { data: pData, error: pError } = await supabase
         .from('profiles')
-        .select('id, full_name, phone, role, created_at')
+        .select('id, full_name, email, phone, role, avatar_url, job_title, is_active, created_at')
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -40,7 +40,6 @@ export default function UserList() {
         setProfileStatus(pData && pData.length > 0 ? 'success' : 'empty');
       }
 
-      // Fetch role assignments separately (disambiguated FK)
       const { data: rData, error: rError } = await supabase
         .from('user_role_assignments')
         .select('user_id, roles(name)')
@@ -78,11 +77,16 @@ export default function UserList() {
     );
   }
 
-  const filtered = profiles.filter(u => (u.full_name || '').toLowerCase().includes(search.toLowerCase()));
+  const filtered = profiles.filter(u => {
+    const q = search.toLowerCase();
+    return (u.full_name || '').toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.phone || '').toLowerCase().includes(q);
+  });
 
   return (
     <DataPageShell title="Users" description={`${filtered.length} user${filtered.length !== 1 ? 's' : ''}`}
-      loading={loading || adminLoading} searchValue={search} onSearchChange={setSearch} searchPlaceholder="Search by name...">
+      loading={loading || adminLoading} searchValue={search} onSearchChange={setSearch} searchPlaceholder="Search by name, email, phone...">
 
       {profileStatus !== 'success' && profileStatus !== 'loading' && profileStatus !== 'empty' && (
         <QueryStatusBanner status={profileStatus} message={profileError || undefined} tableName="profiles" />
@@ -95,33 +99,55 @@ export default function UserList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Phone</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Contact</TableHead>
+              <TableHead>Job Title</TableHead>
               <TableHead>Roles</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Joined</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map(u => (
-              <TableRow key={u.id}>
-                <TableCell className="font-medium">{u.full_name || '—'}</TableCell>
-                <TableCell className="text-muted-foreground">{u.phone || '—'}</TableCell>
-                <TableCell>
-                  <div className="flex gap-1 flex-wrap">
-                    {(roleMap[u.id] || []).map((name, i) => (
-                      <Badge key={i} variant="default">{name}</Badge>
-                    ))}
-                    {(!roleMap[u.id] || roleMap[u.id].length === 0) && (
-                      <span className="text-muted-foreground text-sm">None</span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
-                </TableCell>
-              </TableRow>
-            ))}
-            {filtered.length === 0 && <EmptyState message="No users found" colSpan={4} />}
+            {filtered.map(u => {
+              const initials = (u.full_name || u.email || '?').slice(0, 2).toUpperCase();
+              return (
+                <TableRow key={u.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={u.avatar_url || undefined} />
+                        <AvatarFallback className="text-xs bg-muted">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{u.full_name || '—'}</p>
+                        <p className="text-xs text-muted-foreground truncate">{u.email || '—'}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{u.phone || '—'}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{u.job_title || '—'}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 flex-wrap">
+                      {(roleMap[u.id] || []).map((name, i) => (
+                        <Badge key={i} variant="default">{name}</Badge>
+                      ))}
+                      {(!roleMap[u.id] || roleMap[u.id].length === 0) && (
+                        <span className="text-muted-foreground text-sm">None</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {u.is_active === false
+                      ? <Badge variant="secondary">Inactive</Badge>
+                      : <Badge variant="default">Active</Badge>}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+            {filtered.length === 0 && <EmptyState message="No users found" colSpan={6} />}
           </TableBody>
         </Table>
       </div>
