@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Navigate } from "react-router-dom";
 
-const ROLES = [
+const ROLE_UI = [
   { name: "farmer", label: "Farmer", description: "Manage farms, crops, and sell produce", icon: Tractor },
   { name: "supplier", label: "Supplier", description: "Supply products and manage inventory", icon: Store },
   { name: "buyer", label: "Buyer", description: "Browse and purchase agricultural products", icon: ShoppingCart },
@@ -18,14 +18,44 @@ const ROLES = [
   { name: "logistics_partner", label: "Logistics Partner", description: "Handle deliveries and logistics", icon: Truck },
 ];
 
+interface DbRole {
+  id: string;
+  name: string;
+}
+
 export default function Onboarding() {
   const { user } = useAuth();
   const { hasRole, loading: roleLoading } = useUserRole();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dbRoles, setDbRoles] = useState<DbRole[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Pre-load available roles from DB
+  useEffect(() => {
+    async function loadRoles() {
+      setRolesLoading(true);
+      const { data, error: rolesErr } = await supabase
+        .from("roles")
+        .select("id, name");
+
+      if (rolesErr) {
+        console.error("[Onboarding] Failed to load roles table:", rolesErr);
+        setError("Could not load roles from database. Check RLS policies on the roles table.");
+      } else {
+        console.log("[Onboarding] Available DB roles:", data?.map(r => r.name));
+        setDbRoles(data || []);
+        if (!data || data.length === 0) {
+          setError("The roles table is empty. Please seed it with role records (farmer, supplier, buyer, trainer, logistics_partner).");
+        }
+      }
+      setRolesLoading(false);
+    }
+    loadRoles();
+  }, []);
 
   // If user already has a role, redirect to dashboard
   if (!roleLoading && hasRole) {
@@ -38,7 +68,21 @@ export default function Onboarding() {
     setError(null);
 
     try {
-      // 1. Ensure profile exists (trigger should have created it, but be safe)
+      // 1. Resolve the role from pre-loaded DB roles using `name`
+      const matchedRole = dbRoles.find(r => r.name === selectedRole);
+
+      if (!matchedRole) {
+        const availableNames = dbRoles.map(r => r.name).join(", ");
+        const msg = `Role "${selectedRole}" not found in roles table. Available roles: [${availableNames || "none — table may be empty or unreadable"}]. Query used: roles.name = "${selectedRole}".`;
+        console.error("[Onboarding] Role lookup failed:", msg);
+        setError(msg);
+        setLoading(false);
+        return;
+      }
+
+      console.log(`[Onboarding] Matched role: name="${matchedRole.name}", id="${matchedRole.id}"`);
+
+      // 2. Ensure profile exists
       const { data: existingProfile, error: profileFetchErr } = await supabase
         .from("profiles")
         .select("id")
@@ -46,7 +90,8 @@ export default function Onboarding() {
         .maybeSingle();
 
       if (profileFetchErr) {
-        setError("Failed to check profile. Please try again.");
+        console.error("[Onboarding] Profile fetch error:", profileFetchErr);
+        setError("Failed to check profile: " + profileFetchErr.message);
         setLoading(false);
         return;
       }
@@ -58,7 +103,7 @@ export default function Onboarding() {
           role: selectedRole,
         });
         if (insertErr) {
-          console.error("Profile insert error:", insertErr);
+          console.error("[Onboarding] Profile insert error:", insertErr);
           setError("Failed to create profile: " + insertErr.message);
           setLoading(false);
           return;
@@ -69,52 +114,39 @@ export default function Onboarding() {
           .update({ role: selectedRole })
           .eq("id", user.id);
         if (updateErr) {
-          console.error("Profile update error:", updateErr);
+          console.error("[Onboarding] Profile update error:", updateErr);
           setError("Failed to update profile: " + updateErr.message);
           setLoading(false);
           return;
         }
       }
 
-      // 2. Find the role id using roles.name
-      const { data: roleData, error: roleError } = await supabase
-        .from("roles")
-        .select("id, name")
-        .eq("name", selectedRole)
-        .maybeSingle();
-
-      if (roleError || !roleData) {
-        console.error("Role lookup error:", roleError);
-        setError(`Role "${selectedRole}" not found in the system. Please contact support.`);
-        setLoading(false);
-        return;
-      }
-
-      // 3. Create role assignment
+      // 3. Insert role assignment using the resolved role id
       const { error: assignErr } = await supabase.from("user_role_assignments").insert({
         user_id: user.id,
-        role_id: roleData.id,
+        role_id: matchedRole.id,
         is_active: true,
       });
 
       if (assignErr) {
-        console.error("Role assignment error:", assignErr);
+        console.error("[Onboarding] Role assignment error:", assignErr);
         setError("Failed to assign role: " + assignErr.message);
         setLoading(false);
         return;
       }
 
+      console.log("[Onboarding] Role assigned successfully:", matchedRole.name);
       toast({ title: "Welcome to Seedlink!", description: "Your account has been set up successfully." });
-      
-      // Navigate to home, DashboardRouter will redirect to correct dashboard
       navigate("/", { replace: true });
     } catch (err: any) {
-      console.error("Onboarding error:", err);
+      console.error("[Onboarding] Unexpected error:", err);
       setError(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const isLoading = rolesLoading || roleLoading;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
@@ -133,44 +165,54 @@ export default function Onboarding() {
           </CardHeader>
           <CardContent className="space-y-4">
             {error && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <p>{error}</p>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                <p className="break-all">{error}</p>
               </div>
             )}
 
-            <div className="grid gap-3">
-              {ROLES.map((role) => (
-                <button
-                  key={role.name}
-                  onClick={() => setSelectedRole(role.name)}
-                  disabled={loading}
-                  className={cn(
-                    "flex items-center gap-4 p-4 rounded-lg border text-left transition-all",
-                    selectedRole === role.name
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border hover:border-primary/40 hover:bg-muted/50",
-                    loading && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <div className={cn(
-                    "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
-                    selectedRole === role.name ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                  )}>
-                    <role.icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground">{role.label}</p>
-                    <p className="text-sm text-muted-foreground">{role.description}</p>
-                  </div>
-                  {selectedRole === role.name && (
-                    <CheckCircle className="h-5 w-5 text-primary shrink-0" />
-                  )}
-                </button>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {ROLE_UI.map((role) => {
+                  const existsInDb = dbRoles.some(r => r.name === role.name);
+                  return (
+                    <button
+                      key={role.name}
+                      onClick={() => setSelectedRole(role.name)}
+                      disabled={loading || !existsInDb}
+                      title={!existsInDb ? `Role "${role.name}" not found in database` : undefined}
+                      className={cn(
+                        "flex items-center gap-4 p-4 rounded-lg border text-left transition-all",
+                        selectedRole === role.name
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/40 hover:bg-muted/50",
+                        (loading || !existsInDb) && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
+                        selectedRole === role.name ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      )}>
+                        <role.icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground">{role.label}</p>
+                        <p className="text-sm text-muted-foreground">{role.description}</p>
+                      </div>
+                      {selectedRole === role.name && (
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-            <Button onClick={handleComplete} className="w-full mt-6" disabled={!selectedRole || loading} size="lg">
+            <Button onClick={handleComplete} className="w-full mt-6" disabled={!selectedRole || loading || isLoading} size="lg">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Continue
             </Button>
