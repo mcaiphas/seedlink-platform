@@ -1,0 +1,4 @@
+import { AdminListPage } from '@/components/AdminListPage';
+import { Badge } from '@/components/ui/badge';
+import { AdminPage } from '@/components/AdminPage';
+export default function GoodsReceiptList() { return <AdminPage><AdminListPage title="Goods Receipts" tableName="goods_receipts" selectQuery="*, suppliers(supplier_name)" searchPlaceholder="Search receipts..." searchFields={['receipt_number']} columns={[{label:'Receipt #',key:'receipt_number',sortable:true,render:r=><span className="font-medium font-mono text-primary">{r.receipt_number}</span>},{label:'Supplier',key:'supplier_id',render:r=>(r.suppliers as any)?.supplier_name||'—'},{label:'Status',key:'status',render:r=><Badge variant="secondary">{r.status}</Badge>},{label:'Date',key:'receipt_date',sortable:true,render:r=>new Date(r.receipt_date).toLocaleDateString()}]} /></AdminPage>; }

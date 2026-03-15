@@ -1,0 +1,4 @@
+import { AdminListPage } from '@/components/AdminListPage';
+import { Badge } from '@/components/ui/badge';
+import { AdminPage } from '@/components/AdminPage';
+export default function SupplierList() { return <AdminPage><AdminListPage title="Suppliers" tableName="suppliers" searchPlaceholder="Search suppliers..." searchFields={['supplier_name','supplier_code','email']} columns={[{label:'Name',key:'supplier_name',sortable:true,render:r=><span className="font-medium">{r.supplier_name}</span>},{label:'Code',key:'supplier_code',render:r=><span className="font-mono text-xs text-muted-foreground">{r.supplier_code}</span>},{label:'Contact',key:'contact_name'},{label:'Currency',key:'currency_code',render:r=><Badge variant="outline">{r.currency_code}</Badge>},{label:'Status',key:'is_active',render:r=><Badge variant={r.is_active?'default':'secondary'}>{r.is_active?'Active':'Inactive'}</Badge>}]} /></AdminPage>; }
