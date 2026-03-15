@@ -6231,24 +6231,53 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
+          is_active: boolean | null
+          job_title: string | null
+          organization_id: string | null
+          phone: string | null
           role: string | null
+          updated_at: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
+          is_active?: boolean | null
+          job_title?: string | null
+          organization_id?: string | null
+          phone?: string | null
           role?: string | null
+          updated_at?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          organization_id?: string | null
+          phone?: string | null
           role?: string | null
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       purchase_order_items: {
         Row: {
