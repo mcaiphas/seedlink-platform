@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,11 +10,17 @@ import { Loader2, Sprout } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function SignIn() {
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirect already-authenticated users
+  if (!authLoading && user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,10 +30,10 @@ export default function SignIn() {
 
     if (error) {
       toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+      setLoading(false);
     } else {
       navigate("/");
     }
-    setLoading(false);
   };
 
   return (

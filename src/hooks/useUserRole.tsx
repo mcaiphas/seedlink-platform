@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -8,41 +8,62 @@ interface UserRoleData {
   loading: boolean;
   hasProfile: boolean;
   hasRole: boolean;
+  error: string | null;
   refetch: () => Promise<void>;
 }
 
 export function useUserRole(): UserRoleData {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserRoleData["profile"]>(null);
   const [roleName, setRoleName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (authLoading) return; // Wait for auth to be ready
+    
     if (!user) {
       setProfile(null);
       setRoleName(null);
       setLoading(false);
+      setError(null);
       return;
     }
 
     setLoading(true);
+    setError(null);
+
     try {
       // Fetch profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("id, full_name, role")
         .eq("id", user.id)
         .maybeSingle();
 
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        setError("Failed to load profile. Please refresh.");
+        setLoading(false);
+        return;
+      }
+
       setProfile(profileData);
 
-      // Fetch role assignment
-      const { data: roleAssignment } = await supabase
+      // Fetch role assignment using roles.name
+      const { data: roleAssignment, error: roleError } = await supabase
         .from("user_role_assignments")
         .select("role_id, roles(name)")
         .eq("user_id", user.id)
         .eq("is_active", true)
         .maybeSingle();
+
+      if (roleError) {
+        console.error("Error fetching role:", roleError);
+        setError("Failed to load role. Please refresh.");
+        setLoading(false);
+        return;
+      }
 
       if (roleAssignment && roleAssignment.roles) {
         const roles = roleAssignment.roles as unknown as { name: string };
@@ -52,21 +73,23 @@ export function useUserRole(): UserRoleData {
       }
     } catch (err) {
       console.error("Error fetching user role:", err);
+      setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, authLoading]);
 
   useEffect(() => {
     fetchData();
-  }, [user?.id]);
+  }, [fetchData]);
 
   return {
     profile,
     roleName,
-    loading,
+    loading: authLoading || loading,
     hasProfile: !!profile,
     hasRole: !!roleName,
+    error,
     refetch: fetchData,
   };
 }
