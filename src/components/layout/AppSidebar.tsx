@@ -119,8 +119,14 @@ const sections: NavSection[] = [
   {
     label: 'Logistics',
     items: [
-      { title: 'Delivery Requests', url: '/delivery-requests', icon: Truck, permission: 'logistics:view' },
-      { title: 'Delivery Status', url: '/delivery-status', icon: PackageCheck, permission: 'logistics:view' },
+      { title: 'Dashboard', url: '/logistics', icon: LayoutDashboard, permission: 'logistics:view' },
+      { title: 'Delivery Requests', url: '/logistics/deliveries', icon: Truck, permission: 'logistics:view' },
+      { title: 'Delivery Planning', url: '/logistics/planning', icon: ClipboardList, permission: 'logistics:view' },
+      { title: 'Vehicle Matching', url: '/logistics/vehicle-matching', icon: Truck, permission: 'logistics:view' },
+      { title: 'Dispatch Board', url: '/logistics/dispatch', icon: Send, permission: 'logistics:view' },
+      { title: 'In Progress', url: '/logistics/in-progress', icon: Activity, permission: 'logistics:view' },
+      { title: 'Completed', url: '/logistics/completed', icon: CheckCircle, permission: 'logistics:view' },
+      { title: 'Reports', url: '/logistics/reports', icon: BarChart3, permission: 'logistics:view' },
     ],
   },
   {
