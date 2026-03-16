@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdmin } from '@/hooks/useAdmin';
-import { AccessRestricted } from '@/components/AccessRestricted';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminRoute } from '@/components/AdminRoute';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { Lock, Shield, Save, X, Search } from 'lucide-react';
+import { Lock, Shield, Save, X, Search, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { logAudit } from '@/lib/audit';
+import { exportToCsv } from '@/lib/csv-export';
 
 interface Permission {
   id: string;
@@ -29,17 +29,15 @@ interface Role {
   description: string | null;
 }
 
-// Derive action from permission code (e.g. "orders:create" → "create")
 function extractAction(code: string): string {
   const parts = code.split(':');
   return parts.length > 1 ? parts.slice(1).join(':') : code;
 }
 
-export default function PermissionList() {
-  const { isAdmin, loading: adminLoading } = useAdmin();
+function PermissionListInner() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [grantedIds, setGrantedIds] = useState<Set<string>>(new Set()); // set of permission_ids granted to selected role
+  const [grantedIds, setGrantedIds] = useState<Set<string>>(new Set());
   const [originalGrantedIds, setOriginalGrantedIds] = useState<Set<string>>(new Set());
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,7 +45,6 @@ export default function PermissionList() {
   const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
-    if (!isAdmin) { setLoading(false); return; }
     const [{ data: pData }, { data: rData }] = await Promise.all([
       supabase.from('permissions').select('*').order('module').order('code'),
       supabase.from('roles').select('id, name, description').order('name'),
@@ -55,14 +52,10 @@ export default function PermissionList() {
     setPermissions(pData || []);
     setRoles(rData || []);
     setLoading(false);
-  }, [isAdmin]);
+  }, []);
 
-  useEffect(() => {
-    if (adminLoading) return;
-    load();
-  }, [isAdmin, adminLoading, load]);
+  useEffect(() => { load(); }, [load]);
 
-  // Load role_permissions when role changes
   useEffect(() => {
     if (!selectedRoleId) { setGrantedIds(new Set()); setOriginalGrantedIds(new Set()); return; }
     supabase.from('role_permissions').select('permission_id').eq('role_id', selectedRoleId).then(({ data }) => {
@@ -72,7 +65,6 @@ export default function PermissionList() {
     });
   }, [selectedRoleId]);
 
-  // Group permissions by module
   const modules = useMemo(() => {
     const map = new Map<string, Permission[]>();
     const q = search.toLowerCase();
@@ -85,19 +77,8 @@ export default function PermissionList() {
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [permissions, search]);
 
-  // Collect all unique actions across all permissions
-  const allActions = useMemo(() => {
-    const s = new Set<string>();
-    permissions.forEach((p) => s.add(extractAction(p.code)));
-    return Array.from(s).sort();
-  }, [permissions]);
-
   function togglePermission(permId: string) {
-    setGrantedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(permId)) next.delete(permId); else next.add(permId);
-      return next;
-    });
+    setGrantedIds((prev) => { const next = new Set(prev); next.has(permId) ? next.delete(permId) : next.add(permId); return next; });
   }
 
   const hasChanges = useMemo(() => {
@@ -110,26 +91,23 @@ export default function PermissionList() {
     if (!selectedRoleId) return;
     setSaving(true);
     try {
-      // Find additions and removals
       const toAdd = Array.from(grantedIds).filter((id) => !originalGrantedIds.has(id));
       const toRemove = Array.from(originalGrantedIds).filter((id) => !grantedIds.has(id));
 
-      // Remove
       if (toRemove.length > 0) {
-        const { error } = await supabase
-          .from('role_permissions')
-          .delete()
-          .eq('role_id', selectedRoleId)
-          .in('permission_id', toRemove);
+        const { error } = await supabase.from('role_permissions').delete().eq('role_id', selectedRoleId).in('permission_id', toRemove);
+        if (error) throw error;
+      }
+      if (toAdd.length > 0) {
+        const { error } = await supabase.from('role_permissions').insert(toAdd.map((pid) => ({ role_id: selectedRoleId, permission_id: pid })));
         if (error) throw error;
       }
 
-      // Add
-      if (toAdd.length > 0) {
-        const rows = toAdd.map((pid) => ({ role_id: selectedRoleId, permission_id: pid }));
-        const { error } = await supabase.from('role_permissions').insert(rows);
-        if (error) throw error;
-      }
+      const roleName = roles.find((r) => r.id === selectedRoleId)?.name;
+      await logAudit({
+        action: 'permission_change', entity_type: 'role_permissions', entity_id: selectedRoleId,
+        new_values: { role: roleName, added: toAdd.length, removed: toRemove.length },
+      });
 
       setOriginalGrantedIds(new Set(grantedIds));
       toast.success('Permissions saved');
@@ -140,29 +118,19 @@ export default function PermissionList() {
     }
   }
 
-  function handleCancel() {
-    setGrantedIds(new Set(originalGrantedIds));
-  }
+  function handleCancel() { setGrantedIds(new Set(originalGrantedIds)); }
 
-  if (!adminLoading && !isAdmin) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Permissions</h1>
-          <p className="text-sm text-muted-foreground mt-1">Access control matrix</p>
-        </div>
-        <AccessRestricted variant="admin" title="Admin Access Required" message="Only administrators can manage permissions." />
-      </div>
-    );
+  function handleExportCsv() {
+    const roleName = roles.find((r) => r.id === selectedRoleId)?.name || 'all';
+    const headers = ['Module', 'Code', 'Description', 'Granted'];
+    const rows = permissions.map((p) => [p.module, p.code, p.description || p.name || '', grantedIds.has(p.id) ? 'Yes' : 'No']);
+    exportToCsv(`permissions-${roleName}`, headers, rows);
   }
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Permissions</h1>
-          <p className="text-sm text-muted-foreground mt-1">Loading…</p>
-        </div>
+        <div><h1 className="text-2xl font-bold tracking-tight">Permissions</h1><p className="text-sm text-muted-foreground mt-1">Loading…</p></div>
         <Skeleton className="h-12 w-64 rounded-lg" />
         <Skeleton className="h-96 rounded-xl" />
       </div>
@@ -173,7 +141,6 @@ export default function PermissionList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Permissions</h1>
@@ -181,33 +148,27 @@ export default function PermissionList() {
             Role-permission matrix &middot; {permissions.length} permissions across {modules.length} modules
           </p>
         </div>
-        {hasChanges && (
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleCancel} className="gap-1.5">
-              <X className="h-3.5 w-3.5" /> Discard
-            </Button>
-            <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? 'Saving…' : 'Save Changes'}
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedRoleId && (
+            <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5"><Download className="h-3.5 w-3.5" /> Export</Button>
+          )}
+          {hasChanges && (
+            <>
+              <Button variant="outline" size="sm" onClick={handleCancel} className="gap-1.5"><X className="h-3.5 w-3.5" /> Discard</Button>
+              <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5"><Save className="h-3.5 w-3.5" /> {saving ? 'Saving…' : 'Save Changes'}</Button>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Role Selector + Search */}
       <Card className="shadow-sm">
         <CardContent className="py-3 px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground">Select Role</label>
               <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
-                <SelectTrigger className="h-8 w-56 text-sm">
-                  <SelectValue placeholder="Choose a role…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
-                  ))}
-                </SelectContent>
+                <SelectTrigger className="h-8 w-56 text-sm"><SelectValue placeholder="Choose a role…" /></SelectTrigger>
+                <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             {selectedRoleId && selectedRole?.description && (
@@ -221,7 +182,6 @@ export default function PermissionList() {
         </CardContent>
       </Card>
 
-      {/* Permission Matrix */}
       {!selectedRoleId ? (
         <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center justify-center py-20 text-center">
@@ -250,32 +210,12 @@ export default function PermissionList() {
                     <span className="text-xs text-muted-foreground">{perms.length} permission{perms.length !== 1 ? 's' : ''}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-[10px] px-2"
-                      onClick={() => {
-                        setGrantedIds((prev) => {
-                          const next = new Set(prev);
-                          perms.forEach((p) => next.add(p.id));
-                          return next;
-                        });
-                      }}
-                    >
+                    <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2"
+                      onClick={() => setGrantedIds((prev) => { const next = new Set(prev); perms.forEach((p) => next.add(p.id)); return next; })}>
                       Grant All
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-[10px] px-2 text-muted-foreground"
-                      onClick={() => {
-                        setGrantedIds((prev) => {
-                          const next = new Set(prev);
-                          perms.forEach((p) => next.delete(p.id));
-                          return next;
-                        });
-                      }}
-                    >
+                    <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 text-muted-foreground"
+                      onClick={() => setGrantedIds((prev) => { const next = new Set(prev); perms.forEach((p) => next.delete(p.id)); return next; })}>
                       Revoke All
                     </Button>
                   </div>
@@ -296,11 +236,7 @@ export default function PermissionList() {
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">{p.description || p.name || action}</p>
                         </div>
-                        <Switch
-                          checked={granted}
-                          onCheckedChange={() => togglePermission(p.id)}
-                          className="shrink-0"
-                        />
+                        <Switch checked={granted} onCheckedChange={() => togglePermission(p.id)} className="shrink-0" />
                       </div>
                     );
                   })}
@@ -311,5 +247,13 @@ export default function PermissionList() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PermissionList() {
+  return (
+    <AdminRoute title="Permissions">
+      <PermissionListInner />
+    </AdminRoute>
   );
 }

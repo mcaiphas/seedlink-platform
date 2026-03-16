@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAdmin } from '@/hooks/useAdmin';
+import { usePermissions } from '@/hooks/usePermission';
 import { NavLink } from '@/components/NavLink';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -19,7 +20,7 @@ import {
   LogOut, Truck, Wallet, SlidersHorizontal,
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
-  ShoppingBag, UserCheck, Megaphone, PieChart,
+  ShoppingBag, PieChart,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -30,6 +31,7 @@ interface NavLeaf {
   url: string;
   icon: any;
   adminOnly?: boolean;
+  permission?: string;
 }
 
 interface NavBranch {
@@ -64,22 +66,22 @@ const sections: NavSection[] = [
   {
     label: 'Commerce',
     items: [
-      { title: 'Orders', url: '/orders', icon: ShoppingCart },
-      { title: 'Customer Invoices', url: '/customer-invoices', icon: FileText },
-      { title: 'Payments', url: '/payments', icon: CreditCard },
+      { title: 'Orders', url: '/orders', icon: ShoppingCart, permission: 'orders:view' },
+      { title: 'Customer Invoices', url: '/customer-invoices', icon: FileText, permission: 'orders:view' },
+      { title: 'Payments', url: '/payments', icon: CreditCard, permission: 'payments:view' },
       { title: 'Abandoned Carts', url: '/abandoned-carts', icon: AlertTriangle },
       { title: 'Carts', url: '/carts', icon: ShoppingBag },
-      { title: 'Credit Accounts', url: '/credit-accounts', icon: Wallet },
+      { title: 'Credit Accounts', url: '/credit-accounts', icon: Wallet, permission: 'payments:view' },
       { title: 'Delivery Logs', url: '/document-delivery-logs', icon: Send },
     ],
   },
   {
     label: 'Catalog',
     items: [
-      { title: 'Products', url: '/products', icon: Package },
-      { title: 'Categories', url: '/categories', icon: Tags },
-      { title: 'Subcategories', url: '/subcategories', icon: FolderTree },
-      { title: 'Collections', url: '/collections', icon: FolderOpen },
+      { title: 'Products', url: '/products', icon: Package, permission: 'products:view' },
+      { title: 'Categories', url: '/categories', icon: Tags, permission: 'categories:view' },
+      { title: 'Subcategories', url: '/subcategories', icon: FolderTree, permission: 'categories:view' },
+      { title: 'Collections', url: '/collections', icon: FolderOpen, permission: 'collections:view' },
       { title: 'Attributes', url: '/attributes', icon: SlidersHorizontal },
       { title: 'Variants', url: '/variants', icon: Layers },
       { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler },
@@ -97,9 +99,9 @@ const sections: NavSection[] = [
   {
     label: 'Inventory',
     items: [
-      { title: 'Stock Movements', url: '/stock-movements', icon: MoveHorizontal },
-      { title: 'Stock Adjustments', url: '/stock-adjustments', icon: ClipboardList },
-      { title: 'Stock Transfers', url: '/stock-transfers', icon: ArrowLeftRight },
+      { title: 'Stock Movements', url: '/stock-movements', icon: MoveHorizontal, permission: 'inventory:view' },
+      { title: 'Stock Adjustments', url: '/stock-adjustments', icon: ClipboardList, permission: 'inventory:view' },
+      { title: 'Stock Transfers', url: '/stock-transfers', icon: ArrowLeftRight, permission: 'inventory:view' },
       { title: 'Depots', url: '/depots', icon: Warehouse },
       { title: 'Inventory Batches', url: '/inventory-batches', icon: Boxes },
     ],
@@ -107,8 +109,8 @@ const sections: NavSection[] = [
   {
     label: 'Logistics',
     items: [
-      { title: 'Delivery Requests', url: '/delivery-requests', icon: Truck },
-      { title: 'Delivery Status', url: '/delivery-status', icon: PackageCheck },
+      { title: 'Delivery Requests', url: '/delivery-requests', icon: Truck, permission: 'logistics:view' },
+      { title: 'Delivery Status', url: '/delivery-status', icon: PackageCheck, permission: 'logistics:view' },
     ],
   },
   {
@@ -126,9 +128,9 @@ const sections: NavSection[] = [
       {
         title: 'Reports', icon: PieChart,
         children: [
-          { title: 'Sales Analytics', url: '/reports/sales', icon: TrendingUp },
-          { title: 'Inventory Snapshot', url: '/reports/inventory', icon: Boxes },
-          { title: 'Finance Summary', url: '/reports/finance', icon: TrendingDown },
+          { title: 'Sales Analytics', url: '/reports/sales', icon: TrendingUp, permission: 'reports:view' },
+          { title: 'Inventory Snapshot', url: '/reports/inventory', icon: Boxes, permission: 'reports:view' },
+          { title: 'Finance Summary', url: '/reports/finance', icon: TrendingDown, permission: 'reports:view' },
         ],
       },
     ],
@@ -137,15 +139,28 @@ const sections: NavSection[] = [
     label: 'Administration',
     adminOnly: true,
     items: [
-      { title: 'Users', url: '/users', icon: Users },
-      { title: 'Roles', url: '/roles', icon: Shield },
-      { title: 'Permissions', url: '/permissions', icon: Lock },
+      { title: 'Users', url: '/users', icon: Users, permission: 'users:view' },
+      { title: 'Roles', url: '/roles', icon: Shield, permission: 'roles:view' },
+      { title: 'Permissions', url: '/permissions', icon: Lock, permission: 'permissions:view' },
       { title: 'Organizations', url: '/organizations', icon: Building2 },
-      { title: 'Settings', url: '/settings', icon: Settings },
+      { title: 'Settings', url: '/settings', icon: Settings, permission: 'settings:view' },
       { title: 'Payment Gateways', url: '/settings/payment-gateways', icon: DollarSign },
     ],
   },
 ];
+
+// Collect all permission codes used in sidebar for batch loading
+const allPermCodes: string[] = [];
+sections.forEach((s) =>
+  s.items.forEach((item) => {
+    if (isBranch(item)) {
+      item.children.forEach((c) => { if (c.permission) allPermCodes.push(c.permission); });
+    } else if (item.permission) {
+      allPermCodes.push(item.permission);
+    }
+  })
+);
+const uniquePermCodes = [...new Set(allPermCodes)];
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -157,12 +172,32 @@ export function AppSidebar() {
   const { signOut } = useAuth();
   const { profile, roleName } = useUserRole();
   const { isAdmin } = useAdmin();
+  const { perms, loading: permsLoading } = usePermissions(uniquePermCodes);
+
+  const canAccess = (entry: NavLeaf): boolean => {
+    if (entry.adminOnly && !isAdmin) return false;
+    // Admins bypass permission checks
+    if (isAdmin) return true;
+    // If no permission specified, visible to all authenticated
+    if (!entry.permission) return true;
+    // Check loaded permission
+    return perms[entry.permission] ?? false;
+  };
 
   const visibleSections = sections
     .filter((s) => !s.adminOnly || isAdmin)
     .map((s) => ({
       ...s,
-      items: s.items.filter((i) => !i.adminOnly || isAdmin),
+      items: s.items
+        .map((item) => {
+          if (isBranch(item)) {
+            const visibleChildren = item.children.filter(canAccess);
+            if (visibleChildren.length === 0) return null;
+            return { ...item, children: visibleChildren };
+          }
+          return canAccess(item) ? item : null;
+        })
+        .filter(Boolean) as NavEntry[],
     }))
     .filter((s) => s.items.length > 0);
 
@@ -170,7 +205,7 @@ export function AppSidebar() {
     ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
-  const isActive = (url: string) =>
+  const isActivePath = (url: string) =>
     url === '/' ? location.pathname === '/' : location.pathname === url || location.pathname.startsWith(url + '/');
 
   return (
@@ -207,7 +242,7 @@ export function AppSidebar() {
               <SidebarMenu>
                 {section.items.map((item) => {
                   if (isBranch(item)) {
-                    const anyChildActive = item.children.some((c) => isActive(c.url));
+                    const anyChildActive = item.children.some((c) => isActivePath(c.url));
                     return (
                       <Collapsible key={item.title} defaultOpen={anyChildActive} className="group/collapsible">
                         <SidebarMenuItem>
@@ -224,7 +259,7 @@ export function AppSidebar() {
                             <SidebarMenuSub>
                               {item.children.map((child) => (
                                 <SidebarMenuSubItem key={child.url}>
-                                  <SidebarMenuSubButton asChild isActive={isActive(child.url)}>
+                                  <SidebarMenuSubButton asChild isActive={isActivePath(child.url)}>
                                     <NavLink to={child.url} className="text-[12px]" activeClassName="text-sidebar-primary font-medium">
                                       <child.icon className="h-3.5 w-3.5 shrink-0" />
                                       <span>{child.title}</span>
@@ -243,7 +278,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton
                         asChild
-                        isActive={isActive(item.url)}
+                        isActive={isActivePath(item.url)}
                         className="h-8 text-[13px]"
                       >
                         <NavLink
