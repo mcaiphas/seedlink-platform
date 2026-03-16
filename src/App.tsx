@@ -44,6 +44,7 @@ import GLAccountList from "@/pages/finance/GLAccountList";
 import JournalEntryList from "@/pages/finance/JournalEntryList";
 
 // Warehouse
+import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
 import DepotZoneList from "@/pages/warehouse/DepotZoneList";
 import StorageBinList from "@/pages/warehouse/StorageBinList";
