@@ -19,23 +19,29 @@ import { Switch } from '@/components/ui/switch';
 import {
   ArrowLeft, Building2, Phone, Mail, Globe, Star, Plus, Edit2,
   Package, FileSpreadsheet, TrendingUp, Clock, DollarSign, CalendarDays,
+  FileText, Trash2, Landmark,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 const SUPPLIER_CATEGORIES = [
   'seed_producer', 'fertilizer_manufacturer', 'crop_protection',
   'packaging_supplier', 'equipment_supplier', 'service_provider', 'logistics_supplier', 'general',
 ];
 
+const DOC_TYPES = ['contract', 'agreement', 'compliance_certificate', 'tax_certificate', 'bank_confirmation', 'general'];
+
 export default function SupplierDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [supplier, setSupplier] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [contacts, setContacts] = useState<any[]>([]);
   const [supplierProducts, setSupplierProducts] = useState<any[]>([]);
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [receipts, setReceipts] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
 
   // Edit dialog
   const [editOpen, setEditOpen] = useState(false);
@@ -50,21 +56,30 @@ export default function SupplierDetail() {
   const [products, setProducts] = useState<any[]>([]);
   const [productLinkForm, setProductLinkForm] = useState({ product_id: '', supplier_product_code: '', standard_cost: '', minimum_order_qty: '', lead_time_days: '', is_preferred: false });
 
+  // Document dialog
+  const [docOpen, setDocOpen] = useState(false);
+  const [docForm, setDocForm] = useState({ document_name: '', document_type: 'general', file_url: '', notes: '' });
+
+  // Banking edit dialog
+  const [bankOpen, setBankOpen] = useState(false);
+  const [bankForm, setBankForm] = useState({ bank_name: '', bank_account_name: '', bank_account_number: '', bank_branch_code: '', bank_swift_code: '', bank_country: '' });
   const fetchAll = async () => {
     if (!id) return;
     setLoading(true);
-    const [supRes, conRes, spRes, poRes, grRes] = await Promise.all([
+    const [supRes, conRes, spRes, poRes, grRes, docRes] = await Promise.all([
       supabase.from('suppliers').select('*').eq('id', id).single(),
       supabase.from('supplier_contacts').select('*').eq('supplier_id', id).order('is_primary', { ascending: false }),
       supabase.from('supplier_products').select('*, products(name, sku)').eq('supplier_id', id).order('created_at', { ascending: false }),
       supabase.from('purchase_orders').select('*').eq('supplier_id', id).order('created_at', { ascending: false }).limit(50),
       supabase.from('goods_receipts').select('*, depots(name)').eq('supplier_id', id).order('created_at', { ascending: false }).limit(50),
+      supabase.from('supplier_documents').select('*').eq('supplier_id', id).order('created_at', { ascending: false }),
     ]);
     setSupplier(supRes.data);
     setContacts(conRes.data || []);
     setSupplierProducts(spRes.data || []);
     setPurchaseOrders(poRes.data || []);
     setReceipts(grRes.data || []);
+    setDocuments(docRes.data || []);
     setLoading(false);
   };
 
@@ -150,7 +165,43 @@ export default function SupplierDetail() {
     setProductLinkOpen(true);
   };
 
-  if (loading) return <AdminPage><div className="space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full rounded-xl" /></div></AdminPage>;
+  const saveDoc = async () => {
+    if (!docForm.document_name) { toast.error('Document name required'); return; }
+    const { error } = await supabase.from('supplier_documents').insert({ ...docForm, supplier_id: id, uploaded_by: user?.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success('Document added');
+    setDocOpen(false);
+    setDocForm({ document_name: '', document_type: 'general', file_url: '', notes: '' });
+    fetchAll();
+  };
+
+  const deleteDoc = async (docId: string) => {
+    const { error } = await supabase.from('supplier_documents').delete().eq('id', docId);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Document removed');
+    fetchAll();
+  };
+
+  const openBankEdit = () => {
+    setBankForm({
+      bank_name: supplier?.bank_name || '',
+      bank_account_name: supplier?.bank_account_name || '',
+      bank_account_number: supplier?.bank_account_number || '',
+      bank_branch_code: supplier?.bank_branch_code || '',
+      bank_swift_code: supplier?.bank_swift_code || '',
+      bank_country: supplier?.bank_country || '',
+    });
+    setBankOpen(true);
+  };
+
+  const saveBanking = async () => {
+    const { error } = await supabase.from('suppliers').update(bankForm).eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Banking details updated');
+    setBankOpen(false);
+    fetchAll();
+  };
+
   if (!supplier) return <AdminPage><div className="text-center py-12"><p className="text-muted-foreground">Supplier not found</p><Button variant="outline" className="mt-4" onClick={() => navigate('/suppliers')}>Back</Button></div></AdminPage>;
 
   const fmt = (t: string) => t?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || '—';
@@ -198,12 +249,14 @@ export default function SupplierDetail() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="contacts">Contacts ({contacts.length})</TabsTrigger>
             <TabsTrigger value="products">Products ({supplierProducts.length})</TabsTrigger>
             <TabsTrigger value="orders">Purchase Orders</TabsTrigger>
             <TabsTrigger value="receipts">Receipts</TabsTrigger>
+            <TabsTrigger value="banking">Banking</TabsTrigger>
+            <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
           </TabsList>
 
@@ -355,8 +408,65 @@ export default function SupplierDetail() {
               </Table>
             </div>
           </TabsContent>
+          {/* Banking */}
+          <TabsContent value="banking" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button size="sm" variant="outline" onClick={openBankEdit}><Edit2 className="h-4 w-4 mr-1" />Edit Banking</Button>
+            </div>
+            <Card>
+              <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Landmark className="h-4 w-4" />Banking Details</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Bank Name</span><span>{supplier.bank_name || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Name</span><span>{supplier.bank_account_name || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Number</span><span className="font-mono">{supplier.bank_account_number || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Branch Code</span><span className="font-mono">{supplier.bank_branch_code || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">SWIFT Code</span><span className="font-mono">{supplier.bank_swift_code || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Bank Country</span><span>{supplier.bank_country || '—'}</span></div>
+                <Separator />
+                <div className="flex justify-between"><span className="text-muted-foreground">Payment Method</span><span>{supplier.default_payment_method?.toUpperCase() || 'EFT'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Supplier Credit Limit</span><span><CurrencyDisplay amount={supplier.supplier_credit_limit} currency={supplier.currency_code} /></span></div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Performance */}
+          {/* Documents */}
+          <TabsContent value="documents" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button size="sm" onClick={() => setDocOpen(true)}><Plus className="h-4 w-4 mr-1" />Add Document</Button>
+            </div>
+            {documents.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">No documents uploaded yet</div>
+            ) : (
+              <div className="rounded-lg border bg-card overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead className="w-10"></TableHead>
+                  </TableRow></TableHeader>
+                  <TableBody>
+                    {documents.map(d => (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-medium">{d.document_name}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-xs">{fmt(d.document_type)}</Badge></TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{d.notes || '—'}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteDoc(d.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+
+
           <TabsContent value="performance" className="mt-4">
             <div className="grid md:grid-cols-3 gap-6">
               <Card><CardContent className="p-6 text-center">
@@ -489,6 +599,49 @@ export default function SupplierDetail() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setProductLinkOpen(false)}>Cancel</Button>
             <Button onClick={linkProduct}>Link Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Banking Details Dialog */}
+      <Dialog open={bankOpen} onOpenChange={setBankOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Edit Banking Details</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Bank Name</Label><Input value={bankForm.bank_name} onChange={e => setBankForm({ ...bankForm, bank_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Account Name</Label><Input value={bankForm.bank_account_name} onChange={e => setBankForm({ ...bankForm, bank_account_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Account Number</Label><Input value={bankForm.bank_account_number} onChange={e => setBankForm({ ...bankForm, bank_account_number: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5"><Label>Branch Code</Label><Input value={bankForm.bank_branch_code} onChange={e => setBankForm({ ...bankForm, bank_branch_code: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>SWIFT Code</Label><Input value={bankForm.bank_swift_code} onChange={e => setBankForm({ ...bankForm, bank_swift_code: e.target.value })} /></div>
+            </div>
+            <div className="space-y-1.5"><Label>Bank Country</Label><Input value={bankForm.bank_country} onChange={e => setBankForm({ ...bankForm, bank_country: e.target.value })} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBankOpen(false)}>Cancel</Button>
+            <Button onClick={saveBanking}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Supplier Document Dialog */}
+      <Dialog open={docOpen} onOpenChange={setDocOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Add Document</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Document Name *</Label><Input value={docForm.document_name} onChange={e => setDocForm({ ...docForm, document_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Document Type</Label>
+              <Select value={docForm.document_type} onValueChange={v => setDocForm({ ...docForm, document_type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{DOC_TYPES.map(t => <SelectItem key={t} value={t}>{fmt(t)}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5"><Label>File URL</Label><Input value={docForm.file_url} onChange={e => setDocForm({ ...docForm, file_url: e.target.value })} placeholder="https://..." /></div>
+            <div className="space-y-1.5"><Label>Notes</Label><Textarea value={docForm.notes} onChange={e => setDocForm({ ...docForm, notes: e.target.value })} rows={2} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDocOpen(false)}>Cancel</Button>
+            <Button onClick={saveDoc}>Add Document</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -2412,6 +2412,47 @@ export type Database = {
           },
         ]
       }
+      customer_documents: {
+        Row: {
+          created_at: string
+          customer_id: string
+          document_name: string
+          document_type: string
+          file_url: string | null
+          id: string
+          notes: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          document_name: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          document_name?: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_invoice_items: {
         Row: {
           created_at: string
@@ -2534,6 +2575,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customers: {
+        Row: {
+          account_manager: string | null
+          account_status: string | null
+          city: string | null
+          contact_email: string | null
+          contact_mobile: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          credit_limit: number | null
+          currency_code: string | null
+          customer_category: string
+          customer_code: string | null
+          customer_name: string
+          customer_type: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          payment_terms: string | null
+          physical_address: string | null
+          postal_address: string | null
+          province: string | null
+          registration_number: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          account_manager?: string | null
+          account_status?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_mobile?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          credit_limit?: number | null
+          currency_code?: string | null
+          customer_category?: string
+          customer_code?: string | null
+          customer_name: string
+          customer_type?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          payment_terms?: string | null
+          physical_address?: string | null
+          postal_address?: string | null
+          province?: string | null
+          registration_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          account_manager?: string | null
+          account_status?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_mobile?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          credit_limit?: number | null
+          currency_code?: string | null
+          customer_category?: string
+          customer_code?: string | null
+          customer_name?: string
+          customer_type?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          payment_terms?: string | null
+          physical_address?: string | null
+          postal_address?: string | null
+          province?: string | null
+          registration_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
       }
       delivery_requests: {
         Row: {
@@ -8730,6 +8855,47 @@ export type Database = {
           },
         ]
       }
+      supplier_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          document_type: string
+          file_url: string | null
+          id: string
+          notes: string | null
+          supplier_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          supplier_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          supplier_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_invoice_items: {
         Row: {
           created_at: string
@@ -8948,6 +9114,12 @@ export type Database = {
       }
       suppliers: {
         Row: {
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_branch_code: string | null
+          bank_country: string | null
+          bank_name: string | null
+          bank_swift_code: string | null
           city: string | null
           company_registration: string | null
           contact_name: string | null
@@ -8955,6 +9127,7 @@ export type Database = {
           country: string | null
           created_at: string
           currency_code: string
+          default_payment_method: string | null
           email: string | null
           id: string
           is_active: boolean
@@ -8970,6 +9143,7 @@ export type Database = {
           province: string | null
           supplier_category: string | null
           supplier_code: string
+          supplier_credit_limit: number | null
           supplier_name: string
           supplier_type: string | null
           tax_number: string | null
@@ -8977,6 +9151,12 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_branch_code?: string | null
+          bank_country?: string | null
+          bank_name?: string | null
+          bank_swift_code?: string | null
           city?: string | null
           company_registration?: string | null
           contact_name?: string | null
@@ -8984,6 +9164,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           currency_code?: string
+          default_payment_method?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -8999,6 +9180,7 @@ export type Database = {
           province?: string | null
           supplier_category?: string | null
           supplier_code: string
+          supplier_credit_limit?: number | null
           supplier_name: string
           supplier_type?: string | null
           tax_number?: string | null
@@ -9006,6 +9188,12 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_branch_code?: string | null
+          bank_country?: string | null
+          bank_name?: string | null
+          bank_swift_code?: string | null
           city?: string | null
           company_registration?: string | null
           contact_name?: string | null
@@ -9013,6 +9201,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           currency_code?: string
+          default_payment_method?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -9028,6 +9217,7 @@ export type Database = {
           province?: string | null
           supplier_category?: string | null
           supplier_code?: string
+          supplier_credit_limit?: number | null
           supplier_name?: string
           supplier_type?: string | null
           tax_number?: string | null

@@ -16,6 +16,10 @@ import ResetPassword from "@/pages/auth/ResetPassword";
 // App pages
 import Dashboard from "@/pages/Dashboard";
 
+// Customers
+import CustomerList from "@/pages/customers/CustomerList";
+import CustomerDetail from "@/pages/customers/CustomerDetail";
+
 // Commerce
 import ProductList from "@/pages/products/ProductList";
 import ProductDetail from "@/pages/products/ProductDetail";
@@ -149,6 +153,10 @@ const App = () => (
             {/* Protected app routes */}
             <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
+
+              {/* Customers */}
+              <Route path="customers" element={<CustomerList />} />
+              <Route path="customers/:id" element={<CustomerDetail />} />
 
               {/* Commerce */}
               <Route path="products" element={<ProductList />} />
