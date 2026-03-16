@@ -22,6 +22,7 @@ import {
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
+  Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
