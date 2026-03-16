@@ -45,17 +45,17 @@ export default function BankStatementImport() {
     },
   });
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const rows = parseCSV(ev.target?.result as string);
+    try {
+      const rows = await parseFile(file);
       setPreview(rows);
       setImportOpen(true);
-    };
-    reader.readAsText(file);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to parse file');
+    }
   };
 
   const doImport = useMutation({
