@@ -15,9 +15,10 @@ import { toast } from '@/hooks/use-toast';
 import { generateDocNumber } from '@/lib/document-numbers';
 import { logAudit } from '@/lib/audit';
 import { FileText, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { ProductLineItemSelect, ProductOption } from '@/components/commerce/ProductLineItemSelect';
 
 interface LineItem {
-  description: string; quantity: number; unit_price: number;
+  product_id?: string; description: string; quantity: number; unit_price: number;
   discount_percent: number; weight_kg: number; line_total: number;
 }
 
@@ -75,6 +76,20 @@ export default function ProformaInvoiceList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setItems(prev => {
+      const next = [...prev];
+      const item = { ...next[idx] };
+      item.product_id = product.id;
+      item.description = product.name + (product.sku ? ` (${product.sku})` : '');
+      item.unit_price = product.default_selling_price || item.unit_price;
+      item.line_total = item.quantity * item.unit_price * (1 - item.discount_percent / 100);
+      next[idx] = item;
+      return next;
+    });
+  }
+
   async function handleSave() {
     if (!formData.customer_id) { toast({ title: 'Select a customer', variant: 'destructive' }); return; }
     setSaving(true);
@@ -96,6 +111,7 @@ export default function ProformaInvoiceList() {
           proforma_invoice_id: newProforma.id, description: item.description, quantity: item.quantity,
           unit_price: item.unit_price, discount_percent: item.discount_percent,
           weight_kg: item.weight_kg, line_total: item.line_total, sort_order: idx,
+          product_id: item.product_id || null,
         })));
         logAudit({ action: 'create', entity_type: 'proforma_invoice', entity_id: newProforma.id });
       }
@@ -258,7 +274,11 @@ export default function ProformaInvoiceList() {
               </div>
               {items.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-end mb-2">
-                  <div className="col-span-4">
+                  <div className="col-span-2">
+                    {idx === 0 && <Label className="text-xs">Product</Label>}
+                    <ProductLineItemSelect value={item.product_id || null} onSelect={p => handleProductSelect(idx, p)} />
+                  </div>
+                  <div className="col-span-2">
                     {idx === 0 && <Label className="text-xs">Description</Label>}
                     <Input value={item.description} onChange={e => updateItem(idx, 'description', e.target.value)} className="bg-card" />
                   </div>

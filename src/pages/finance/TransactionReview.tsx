@@ -19,9 +19,10 @@ const CLASSIFICATIONS = [
   { value: 'income', label: 'Income' },
   { value: 'expense', label: 'Expense' },
   { value: 'transfer', label: 'Transfer' },
-  { value: 'fee', label: 'Fee' },
+  { value: 'fee', label: 'Bank Fee' },
   { value: 'tax', label: 'Tax' },
   { value: 'loan', label: 'Loan' },
+  { value: 'capital_contribution', label: 'Capital Contribution' },
   { value: 'unknown', label: 'Unknown' },
 ];
 
@@ -34,6 +35,11 @@ const EXPENSE_CATEGORIES = [
 const INCOME_CATEGORIES = [
   'sales', 'loans', 'capital_introduced', 'transport_income',
   'training_income', 'interest_received', 'other_income',
+];
+
+const BUSINESS_LINES = [
+  'Seedlink Inputs', 'Seedlink Grow', 'Seedlink Connect',
+  'Drovvi', 'Training', 'Logistics', 'Corporate',
 ];
 
 export default function TransactionReview() {
@@ -258,7 +264,16 @@ export default function TransactionReview() {
               )}
 
               <div className="grid grid-cols-3 gap-3">
-                <div><Label>Business Line</Label><Input value={form.business_line} onChange={e => setForm(f => ({ ...f, business_line: e.target.value }))} placeholder="e.g. Seeds" /></div>
+                <div>
+                  <Label>Business Line</Label>
+                  <Select value={form.business_line} onValueChange={v => setForm(f => ({ ...f, business_line: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {BUSINESS_LINES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div><Label>Branch</Label><Input value={form.branch} onChange={e => setForm(f => ({ ...f, branch: e.target.value }))} /></div>
                 <div><Label>Segment</Label><Input value={form.segment} onChange={e => setForm(f => ({ ...f, segment: e.target.value }))} /></div>
               </div>

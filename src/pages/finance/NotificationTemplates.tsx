@@ -24,9 +24,11 @@ const CHANNELS = [
 ];
 
 const TRIGGER_EVENTS = [
-  'invoice_due', 'invoice_overdue', 'payment_received', 'statement_generated',
-  'order_confirmed', 'order_shipped', 'quote_sent', 'welcome',
-  'password_reset', 'low_stock', 'approval_required', 'manual',
+  'quote_sent', 'order_confirmed', 'order_shipped', 'invoice_issued',
+  'invoice_due', 'invoice_overdue', 'payment_received', 'payment_request_sent',
+  'statement_generated', 'po_approved', 'goods_received', 'supplier_invoice_due',
+  'welcome', 'password_reset', 'low_stock', 'approval_required',
+  'delivery_status_change', 'manual',
 ];
 
 const RECIPIENT_TYPES = [

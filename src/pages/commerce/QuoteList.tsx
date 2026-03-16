@@ -113,6 +113,20 @@ export default function QuoteList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setItems(prev => {
+      const next = [...prev];
+      const item = { ...next[idx] };
+      item.product_id = product.id;
+      item.description = product.name + (product.sku ? ` (${product.sku})` : '');
+      item.unit_price = product.default_selling_price || item.unit_price;
+      item.line_total = calcLineTotal(item.quantity, item.unit_price, item.discount_percent);
+      next[idx] = item;
+      return next;
+    });
+  }
+
   function addItem() {
     setItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, discount_percent: 0, weight_kg: 0, line_total: 0 }]);
   }
@@ -333,7 +347,11 @@ export default function QuoteList() {
               <div className="space-y-3">
                 {items.map((item, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-end">
-                    <div className="col-span-4">
+                    <div className="col-span-2">
+                      {idx === 0 && <Label className="text-xs">Product</Label>}
+                      <ProductLineItemSelect value={item.product_id || null} onSelect={p => handleProductSelect(idx, p)} />
+                    </div>
+                    <div className="col-span-2">
                       {idx === 0 && <Label className="text-xs">Description</Label>}
                       <Input value={item.description} onChange={e => updateItem(idx, 'description', e.target.value)} className="bg-card" placeholder="Product / service" />
                     </div>

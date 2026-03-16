@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, Trash2, Save, Send } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { ProductLineItemSelect, ProductOption } from '@/components/commerce/ProductLineItemSelect';
 
 interface POLine {
   id?: string;
@@ -114,19 +115,26 @@ export default function PurchaseOrderForm() {
     setSupplierProducts(sp || []);
   };
 
+  const handleProductSelect = (idx: number, product: ProductOption | null) => {
+    if (!product) return;
+    setLines(prev => prev.map((l, i) => {
+      if (i !== idx) return l;
+      const updated = { ...l, product_id: product.id, product_description: product.name + (product.sku ? ` (${product.sku})` : '') };
+      if (product.default_buying_price) updated.unit_price = Number(product.default_buying_price);
+      const sp = supplierProducts.find(s => s.product_id === product.id);
+      if (sp) {
+        updated.supplier_product_code = sp.supplier_product_code || '';
+        if (sp.standard_cost) updated.unit_price = Number(sp.standard_cost);
+      }
+      updated.line_total = Number(updated.quantity) * Number(updated.unit_price);
+      return updated;
+    }));
+  };
+
   const updateLine = (idx: number, field: keyof POLine, value: any) => {
     setLines(prev => prev.map((l, i) => {
       if (i !== idx) return l;
       const updated = { ...l, [field]: value };
-      if (field === 'product_id' && value) {
-        const prod = products.find(p => p.id === value);
-        if (prod) updated.product_description = prod.name;
-        const sp = supplierProducts.find(s => s.product_id === value);
-        if (sp) {
-          updated.supplier_product_code = sp.supplier_product_code || '';
-          if (sp.standard_cost) updated.unit_price = Number(sp.standard_cost);
-        }
-      }
       if (field === 'pack_size_id' && value) {
         const ps = packSizes.find(p => p.id === value);
         if (ps?.estimated_weight_kg) {
@@ -279,10 +287,7 @@ export default function PurchaseOrderForm() {
                 {lines.map((line, idx) => (
                   <TableRow key={idx}>
                     <TableCell>
-                      <Select value={line.product_id || ''} onValueChange={v => updateLine(idx, 'product_id', v)} disabled={isLocked}>
-                        <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select product" /></SelectTrigger>
-                        <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                      </Select>
+                      <ProductLineItemSelect value={line.product_id || null} onSelect={p => handleProductSelect(idx, p)} disabled={isLocked} />
                     </TableCell>
                     <TableCell>
                       <Select value={line.pack_size_id || ''} onValueChange={v => updateLine(idx, 'pack_size_id', v)} disabled={isLocked}>
