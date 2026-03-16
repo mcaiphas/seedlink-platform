@@ -58,6 +58,8 @@ import StorageBinList from "@/pages/warehouse/StorageBinList";
 import InventoryBatchList from "@/pages/warehouse/InventoryBatchList";
 import StockMovementList from "@/pages/warehouse/StockMovementList";
 import StockTransferList from "@/pages/warehouse/StockTransferList";
+import StockCountList from "@/pages/warehouse/StockCountList";
+import GoodsReceivingList from "@/pages/warehouse/GoodsReceivingList";
 import PickWaveList from "@/pages/warehouse/PickWaveList";
 import PickTaskList from "@/pages/warehouse/PickTaskList";
 import FulfillmentBatchList from "@/pages/warehouse/FulfillmentBatchList";
