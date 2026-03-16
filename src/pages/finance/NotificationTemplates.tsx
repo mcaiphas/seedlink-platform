@@ -248,6 +248,10 @@ export default function NotificationTemplates() {
             <div><Label>Description</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
             <div><Label>Subject Template</Label><Input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="e.g. Invoice {{invoice_number}} is due" /></div>
             <div><Label>Body Template</Label><Textarea value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} rows={6} placeholder="Template body with {{placeholders}}" /></div>
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground mb-1">Available Variables</p>
+              <p className="text-[11px] text-muted-foreground font-mono">{'{{customer_name}} {{document_number}} {{amount}} {{due_date}} {{company_name}} {{sender_name}} {{link}}'}</p>
+            </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.is_active} onCheckedChange={v => setForm(f => ({ ...f, is_active: v }))} />
               <Label>Active</Label>
