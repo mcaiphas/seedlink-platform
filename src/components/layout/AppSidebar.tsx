@@ -23,6 +23,7 @@ import {
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
+  Zap, MapPin, Mountain, Tractor, History, Beaker,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
