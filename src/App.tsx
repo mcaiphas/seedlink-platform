@@ -341,6 +341,7 @@ const App = () => (
               <Route path="notifications/preferences" element={<NotificationPreferences />} />
               <Route path="settings" element={<SystemSettings />} />
               <Route path="settings/payment-gateways" element={<PaymentGateways />} />
+              <Route path="settings/diagnostics" element={<BackendDiagnostics />} />
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserList />} />
               <Route path="roles" element={<RoleList />} />
