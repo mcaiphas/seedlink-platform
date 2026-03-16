@@ -249,12 +249,14 @@ export default function SupplierDetail() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="contacts">Contacts ({contacts.length})</TabsTrigger>
             <TabsTrigger value="products">Products ({supplierProducts.length})</TabsTrigger>
             <TabsTrigger value="orders">Purchase Orders</TabsTrigger>
             <TabsTrigger value="receipts">Receipts</TabsTrigger>
+            <TabsTrigger value="banking">Banking</TabsTrigger>
+            <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
           </TabsList>
 
