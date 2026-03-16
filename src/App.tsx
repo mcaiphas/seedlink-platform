@@ -173,7 +173,9 @@ const App = () => (
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
+              <Route path="stock-overview" element={<StockOverview />} />
               <Route path="depots" element={<DepotList />} />
+              <Route path="depots/:id" element={<DepotDetail />} />
               <Route path="depot-zones" element={<DepotZoneList />} />
               <Route path="storage-bins" element={<StorageBinList />} />
               <Route path="inventory-batches" element={<InventoryBatchList />} />
