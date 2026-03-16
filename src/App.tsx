@@ -157,6 +157,12 @@ import RefundList from "@/pages/finance/RefundList";
 import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
 import ReminderTemplates from "@/pages/finance/ReminderTemplates";
 
+// Banking
+import BankAccountList from "@/pages/finance/BankAccountList";
+import BankTransactionList from "@/pages/finance/BankTransactionList";
+import BankStatementImport from "@/pages/finance/BankStatementImport";
+import BankReconciliationDashboard from "@/pages/finance/BankReconciliationDashboard";
+
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
