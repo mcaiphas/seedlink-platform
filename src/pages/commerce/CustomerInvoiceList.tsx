@@ -79,6 +79,21 @@ export default function CustomerInvoiceList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setLineItems(prev => {
+      const next = [...prev];
+      next[idx] = {
+        ...next[idx],
+        product_id: product.id,
+        description: product.name + (product.sku ? ` (${product.sku})` : ''),
+        unit_price: product.default_selling_price || next[idx].unit_price,
+        line_total: next[idx].quantity * (product.default_selling_price || next[idx].unit_price),
+      };
+      return next;
+    });
+  }
+
   async function handleCreateInvoice() {
     if (!formData.customer_id) { toast({ title: 'Select a customer', variant: 'destructive' }); return; }
     setSaving(true);
