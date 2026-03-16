@@ -77,6 +77,14 @@ import GeneralLedgerReport from "@/pages/finance/GeneralLedgerReport";
 import JournalListing from "@/pages/finance/JournalListing";
 import AccountActivity from "@/pages/finance/AccountActivity";
 import FinanceDashboard from "@/pages/finance/FinanceDashboard";
+import VATCodes from "@/pages/finance/VATCodes";
+import VATTransactionReport from "@/pages/finance/VATTransactionReport";
+import VAT201Report from "@/pages/finance/VAT201Report";
+import VATControlReconciliation from "@/pages/finance/VATControlReconciliation";
+import CashMovementSummary from "@/pages/finance/CashMovementSummary";
+import RevenueByBusinessLine from "@/pages/finance/RevenueByBusinessLine";
+import ExpenseAnalysis from "@/pages/finance/ExpenseAnalysis";
+import AnnualFinancialStatements from "@/pages/finance/AnnualFinancialStatements";
 
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
