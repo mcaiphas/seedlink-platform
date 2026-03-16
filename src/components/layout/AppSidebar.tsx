@@ -142,6 +142,17 @@ const sections: NavSection[] = [
     ],
   },
   {
+    label: 'Farm Planning',
+    items: [
+      { title: 'Planning Dashboard', url: '/planning', icon: LayoutDashboard },
+      { title: 'Farms', url: '/farms', icon: Tractor },
+      { title: 'Fields', url: '/fields', icon: MapPin },
+      { title: 'Seasons', url: '/planning/seasons', icon: Activity },
+      { title: 'Crop Plans', url: '/planning/crop-plans', icon: Sprout },
+      { title: 'Input Budgets', url: '/planning/input-budgets', icon: DollarSign },
+    ],
+  },
+  {
     label: 'Finance',
     adminOnly: true,
     items: [

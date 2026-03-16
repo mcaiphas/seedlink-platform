@@ -3113,6 +3113,115 @@ export type Database = {
           },
         ]
       }
+      crop_plans: {
+        Row: {
+          area_hectares: number | null
+          created_at: string
+          created_by: string | null
+          crop: string
+          expected_harvest_date: string | null
+          expected_planting_date: string | null
+          farm_id: string
+          farming_system_id: string | null
+          field_id: string | null
+          id: string
+          irrigation_type: string | null
+          notes: string | null
+          planting_window: string | null
+          recommendation_id: string | null
+          season_id: string
+          status: string
+          updated_at: string
+          variety: string | null
+          yield_target: string | null
+        }
+        Insert: {
+          area_hectares?: number | null
+          created_at?: string
+          created_by?: string | null
+          crop: string
+          expected_harvest_date?: string | null
+          expected_planting_date?: string | null
+          farm_id: string
+          farming_system_id?: string | null
+          field_id?: string | null
+          id?: string
+          irrigation_type?: string | null
+          notes?: string | null
+          planting_window?: string | null
+          recommendation_id?: string | null
+          season_id: string
+          status?: string
+          updated_at?: string
+          variety?: string | null
+          yield_target?: string | null
+        }
+        Update: {
+          area_hectares?: number | null
+          created_at?: string
+          created_by?: string | null
+          crop?: string
+          expected_harvest_date?: string | null
+          expected_planting_date?: string | null
+          farm_id?: string
+          farming_system_id?: string | null
+          field_id?: string | null
+          id?: string
+          irrigation_type?: string | null
+          notes?: string | null
+          planting_window?: string | null
+          recommendation_id?: string | null
+          season_id?: string
+          status?: string
+          updated_at?: string
+          variety?: string | null
+          yield_target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crop_plans_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_plans_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_plans_farming_system_id_fkey"
+            columns: ["farming_system_id"]
+            isOneToOne: false
+            referencedRelation: "agro_farming_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_plans_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_plans_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "agro_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_plans_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "farm_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crop_recommendations: {
         Row: {
           basis: string | null
@@ -4347,32 +4456,112 @@ export type Database = {
           },
         ]
       }
+      farm_seasons: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          crop_cycle_type: string
+          end_date: string
+          id: string
+          notes: string | null
+          season_name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          crop_cycle_type?: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          season_name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          crop_cycle_type?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          season_name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farm_seasons_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farms: {
         Row: {
           created_at: string | null
+          customer_id: string | null
           farm_name: string
+          farming_system_id: string | null
           hectares: number | null
           id: string
+          irrigation_available: boolean
           location: string | null
+          notes: string | null
+          region_profile_id: string | null
           team_id: string | null
         }
         Insert: {
           created_at?: string | null
+          customer_id?: string | null
           farm_name: string
+          farming_system_id?: string | null
           hectares?: number | null
           id?: string
+          irrigation_available?: boolean
           location?: string | null
+          notes?: string | null
+          region_profile_id?: string | null
           team_id?: string | null
         }
         Update: {
           created_at?: string | null
+          customer_id?: string | null
           farm_name?: string
+          farming_system_id?: string | null
           hectares?: number | null
           id?: string
+          irrigation_available?: boolean
           location?: string | null
+          notes?: string | null
+          region_profile_id?: string | null
           team_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "farms_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "farms_farming_system_id_fkey"
+            columns: ["farming_system_id"]
+            isOneToOne: false
+            referencedRelation: "agro_farming_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "farms_region_profile_id_fkey"
+            columns: ["region_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_region_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "farms_team_id_fkey"
             columns: ["team_id"]
@@ -4550,6 +4739,9 @@ export type Database = {
           id: string
           irrigation_type: string | null
           is_active: boolean
+          notes: string | null
+          region_profile_id: string | null
+          soil_profile_id: string | null
           soil_type: string | null
           updated_at: string
         }
@@ -4565,6 +4757,9 @@ export type Database = {
           id?: string
           irrigation_type?: string | null
           is_active?: boolean
+          notes?: string | null
+          region_profile_id?: string | null
+          soil_profile_id?: string | null
           soil_type?: string | null
           updated_at?: string
         }
@@ -4580,6 +4775,9 @@ export type Database = {
           id?: string
           irrigation_type?: string | null
           is_active?: boolean
+          notes?: string | null
+          region_profile_id?: string | null
+          soil_profile_id?: string | null
           soil_type?: string | null
           updated_at?: string
         }
@@ -4589,6 +4787,20 @@ export type Database = {
             columns: ["farm_id"]
             isOneToOne: false
             referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fields_region_profile_id_fkey"
+            columns: ["region_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_region_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fields_soil_profile_id_fkey"
+            columns: ["soil_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_soil_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -8751,6 +8963,44 @@ export type Database = {
           },
         ]
       }
+      production_stages: {
+        Row: {
+          created_at: string
+          crop_plan_id: string
+          description: string | null
+          id: string
+          recommended_timing: string | null
+          stage_name: string
+          stage_order: number
+        }
+        Insert: {
+          created_at?: string
+          crop_plan_id: string
+          description?: string | null
+          id?: string
+          recommended_timing?: string | null
+          stage_name: string
+          stage_order?: number
+        }
+        Update: {
+          created_at?: string
+          crop_plan_id?: string
+          description?: string | null
+          id?: string
+          recommended_timing?: string | null
+          stage_name?: string
+          stage_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_stages_crop_plan_id_fkey"
+            columns: ["crop_plan_id"]
+            isOneToOne: false
+            referencedRelation: "crop_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           allow_backorder: boolean
@@ -9122,6 +9372,105 @@ export type Database = {
             columns: ["sales_rep_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_activities: {
+        Row: {
+          activity_description: string
+          application_rate: number | null
+          application_rate_unit: string | null
+          created_at: string
+          crop_plan_id: string
+          id: string
+          line_total: number | null
+          notes: string | null
+          pack_size_id: string | null
+          packs_needed: number | null
+          product_category: string | null
+          product_id: string | null
+          recommended_timing: string | null
+          sort_order: number
+          stage_id: string | null
+          total_quantity: number | null
+          unit_price: number | null
+          variant_id: string | null
+        }
+        Insert: {
+          activity_description: string
+          application_rate?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          crop_plan_id: string
+          id?: string
+          line_total?: number | null
+          notes?: string | null
+          pack_size_id?: string | null
+          packs_needed?: number | null
+          product_category?: string | null
+          product_id?: string | null
+          recommended_timing?: string | null
+          sort_order?: number
+          stage_id?: string | null
+          total_quantity?: number | null
+          unit_price?: number | null
+          variant_id?: string | null
+        }
+        Update: {
+          activity_description?: string
+          application_rate?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          crop_plan_id?: string
+          id?: string
+          line_total?: number | null
+          notes?: string | null
+          pack_size_id?: string | null
+          packs_needed?: number | null
+          product_category?: string | null
+          product_id?: string | null
+          recommended_timing?: string | null
+          sort_order?: number
+          stage_id?: string | null
+          total_quantity?: number | null
+          unit_price?: number | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_activities_crop_plan_id_fkey"
+            columns: ["crop_plan_id"]
+            isOneToOne: false
+            referencedRelation: "crop_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_activities_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_activities_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_activities_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "production_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_activities_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]

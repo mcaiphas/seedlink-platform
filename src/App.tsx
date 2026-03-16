@@ -149,6 +149,12 @@ import AdvisoryRuleList from "@/pages/agronomy/AdvisoryRuleList";
 import SolutionBundleList from "@/pages/agronomy/SolutionBundleList";
 import RecommendationHistory from "@/pages/agronomy/RecommendationHistory";
 
+// Farm Planning
+import SeasonList from "@/pages/planning/SeasonList";
+import CropPlanList from "@/pages/planning/CropPlanList";
+import CropPlanDetail from "@/pages/planning/CropPlanDetail";
+import InputBudgetList from "@/pages/planning/InputBudgetList";
+import PlanningDashboard from "@/pages/planning/PlanningDashboard";
 // Logistics
 import DeliveryRequestList from "@/pages/orders/DeliveryRequestList";
 import DeliveryStatusList from "@/pages/logistics/DeliveryStatusList";
@@ -346,7 +352,14 @@ const App = () => (
               <Route path="agronomy/bundles" element={<SolutionBundleList />} />
               <Route path="agronomy/history" element={<RecommendationHistory />} />
 
-              {/* Logistics */}
+              {/* Farm Planning */}
+              <Route path="planning" element={<PlanningDashboard />} />
+              <Route path="planning/seasons" element={<SeasonList />} />
+              <Route path="planning/crop-plans" element={<CropPlanList />} />
+              <Route path="planning/crop-plans/:id" element={<CropPlanDetail />} />
+              <Route path="planning/input-budgets" element={<InputBudgetList />} />
+
+
               <Route path="delivery-requests" element={<DeliveryRequestList />} />
               <Route path="delivery-status" element={<DeliveryStatusList />} />
 
