@@ -1859,6 +1859,7 @@ export type Database = {
       }
       bank_transaction_reviews: {
         Row: {
+          amount: number | null
           bank_transaction_id: string
           branch: string | null
           business_line: string | null
@@ -1874,9 +1875,11 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           segment: string | null
+          transaction_date: string | null
           updated_at: string
         }
         Insert: {
+          amount?: number | null
           bank_transaction_id: string
           branch?: string | null
           business_line?: string | null
@@ -1892,9 +1895,11 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           segment?: string | null
+          transaction_date?: string | null
           updated_at?: string
         }
         Update: {
+          amount?: number | null
           bank_transaction_id?: string
           branch?: string | null
           business_line?: string | null
@@ -1910,6 +1915,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           segment?: string | null
+          transaction_date?: string | null
           updated_at?: string
         }
         Relationships: [
