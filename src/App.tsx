@@ -51,6 +51,8 @@ import JournalEntryList from "@/pages/finance/JournalEntryList";
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
+import DepotDetail from "@/pages/warehouse/DepotDetail";
+import StockOverview from "@/pages/warehouse/StockOverview";
 import DepotZoneList from "@/pages/warehouse/DepotZoneList";
 import StorageBinList from "@/pages/warehouse/StorageBinList";
 import InventoryBatchList from "@/pages/warehouse/InventoryBatchList";
