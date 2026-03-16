@@ -60,6 +60,10 @@ const STATUS_CONFIGS: Record<string, Record<string, StatusConfig>> = {
     paid: { label: 'Paid', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
     overdue: { label: 'Overdue', variant: 'destructive' },
     void: { label: 'Void', variant: 'destructive' },
+    applied: { label: 'Applied', variant: 'default', className: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+    refunded: { label: 'Refunded', variant: 'outline', className: 'bg-purple-100 text-purple-800 border-purple-200' },
+    processed: { label: 'Processed', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    pending: { label: 'Pending', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-200' },
   },
   delivery: {
     pending: { label: 'Pending', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-200' },
