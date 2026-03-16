@@ -153,6 +153,9 @@ const App = () => (
               <Route path="supplier-invoices" element={<SupplierInvoiceList />} />
               <Route path="goods-receipts" element={<GoodsReceiptList />} />
               <Route path="commerce-accounting" element={<CommerceAccounting />} />
+              <Route path="gl-accounts" element={<GLAccountList />} />
+              <Route path="journal-entries" element={<JournalEntryList />} />
+              <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
               <Route path="depots" element={<DepotList />} />
