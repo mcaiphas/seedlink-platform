@@ -19,9 +19,10 @@ const CLASSIFICATIONS = [
   { value: 'income', label: 'Income' },
   { value: 'expense', label: 'Expense' },
   { value: 'transfer', label: 'Transfer' },
-  { value: 'fee', label: 'Fee' },
+  { value: 'fee', label: 'Bank Fee' },
   { value: 'tax', label: 'Tax' },
   { value: 'loan', label: 'Loan' },
+  { value: 'capital_contribution', label: 'Capital Contribution' },
   { value: 'unknown', label: 'Unknown' },
 ];
 
