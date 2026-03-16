@@ -151,6 +151,7 @@ import NotificationList from "@/pages/notifications/NotificationList";
 import NotificationPreferences from "@/pages/notifications/NotificationPreferences";
 import SystemSettings from "@/pages/settings/SystemSettings";
 import PaymentGateways from "@/pages/settings/PaymentGateways";
+import BackendDiagnostics from "@/pages/settings/BackendDiagnostics";
 import ProfileSettings from "@/pages/settings/ProfileSettings";
 import UserList from "@/pages/system/UserList";
 import RoleList from "@/pages/system/RoleList";
