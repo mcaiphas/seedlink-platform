@@ -19,8 +19,10 @@ import { Switch } from '@/components/ui/switch';
 import {
   ArrowLeft, Building2, Phone, Mail, Globe, Star, Plus, Edit2,
   Package, FileSpreadsheet, TrendingUp, Clock, DollarSign, CalendarDays,
+  FileText, Trash2, Landmark,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 const SUPPLIER_CATEGORIES = [
   'seed_producer', 'fertilizer_manufacturer', 'crop_protection',
