@@ -26,6 +26,7 @@ import CollectionList from "@/pages/products/CollectionList";
 import AttributeList from "@/pages/products/AttributeList";
 import VariantList from "@/pages/products/VariantList";
 import PackSizeList from "@/pages/products/PackSizeList";
+import ImportJobList from "@/pages/products/ImportJobList";
 import OrderList from "@/pages/orders/OrderList";
 import OrderDetail from "@/pages/orders/OrderDetail";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
@@ -133,6 +134,7 @@ const App = () => (
               <Route path="attributes" element={<AttributeList />} />
               <Route path="variants" element={<VariantList />} />
               <Route path="pack-sizes" element={<PackSizeList />} />
+              <Route path="import-jobs" element={<ImportJobList />} />
               <Route path="orders" element={<OrderList />} />
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />

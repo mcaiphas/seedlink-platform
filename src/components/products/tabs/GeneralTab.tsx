@@ -20,8 +20,13 @@ export function GeneralTab({ form, update }: Props) {
           <Input id="name" value={form.name} onChange={e => update('name', e.target.value)} placeholder="e.g. Pioneer P3456 Maize Seed" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="sku">SKU / Internal Code</Label>
-          <Input id="sku" value={form.sku} onChange={e => update('sku', e.target.value)} placeholder="e.g. SL-MAIZE-001" className="font-mono" />
+          <Label htmlFor="sku_base">SKU Base</Label>
+          <Input id="sku_base" value={form.sku_base} onChange={e => update('sku_base', e.target.value)} placeholder="e.g. SD-MZ-PAN5P" className="font-mono" />
+          <p className="text-xs text-muted-foreground">Base SKU for variant generation (e.g. SD-MZ-PAN5P)</p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="sku">SKU / Full Code</Label>
+          <Input id="sku" value={form.sku} onChange={e => update('sku', e.target.value)} placeholder="e.g. SD-MZ-PAN5P952PW-60K" className="font-mono" />
         </div>
         <div className="space-y-2">
           <Label>Product Type</Label>
@@ -56,13 +61,20 @@ export function GeneralTab({ form, update }: Props) {
           </div>
           <Switch checked={form.is_active} onCheckedChange={v => update('is_active', v)} />
         </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="desc">Description</Label>
-          <Textarea id="desc" value={form.description} onChange={e => update('description', e.target.value)} rows={4} placeholder="Full product description..." />
+        <div className="flex items-center justify-between sm:col-span-2 p-4 rounded-lg border bg-muted/30">
+          <div>
+            <Label>Variant Product</Label>
+            <p className="text-xs text-muted-foreground">This product has variants (pack sizes, treatments, etc.)</p>
+          </div>
+          <Switch checked={form.is_variant_product} onCheckedChange={v => update('is_variant_product', v)} />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="short_desc">Short Description</Label>
-          <Textarea id="short_desc" value={form.metadata?.short_description || ''} onChange={e => update('metadata', { ...form.metadata, short_description: e.target.value })} rows={2} placeholder="Brief summary for listings..." />
+          <Textarea id="short_desc" value={form.short_description || ''} onChange={e => update('short_description', e.target.value)} rows={2} placeholder="Brief summary for listings..." />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="desc">Description</Label>
+          <Textarea id="desc" value={form.description} onChange={e => update('description', e.target.value)} rows={4} placeholder="Full product description..." />
         </div>
       </CardContent>
     </Card>

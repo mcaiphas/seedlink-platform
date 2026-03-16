@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 interface Props {
   form: Record<string, any>;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function MediaTab({ form, update }: Props) {
-  const imageUrl = form.metadata?.image_url || '';
+  const imageUrl = form.image_url || '';
   const additionalImages: string[] = form.metadata?.additional_images || [];
 
   return (
@@ -21,14 +21,11 @@ export function MediaTab({ form, update }: Props) {
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <Label>Primary Image URL</Label>
-          <div className="flex gap-3">
-            <Input
-              value={imageUrl}
-              onChange={e => update('metadata', { ...form.metadata, image_url: e.target.value })}
-              placeholder="https://example.com/product-image.jpg"
-              className="flex-1"
-            />
-          </div>
+          <Input
+            value={imageUrl}
+            onChange={e => update('image_url', e.target.value)}
+            placeholder="https://example.com/product-image.jpg"
+          />
         </div>
 
         {imageUrl && (

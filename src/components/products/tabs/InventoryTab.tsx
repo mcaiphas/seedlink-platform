@@ -32,7 +32,7 @@ export function InventoryTab({ form, update, setForm, depots }: Props) {
         </div>
         <div className="space-y-2">
           <Label>Depot</Label>
-          <Select value={form.metadata?.depot_id || '__none'} onValueChange={v => setForm((f: any) => ({ ...f, metadata: { ...f.metadata, depot_id: v === '__none' ? null : v } }))}>
+          <Select value={form.depot_id || '__none'} onValueChange={v => update('depot_id', v === '__none' ? '' : v)}>
             <SelectTrigger><SelectValue placeholder="Select depot" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__none">No depot assigned</SelectItem>

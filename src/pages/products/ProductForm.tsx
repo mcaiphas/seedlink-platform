@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import {
-  Save, ArrowLeft, Package, Tag, DollarSign, Truck, Warehouse, Layers, Box, Beaker, Image as ImageIcon,
+  Save, ArrowLeft, Package, Tag, DollarSign, Truck, Warehouse, Layers, Box, Sprout, Image as ImageIcon, Beaker,
 } from 'lucide-react';
 import { GeneralTab } from '@/components/products/tabs/GeneralTab';
 import { ClassificationTab } from '@/components/products/tabs/ClassificationTab';
@@ -17,22 +17,31 @@ import { ShippingTab } from '@/components/products/tabs/ShippingTab';
 import { InventoryTab } from '@/components/products/tabs/InventoryTab';
 import { AttributesTab } from '@/components/products/tabs/AttributesTab';
 import { MediaTab } from '@/components/products/tabs/MediaTab';
+import { SeedDetailsTab } from '@/components/products/tabs/SeedDetailsTab';
 import { ProductVariantManager } from '@/components/products/ProductVariantManager';
 
-interface FormData {
+export interface FormData {
   name: string;
+  sku_base: string;
   sku: string;
   product_type: string;
   status: string;
   brand: string;
   description: string;
+  short_description: string;
+  image_url: string;
   category: string;
+  category_id: string;
   subcategory_id: string;
   supplier_id: string;
+  depot_id: string;
+  organization_id: string;
   is_active: boolean;
-  price: string;
+  is_variant_product: boolean;
+  default_buying_price: string;
+  default_selling_price: string;
+  default_margin_percent: string;
   compare_at_price: string;
-  buying_price: string;
   currency_code: string;
   base_uom: string;
   stock_quantity: string;
@@ -47,11 +56,35 @@ interface FormData {
 }
 
 const emptyForm: FormData = {
-  name: '', sku: '', product_type: 'physical', status: 'draft', brand: '', description: '',
-  category: '', subcategory_id: '', supplier_id: '', is_active: true,
-  price: '', compare_at_price: '', buying_price: '', currency_code: 'ZAR', base_uom: 'kg',
+  name: '', sku_base: '', sku: '', product_type: 'physical', status: 'draft', brand: '',
+  description: '', short_description: '', image_url: '',
+  category: '', category_id: '', subcategory_id: '', supplier_id: '', depot_id: '', organization_id: '',
+  is_active: true, is_variant_product: false,
+  default_buying_price: '', default_selling_price: '', default_margin_percent: '', compare_at_price: '',
+  currency_code: 'ZAR', base_uom: 'kg',
   stock_quantity: '0', track_inventory: true, allow_backorder: false, requires_shipping: true,
   shipping_weight_kg: '', length_cm: '', width_cm: '', height_cm: '', metadata: {},
+};
+
+export interface SeedDetailsData {
+  crop_name: string;
+  variety_name: string;
+  hybrid_name: string;
+  maturity_classification: string;
+  maturity_days: string;
+  seed_class: string;
+  treatment_name: string;
+  germination_percent: string;
+  purity_percent: string;
+  thousand_kernel_weight_g: string;
+  seeds_per_kg: string;
+  notes: string;
+}
+
+const emptySeedDetails: SeedDetailsData = {
+  crop_name: '', variety_name: '', hybrid_name: '', maturity_classification: '',
+  maturity_days: '', seed_class: '', treatment_name: '', germination_percent: '',
+  purity_percent: '', thousand_kernel_weight_g: '', seeds_per_kg: '', notes: '',
 };
 
 export default function ProductForm() {
@@ -59,6 +92,7 @@ export default function ProductForm() {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
   const [form, setForm] = useState<FormData>(emptyForm);
+  const [seedDetails, setSeedDetails] = useState<SeedDetailsData>(emptySeedDetails);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -66,22 +100,27 @@ export default function ProductForm() {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [collections, setCollections] = useState<any[]>([]);
   const [depots, setDepots] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<any[]>([]);
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
   const [packSizes, setPackSizes] = useState<any[]>([]);
 
   useEffect(() => {
     Promise.all([
-      supabase.from('product_categories').select('id, name').order('sort_order'),
+      supabase.from('product_categories').select('id, name, sku_prefix').order('sort_order'),
       supabase.from('product_subcategories').select('id, name, category_id').order('sort_order'),
       supabase.from('suppliers').select('id, supplier_name').order('supplier_name'),
       supabase.from('product_collections').select('id, name').order('sort_order'),
       supabase.from('depots').select('id, name').order('name'),
-    ]).then(([catR, subR, supR, colR, depR]) => {
+      supabase.from('organizations').select('id, name').order('name'),
+      supabase.from('product_pack_sizes').select('*').order('sort_order'),
+    ]).then(([catR, subR, supR, colR, depR, orgR, psR]) => {
       setCategories(catR.data || []);
       setSubcategories(subR.data || []);
       setSuppliers(supR.data || []);
       setCollections(colR.data || []);
       setDepots(depR.data || []);
+      setOrganizations(orgR.data || []);
+      setPackSizes(psR.data || []);
     });
   }, []);
 
@@ -91,17 +130,23 @@ export default function ProductForm() {
     Promise.all([
       supabase.from('products').select('*').eq('id', id).single(),
       supabase.from('product_collection_items').select('collection_id').eq('product_id', id),
-      supabase.from('product_pack_sizes').select('*').eq('product_id', id).order('created_at'),
-    ]).then(([prodR, colR, packR]) => {
+      supabase.from('seed_product_details').select('*').eq('product_id', id).maybeSingle(),
+    ]).then(([prodR, colR, seedR]) => {
       if (prodR.data) {
         const p = prodR.data as any;
         setForm({
-          name: p.name || '', sku: p.sku || '', product_type: p.product_type, status: p.status,
-          brand: p.brand || '', description: p.description || '', category: p.category || '',
+          name: p.name || '', sku_base: p.sku_base || '', sku: p.sku || '',
+          product_type: p.product_type, status: p.status,
+          brand: p.brand || '', description: p.description || '',
+          short_description: p.short_description || '', image_url: p.image_url || '',
+          category: p.category || '', category_id: p.category_id || '',
           subcategory_id: p.subcategory_id || '', supplier_id: p.supplier_id || '',
-          is_active: p.is_active, price: p.price != null ? String(p.price) : '',
+          depot_id: p.depot_id || '', organization_id: p.organization_id || '',
+          is_active: p.is_active, is_variant_product: p.is_variant_product,
+          default_buying_price: p.default_buying_price != null ? String(p.default_buying_price) : '',
+          default_selling_price: p.default_selling_price != null ? String(p.default_selling_price) : '',
+          default_margin_percent: p.default_margin_percent != null ? String(p.default_margin_percent) : '',
           compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : '',
-          buying_price: p.metadata?.buying_price != null ? String(p.metadata.buying_price) : '',
           currency_code: p.currency_code, base_uom: p.base_uom,
           stock_quantity: String(p.stock_quantity), track_inventory: p.track_inventory,
           allow_backorder: p.allow_backorder, requires_shipping: p.requires_shipping,
@@ -113,12 +158,33 @@ export default function ProductForm() {
         });
       }
       setSelectedCollections((colR.data || []).map((c: any) => c.collection_id));
-      setPackSizes(packR.data || []);
+      if (seedR.data) {
+        const s = seedR.data as any;
+        setSeedDetails({
+          crop_name: s.crop_name || '', variety_name: s.variety_name || '',
+          hybrid_name: s.hybrid_name || '', maturity_classification: s.maturity_classification || '',
+          maturity_days: s.maturity_days != null ? String(s.maturity_days) : '',
+          seed_class: s.seed_class || '', treatment_name: s.treatment_name || '',
+          germination_percent: s.germination_percent != null ? String(s.germination_percent) : '',
+          purity_percent: s.purity_percent != null ? String(s.purity_percent) : '',
+          thousand_kernel_weight_g: s.thousand_kernel_weight_g != null ? String(s.thousand_kernel_weight_g) : '',
+          seeds_per_kg: s.seeds_per_kg != null ? String(s.seeds_per_kg) : '',
+          notes: s.notes || '',
+        });
+      }
       setLoading(false);
     });
   }, [id]);
 
   const update = useCallback((key: keyof FormData, value: any) => setForm(f => ({ ...f, [key]: value })), []);
+
+  const generateSkuSuggestion = () => {
+    const cat = categories.find(c => c.id === form.category_id);
+    const prefix = cat?.sku_prefix || 'XX';
+    const brand = (form.brand || '').substring(0, 4).toUpperCase().replace(/\s/g, '');
+    const name = (form.name || '').substring(0, 6).toUpperCase().replace(/\s/g, '');
+    return `${prefix}-${brand || name}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  };
 
   const handleSave = async () => {
     if (!form.name.trim()) {
@@ -127,18 +193,36 @@ export default function ProductForm() {
     }
     setSaving(true);
 
+    // Auto-calculate margin if not set
+    let marginPct = form.default_margin_percent ? Number(form.default_margin_percent) : null;
+    const buy = form.default_buying_price ? Number(form.default_buying_price) : null;
+    const sell = form.default_selling_price ? Number(form.default_selling_price) : null;
+    if (buy && sell && buy > 0 && marginPct === null) {
+      marginPct = Number((((sell - buy) / buy) * 100).toFixed(2));
+    }
+
     const payload: any = {
       name: form.name.trim(),
+      sku_base: form.sku_base || null,
       sku: form.sku || null,
       product_type: form.product_type,
       status: form.status,
       brand: form.brand || null,
       description: form.description || null,
+      short_description: form.short_description || null,
+      image_url: form.image_url || null,
       category: form.category || null,
+      category_id: form.category_id || null,
       subcategory_id: form.subcategory_id || null,
       supplier_id: form.supplier_id || null,
+      depot_id: form.depot_id || null,
+      organization_id: form.organization_id || null,
       is_active: form.is_active,
-      price: form.price ? Number(form.price) : null,
+      is_variant_product: form.is_variant_product,
+      default_buying_price: buy,
+      default_selling_price: sell,
+      default_margin_percent: marginPct,
+      price: sell, // keep legacy price in sync
       compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
       currency_code: form.currency_code,
       base_uom: form.base_uom,
@@ -150,7 +234,7 @@ export default function ProductForm() {
       length_cm: form.length_cm ? Number(form.length_cm) : null,
       width_cm: form.width_cm ? Number(form.width_cm) : null,
       height_cm: form.height_cm ? Number(form.height_cm) : null,
-      metadata: { ...form.metadata, buying_price: form.buying_price ? Number(form.buying_price) : null },
+      metadata: form.metadata,
     };
 
     let productId = id;
@@ -163,12 +247,39 @@ export default function ProductForm() {
       productId = data.id;
     }
 
+    // Save collections
     if (productId) {
       await supabase.from('product_collection_items').delete().eq('product_id', productId);
       if (selectedCollections.length > 0) {
         await supabase.from('product_collection_items').insert(
           selectedCollections.map(cid => ({ product_id: productId!, collection_id: cid })) as any
         );
+      }
+    }
+
+    // Save seed details if any field is filled
+    const hasSeedData = Object.values(seedDetails).some(v => v !== '');
+    if (productId && hasSeedData) {
+      const seedPayload: any = {
+        product_id: productId,
+        crop_name: seedDetails.crop_name || null,
+        variety_name: seedDetails.variety_name || null,
+        hybrid_name: seedDetails.hybrid_name || null,
+        maturity_classification: seedDetails.maturity_classification || null,
+        maturity_days: seedDetails.maturity_days ? Number(seedDetails.maturity_days) : null,
+        seed_class: seedDetails.seed_class || null,
+        treatment_name: seedDetails.treatment_name || null,
+        germination_percent: seedDetails.germination_percent ? Number(seedDetails.germination_percent) : null,
+        purity_percent: seedDetails.purity_percent ? Number(seedDetails.purity_percent) : null,
+        thousand_kernel_weight_g: seedDetails.thousand_kernel_weight_g ? Number(seedDetails.thousand_kernel_weight_g) : null,
+        seeds_per_kg: seedDetails.seeds_per_kg ? Number(seedDetails.seeds_per_kg) : null,
+        notes: seedDetails.notes || null,
+      };
+      const { data: existing } = await supabase.from('seed_product_details').select('id').eq('product_id', productId).maybeSingle();
+      if (existing) {
+        await supabase.from('seed_product_details').update(seedPayload).eq('product_id', productId);
+      } else {
+        await supabase.from('seed_product_details').insert(seedPayload);
       }
     }
 
@@ -196,6 +307,11 @@ export default function ProductForm() {
             <Button variant="outline" onClick={() => navigate(-1)}>
               <ArrowLeft className="mr-2 h-4 w-4" />Back
             </Button>
+            {!form.sku && (
+              <Button variant="outline" onClick={() => { const s = generateSkuSuggestion(); update('sku', s); toast({ title: `SKU suggested: ${s}` }); }}>
+                Generate SKU
+              </Button>
+            )}
             <Button onClick={handleSave} disabled={saving}>
               <Save className="mr-2 h-4 w-4" />{saving ? 'Saving...' : 'Save Product'}
             </Button>
@@ -213,6 +329,7 @@ export default function ProductForm() {
           <TabsTrigger value="shipping" className="gap-1.5"><Truck className="h-3.5 w-3.5" />Shipping</TabsTrigger>
           <TabsTrigger value="inventory" className="gap-1.5"><Warehouse className="h-3.5 w-3.5" />Depot / Inventory</TabsTrigger>
           <TabsTrigger value="media" className="gap-1.5"><ImageIcon className="h-3.5 w-3.5" />Media</TabsTrigger>
+          <TabsTrigger value="seed" className="gap-1.5"><Sprout className="h-3.5 w-3.5" />Seed Details</TabsTrigger>
           <TabsTrigger value="attributes" className="gap-1.5"><Beaker className="h-3.5 w-3.5" />Attributes</TabsTrigger>
         </TabsList>
 
@@ -226,6 +343,7 @@ export default function ProductForm() {
             categories={categories} subcategories={subcategories}
             suppliers={suppliers} collections={collections}
             selectedCollections={selectedCollections} setSelectedCollections={setSelectedCollections}
+            depots={depots} organizations={organizations}
           />
         </TabsContent>
 
@@ -234,12 +352,12 @@ export default function ProductForm() {
         </TabsContent>
 
         <TabsContent value="packing">
-          <PackSizesTab productId={id} isEdit={isEdit} packSizes={packSizes} setPackSizes={setPackSizes} />
+          <PackSizesTab packSizes={packSizes} />
         </TabsContent>
 
         <TabsContent value="variants">
           {isEdit && id ? (
-            <ProductVariantManager productId={id} productPrice={form.price} currencyCode={form.currency_code} />
+            <ProductVariantManager productId={id} currencyCode={form.currency_code} packSizes={packSizes} depots={depots} />
           ) : (
             <div className="rounded-lg border border-dashed p-10 text-center">
               <Layers className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
@@ -259,6 +377,10 @@ export default function ProductForm() {
 
         <TabsContent value="media">
           <MediaTab form={form} update={update} />
+        </TabsContent>
+
+        <TabsContent value="seed">
+          <SeedDetailsTab seedDetails={seedDetails} setSeedDetails={setSeedDetails} isEdit={isEdit} />
         </TabsContent>
 
         <TabsContent value="attributes">
