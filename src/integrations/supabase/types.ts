@@ -6252,6 +6252,48 @@ export type Database = {
           },
         ]
       }
+      notification_channel_configs: {
+        Row: {
+          auth_status: string
+          channel: string
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          max_retries: number
+          provider_name: string | null
+          retry_enabled: boolean
+          sender_identity: string | null
+          updated_at: string
+        }
+        Insert: {
+          auth_status?: string
+          channel: string
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_retries?: number
+          provider_name?: string | null
+          retry_enabled?: boolean
+          sender_identity?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auth_status?: string
+          channel?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_retries?: number
+          provider_name?: string | null
+          retry_enabled?: boolean
+          sender_identity?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           agronomy_updates: boolean
@@ -6315,6 +6357,7 @@ export type Database = {
           code: string
           created_at: string
           created_by: string | null
+          default_recipients: string | null
           description: string | null
           id: string
           is_active: boolean
@@ -6325,6 +6368,7 @@ export type Database = {
           title: string | null
           trigger_event: string
           updated_at: string
+          variables: string[] | null
         }
         Insert: {
           body: string
@@ -6332,6 +6376,7 @@ export type Database = {
           code: string
           created_at?: string
           created_by?: string | null
+          default_recipients?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
@@ -6342,6 +6387,7 @@ export type Database = {
           title?: string | null
           trigger_event?: string
           updated_at?: string
+          variables?: string[] | null
         }
         Update: {
           body?: string
@@ -6349,6 +6395,7 @@ export type Database = {
           code?: string
           created_at?: string
           created_by?: string | null
+          default_recipients?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
@@ -6359,6 +6406,7 @@ export type Database = {
           title?: string | null
           trigger_event?: string
           updated_at?: string
+          variables?: string[] | null
         }
         Relationships: [
           {
