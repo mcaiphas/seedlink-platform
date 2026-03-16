@@ -48,7 +48,7 @@ export default function ProfitAndLoss() {
   async function loadData() {
     setLoading(true);
     const [{ data: accounts }, { data: allLines }] = await Promise.all([
-      supabase.from('gl_accounts').select('id,account_code,account_name,account_type,account_sub_type').eq('is_active', true),
+      supabase.from('gl_accounts').select('id,account_code,account_name,account_type').eq('is_active', true),
       supabase.from('journal_entry_lines').select('gl_account_id,debit_amount,credit_amount,journal_entries!inner(entry_date,status)'),
     ]);
     if (!accounts) { setLoading(false); return; }
