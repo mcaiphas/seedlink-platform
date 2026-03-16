@@ -302,6 +302,18 @@ const App = () => (
               {/* Approvals */}
               <Route path="approvals" element={<ApprovalCenter />} />
 
+              {/* Customer Portal */}
+              <Route path="portal" element={<CustomerPortalDashboard />} />
+              <Route path="portal/invoices" element={<PortalInvoices />} />
+              <Route path="portal/quotes" element={<PortalQuotes />} />
+              <Route path="portal/statements" element={<PortalStatements />} />
+
+              {/* Finance extras */}
+              <Route path="credit-control" element={<CreditControlDashboard />} />
+              <Route path="refunds" element={<RefundList />} />
+              <Route path="communication-logs" element={<CustomerCommunicationLog />} />
+              <Route path="reminder-templates" element={<ReminderTemplates />} />
+
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />
               <Route path="reports/inventory" element={<InventorySnapshot />} />
