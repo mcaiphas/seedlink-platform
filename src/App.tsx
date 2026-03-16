@@ -123,6 +123,11 @@ import OrganizationList from "@/pages/system/OrganizationList";
 import SalesAnalytics from "@/pages/reports/SalesAnalytics";
 import InventorySnapshot from "@/pages/reports/InventorySnapshot";
 import FinanceSummary from "@/pages/reports/FinanceSummary";
+import InventoryValuation from "@/pages/reports/InventoryValuation";
+import OperationsFinance from "@/pages/reports/OperationsFinance";
+import ManagementDashboard from "@/pages/reports/ManagementDashboard";
+import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
+import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -249,10 +254,17 @@ const App = () => (
               <Route path="permissions" element={<PermissionList />} />
               <Route path="organizations" element={<OrganizationList />} />
 
+              {/* Approvals */}
+              <Route path="approvals" element={<ApprovalCenter />} />
+
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />
               <Route path="reports/inventory" element={<InventorySnapshot />} />
               <Route path="reports/finance" element={<FinanceSummary />} />
+              <Route path="reports/valuation" element={<InventoryValuation />} />
+              <Route path="reports/operations-finance" element={<OperationsFinance />} />
+              <Route path="reports/executive" element={<ManagementDashboard />} />
+              <Route path="reports/slow-moving" element={<SlowMovingInventory />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

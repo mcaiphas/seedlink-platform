@@ -1569,6 +1569,75 @@ export type Database = {
         }
         Relationships: []
       }
+      approval_requests: {
+        Row: {
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          reference_id: string
+          reference_number: string | null
+          rejection_reason: string | null
+          request_type: string
+          requested_at: string
+          requested_by: string | null
+          updated_at: string
+          value_impact: number | null
+        }
+        Insert: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_id: string
+          reference_number?: string | null
+          rejection_reason?: string | null
+          request_type: string
+          requested_at?: string
+          requested_by?: string | null
+          updated_at?: string
+          value_impact?: number | null
+        }
+        Update: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_id?: string
+          reference_number?: string | null
+          rejection_reason?: string | null
+          request_type?: string
+          requested_at?: string
+          requested_by?: string | null
+          updated_at?: string
+          value_impact?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -2596,6 +2665,7 @@ export type Database = {
           quantity_reserved: number
           reorder_level: number | null
           sku: string | null
+          unit_cost: number | null
           updated_at: string
           variant_id: string | null
           weight_equivalent_kg: number | null
@@ -2612,6 +2682,7 @@ export type Database = {
           quantity_reserved?: number
           reorder_level?: number | null
           sku?: string | null
+          unit_cost?: number | null
           updated_at?: string
           variant_id?: string | null
           weight_equivalent_kg?: number | null
@@ -2628,6 +2699,7 @@ export type Database = {
           quantity_reserved?: number
           reorder_level?: number | null
           sku?: string | null
+          unit_cost?: number | null
           updated_at?: string
           variant_id?: string | null
           weight_equivalent_kg?: number | null

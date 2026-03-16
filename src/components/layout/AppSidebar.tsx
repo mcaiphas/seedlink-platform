@@ -20,7 +20,7 @@ import {
   LogOut, Truck, Wallet, SlidersHorizontal,
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
-  ShoppingBag, PieChart,
+  ShoppingBag, PieChart, CheckCircle, Activity,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -120,9 +120,18 @@ const sections: NavSection[] = [
     label: 'Finance',
     adminOnly: true,
     items: [
+      { title: 'Operations Finance', url: '/reports/operations-finance', icon: Activity },
+      { title: 'Inventory Valuation', url: '/reports/valuation', icon: DollarSign },
       { title: 'Journal Entries', url: '/journal-entries', icon: Scale },
       { title: 'GL Accounts', url: '/gl-accounts', icon: Notebook },
       { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Approvals',
+    adminOnly: true,
+    items: [
+      { title: 'Approval Center', url: '/approvals', icon: CheckCircle },
     ],
   },
   {
@@ -131,8 +140,10 @@ const sections: NavSection[] = [
       {
         title: 'Reports', icon: PieChart,
         children: [
+          { title: 'Executive Dashboard', url: '/reports/executive', icon: LayoutDashboard, permission: 'reports:view' },
           { title: 'Sales Analytics', url: '/reports/sales', icon: TrendingUp, permission: 'reports:view' },
           { title: 'Inventory Snapshot', url: '/reports/inventory', icon: Boxes, permission: 'reports:view' },
+          { title: 'Slow-Moving Stock', url: '/reports/slow-moving', icon: AlertTriangle, permission: 'reports:view' },
           { title: 'Finance Summary', url: '/reports/finance', icon: TrendingDown, permission: 'reports:view' },
         ],
       },
