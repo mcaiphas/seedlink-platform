@@ -77,6 +77,14 @@ import GeneralLedgerReport from "@/pages/finance/GeneralLedgerReport";
 import JournalListing from "@/pages/finance/JournalListing";
 import AccountActivity from "@/pages/finance/AccountActivity";
 import FinanceDashboard from "@/pages/finance/FinanceDashboard";
+import VATCodes from "@/pages/finance/VATCodes";
+import VATTransactionReport from "@/pages/finance/VATTransactionReport";
+import VAT201Report from "@/pages/finance/VAT201Report";
+import VATControlReconciliation from "@/pages/finance/VATControlReconciliation";
+import CashMovementSummary from "@/pages/finance/CashMovementSummary";
+import RevenueByBusinessLine from "@/pages/finance/RevenueByBusinessLine";
+import ExpenseAnalysis from "@/pages/finance/ExpenseAnalysis";
+import AnnualFinancialStatements from "@/pages/finance/AnnualFinancialStatements";
 
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
@@ -257,6 +265,14 @@ const App = () => (
               <Route path="journal-listing" element={<JournalListing />} />
               <Route path="account-activity" element={<AccountActivity />} />
               <Route path="finance-dashboard" element={<FinanceDashboard />} />
+              <Route path="vat-codes" element={<VATCodes />} />
+              <Route path="vat-transactions" element={<VATTransactionReport />} />
+              <Route path="vat201-report" element={<VAT201Report />} />
+              <Route path="vat-control" element={<VATControlReconciliation />} />
+              <Route path="cash-movement" element={<CashMovementSummary />} />
+              <Route path="revenue-by-business-line" element={<RevenueByBusinessLine />} />
+              <Route path="expense-analysis" element={<ExpenseAnalysis />} />
+              <Route path="annual-financial-statements" element={<AnnualFinancialStatements />} />
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}

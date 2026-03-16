@@ -10875,6 +10875,97 @@ export type Database = {
           },
         ]
       }
+      vat_codes: {
+        Row: {
+          code_name: string
+          created_at: string
+          description: string | null
+          gl_account_id: string | null
+          id: string
+          is_active: boolean
+          rate_percent: number
+          updated_at: string
+          vat_direction: string
+        }
+        Insert: {
+          code_name: string
+          created_at?: string
+          description?: string | null
+          gl_account_id?: string | null
+          id?: string
+          is_active?: boolean
+          rate_percent?: number
+          updated_at?: string
+          vat_direction?: string
+        }
+        Update: {
+          code_name?: string
+          created_at?: string
+          description?: string | null
+          gl_account_id?: string | null
+          id?: string
+          is_active?: boolean
+          rate_percent?: number
+          updated_at?: string
+          vat_direction?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vat_codes_gl_account_id_fkey"
+            columns: ["gl_account_id"]
+            isOneToOne: false
+            referencedRelation: "gl_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vat_periods: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          notes: string | null
+          period_name: string
+          start_date: string
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          period_name: string
+          start_date: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          period_name?: string
+          start_date?: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vat_periods_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallet_transactions: {
         Row: {
           amount: number
