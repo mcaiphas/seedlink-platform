@@ -9,3 +9,11 @@ export function exportToCsv(filename: string, headers: string[], rows: string[][
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/** Convenience: export an array of objects as CSV (auto-derives headers from keys). */
+export function exportObjectsToCsv(data: Record<string, any>[], filename: string) {
+  if (!data.length) return;
+  const headers = Object.keys(data[0]);
+  const rows = data.map(row => headers.map(h => String(row[h] ?? '')));
+  exportToCsv(filename, headers, rows);
+}

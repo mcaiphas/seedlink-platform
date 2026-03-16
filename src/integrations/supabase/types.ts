@@ -2412,6 +2412,120 @@ export type Database = {
           },
         ]
       }
+      customer_credit_note_items: {
+        Row: {
+          created_at: string
+          credit_note_id: string
+          description: string
+          id: string
+          line_total: number
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          credit_note_id: string
+          description: string
+          id?: string
+          line_total?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          credit_note_id?: string
+          description?: string
+          id?: string
+          line_total?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_credit_note_items_credit_note_id_fkey"
+            columns: ["credit_note_id"]
+            isOneToOne: false
+            referencedRelation: "customer_credit_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_credit_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          credit_note_number: string
+          currency_code: string
+          customer_id: string | null
+          id: string
+          invoice_id: string | null
+          issue_date: string
+          notes: string | null
+          reason_code: string
+          status: string
+          subtotal_amount: number
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          credit_note_number: string
+          currency_code?: string
+          customer_id?: string | null
+          id?: string
+          invoice_id?: string | null
+          issue_date?: string
+          notes?: string | null
+          reason_code?: string
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          credit_note_number?: string
+          currency_code?: string
+          customer_id?: string | null
+          id?: string
+          invoice_id?: string | null
+          issue_date?: string
+          notes?: string | null
+          reason_code?: string
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_credit_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_credit_notes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "customer_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_documents: {
         Row: {
           created_at: string
@@ -9316,6 +9430,120 @@ export type Database = {
           },
         ]
       }
+      supplier_credit_note_items: {
+        Row: {
+          created_at: string
+          credit_note_id: string
+          description: string
+          id: string
+          line_total: number
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          credit_note_id: string
+          description: string
+          id?: string
+          line_total?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          credit_note_id?: string
+          description?: string
+          id?: string
+          line_total?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_credit_note_items_credit_note_id_fkey"
+            columns: ["credit_note_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_credit_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_credit_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          credit_note_number: string
+          currency_code: string
+          id: string
+          issue_date: string
+          notes: string | null
+          reason_code: string
+          status: string
+          subtotal_amount: number
+          supplier_id: string | null
+          supplier_invoice_id: string | null
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          credit_note_number: string
+          currency_code?: string
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          reason_code?: string
+          status?: string
+          subtotal_amount?: number
+          supplier_id?: string | null
+          supplier_invoice_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          credit_note_number?: string
+          currency_code?: string
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          reason_code?: string
+          status?: string
+          subtotal_amount?: number
+          supplier_id?: string | null
+          supplier_invoice_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_credit_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_credit_notes_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_credit_notes_supplier_invoice_id_fkey"
+            columns: ["supplier_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_documents: {
         Row: {
           created_at: string
@@ -9447,11 +9675,13 @@ export type Database = {
       supplier_invoices: {
         Row: {
           created_at: string
+          created_by: string | null
           currency_code: string
           due_date: string | null
           id: string
           invoice_date: string
           notes: string | null
+          paid_amount: number
           purchase_order_id: string | null
           status: string
           subtotal_amount: number
@@ -9463,11 +9693,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           currency_code?: string
           due_date?: string | null
           id?: string
           invoice_date?: string
           notes?: string | null
+          paid_amount?: number
           purchase_order_id?: string | null
           status?: string
           subtotal_amount?: number
@@ -9479,11 +9711,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           currency_code?: string
           due_date?: string | null
           id?: string
           invoice_date?: string
           notes?: string | null
+          paid_amount?: number
           purchase_order_id?: string | null
           status?: string
           subtotal_amount?: number
@@ -9494,6 +9728,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "supplier_invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "supplier_invoices_purchase_order_id_fkey"
             columns: ["purchase_order_id"]
@@ -9506,6 +9747,79 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          payment_number: string
+          payment_reference: string | null
+          payment_status: string
+          supplier_id: string | null
+          supplier_invoice_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          payment_number: string
+          payment_reference?: string | null
+          payment_status?: string
+          supplier_id?: string | null
+          supplier_invoice_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          payment_number?: string
+          payment_reference?: string | null
+          payment_status?: string
+          supplier_id?: string | null
+          supplier_invoice_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_payments_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_payments_supplier_invoice_id_fkey"
+            columns: ["supplier_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -10319,6 +10633,7 @@ export type Database = {
         Returns: boolean
       }
       current_user_has_role: { Args: { p_role_name: string }; Returns: boolean }
+      generate_ccn_number: { Args: never; Returns: string }
       generate_ci_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }
       generate_je_number: { Args: never; Returns: string }
@@ -10328,7 +10643,9 @@ export type Database = {
       generate_qt_number: { Args: never; Returns: string }
       generate_sa_number: { Args: never; Returns: string }
       generate_sc_number: { Args: never; Returns: string }
+      generate_scn_number: { Args: never; Returns: string }
       generate_si_number: { Args: never; Returns: string }
+      generate_sp_number: { Args: never; Returns: string }
       has_role: { Args: { role_name: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_enrolled_in_course: {

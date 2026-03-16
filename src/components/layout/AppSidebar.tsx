@@ -21,6 +21,7 @@ import {
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
+  BookOpen, FileDown, Banknote,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -124,6 +125,15 @@ const sections: NavSection[] = [
     label: 'Finance',
     adminOnly: true,
     items: [
+      { title: 'Debtors (AR)', url: '/debtors', icon: TrendingUp },
+      { title: 'Creditors (AP)', url: '/creditors', icon: TrendingDown },
+      { title: 'Customer Aging', url: '/customer-aging', icon: BarChart3 },
+      { title: 'Supplier Aging', url: '/supplier-aging', icon: BarChart3 },
+      { title: 'Customer Credit Notes', url: '/customer-credit-notes', icon: FileDown },
+      { title: 'Supplier Credit Notes', url: '/supplier-credit-notes', icon: FileDown },
+      { title: 'Supplier Payments', url: '/supplier-payments', icon: Banknote },
+      { title: 'Customer Statements', url: '/customer-statements', icon: BookOpen },
+      { title: 'Supplier Statements', url: '/supplier-statements', icon: BookOpen },
       { title: 'Operations Finance', url: '/reports/operations-finance', icon: Activity },
       { title: 'Inventory Valuation', url: '/reports/valuation', icon: DollarSign },
       { title: 'Journal Entries', url: '/journal-entries', icon: Scale },

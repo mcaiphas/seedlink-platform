@@ -56,6 +56,15 @@ import ProcurementDashboard from "@/pages/procurement/ProcurementDashboard";
 import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
 import GLAccountList from "@/pages/finance/GLAccountList";
 import JournalEntryList from "@/pages/finance/JournalEntryList";
+import DebtorLedger from "@/pages/finance/DebtorLedger";
+import CreditorLedger from "@/pages/finance/CreditorLedger";
+import CustomerAgingReport from "@/pages/finance/CustomerAgingReport";
+import SupplierAgingReport from "@/pages/finance/SupplierAgingReport";
+import CustomerCreditNoteList from "@/pages/finance/CustomerCreditNoteList";
+import SupplierCreditNoteList from "@/pages/finance/SupplierCreditNoteList";
+import SupplierPaymentList from "@/pages/finance/SupplierPaymentList";
+import CustomerStatements from "@/pages/finance/CustomerStatements";
+import SupplierStatements from "@/pages/finance/SupplierStatements";
 
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
@@ -195,6 +204,15 @@ const App = () => (
               <Route path="commerce-accounting" element={<CommerceAccounting />} />
               <Route path="gl-accounts" element={<GLAccountList />} />
               <Route path="journal-entries" element={<JournalEntryList />} />
+              <Route path="debtors" element={<DebtorLedger />} />
+              <Route path="creditors" element={<CreditorLedger />} />
+              <Route path="customer-aging" element={<CustomerAgingReport />} />
+              <Route path="supplier-aging" element={<SupplierAgingReport />} />
+              <Route path="customer-credit-notes" element={<CustomerCreditNoteList />} />
+              <Route path="supplier-credit-notes" element={<SupplierCreditNoteList />} />
+              <Route path="supplier-payments" element={<SupplierPaymentList />} />
+              <Route path="customer-statements" element={<CustomerStatements />} />
+              <Route path="supplier-statements" element={<SupplierStatements />} />
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
