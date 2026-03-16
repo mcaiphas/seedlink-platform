@@ -343,7 +343,7 @@ const App = () => (
               <Route path="credit-control" element={<CreditControlDashboard />} />
               <Route path="refunds" element={<RefundList />} />
               <Route path="communication-logs" element={<CustomerCommunicationLog />} />
-              <Route path="reminder-templates" element={<ReminderTemplates />} />
+              <Route path="notification-templates" element={<NotificationTemplates />} />
 
               {/* Banking */}
               <Route path="bank-accounts" element={<BankAccountList />} />
