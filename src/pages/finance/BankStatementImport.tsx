@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logAudit } from '@/lib/audit';
 import { toast } from 'sonner';
+import { parseFile, type ParsedRow } from '@/lib/file-parsers';
 import { DataPageShell } from '@/components/DataPageShell';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
