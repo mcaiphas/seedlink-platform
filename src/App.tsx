@@ -29,6 +29,11 @@ import PackSizeList from "@/pages/products/PackSizeList";
 import ImportJobList from "@/pages/products/ImportJobList";
 import OrderList from "@/pages/orders/OrderList";
 import OrderDetail from "@/pages/orders/OrderDetail";
+import CartList from "@/pages/orders/CartList";
+import AbandonedCartList from "@/pages/orders/AbandonedCartList";
+import PaymentList from "@/pages/orders/PaymentList";
+import CreditAccountList from "@/pages/orders/CreditAccountList";
+import DocumentDeliveryLogList from "@/pages/orders/DocumentDeliveryLogList";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
 
 // Procurement
