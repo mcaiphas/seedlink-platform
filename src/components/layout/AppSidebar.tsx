@@ -147,6 +147,16 @@ const sections: NavSection[] = [
     ],
   },
   {
+    label: 'Banking',
+    adminOnly: true,
+    items: [
+      { title: 'Reconciliation', url: '/bank-reconciliation', icon: CheckCircle },
+      { title: 'Bank Accounts', url: '/bank-accounts', icon: Landmark },
+      { title: 'Transactions', url: '/bank-transactions', icon: ArrowDownUp },
+      { title: 'Statement Import', url: '/bank-statement-import', icon: Upload },
+    ],
+  },
+  {
     label: 'Customer Portal',
     items: [
       { title: 'Portal Dashboard', url: '/portal', icon: User },

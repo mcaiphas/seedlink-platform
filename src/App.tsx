@@ -320,6 +320,12 @@ const App = () => (
               <Route path="communication-logs" element={<CustomerCommunicationLog />} />
               <Route path="reminder-templates" element={<ReminderTemplates />} />
 
+              {/* Banking */}
+              <Route path="bank-accounts" element={<BankAccountList />} />
+              <Route path="bank-transactions" element={<BankTransactionList />} />
+              <Route path="bank-statement-import" element={<BankStatementImport />} />
+              <Route path="bank-reconciliation" element={<BankReconciliationDashboard />} />
+
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />
               <Route path="reports/inventory" element={<InventorySnapshot />} />
