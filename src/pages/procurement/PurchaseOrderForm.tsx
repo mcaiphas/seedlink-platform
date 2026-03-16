@@ -115,19 +115,26 @@ export default function PurchaseOrderForm() {
     setSupplierProducts(sp || []);
   };
 
+  const handleProductSelect = (idx: number, product: ProductOption | null) => {
+    if (!product) return;
+    setLines(prev => prev.map((l, i) => {
+      if (i !== idx) return l;
+      const updated = { ...l, product_id: product.id, product_description: product.name + (product.sku ? ` (${product.sku})` : '') };
+      if (product.default_buying_price) updated.unit_price = Number(product.default_buying_price);
+      const sp = supplierProducts.find(s => s.product_id === product.id);
+      if (sp) {
+        updated.supplier_product_code = sp.supplier_product_code || '';
+        if (sp.standard_cost) updated.unit_price = Number(sp.standard_cost);
+      }
+      updated.line_total = Number(updated.quantity) * Number(updated.unit_price);
+      return updated;
+    }));
+  };
+
   const updateLine = (idx: number, field: keyof POLine, value: any) => {
     setLines(prev => prev.map((l, i) => {
       if (i !== idx) return l;
       const updated = { ...l, [field]: value };
-      if (field === 'product_id' && value) {
-        const prod = products.find(p => p.id === value);
-        if (prod) updated.product_description = prod.name;
-        const sp = supplierProducts.find(s => s.product_id === value);
-        if (sp) {
-          updated.supplier_product_code = sp.supplier_product_code || '';
-          if (sp.standard_cost) updated.unit_price = Number(sp.standard_cost);
-        }
-      }
       if (field === 'pack_size_id' && value) {
         const ps = packSizes.find(p => p.id === value);
         if (ps?.estimated_weight_kg) {
