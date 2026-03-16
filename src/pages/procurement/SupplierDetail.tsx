@@ -408,8 +408,65 @@ export default function SupplierDetail() {
               </Table>
             </div>
           </TabsContent>
+          {/* Banking */}
+          <TabsContent value="banking" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button size="sm" variant="outline" onClick={openBankEdit}><Edit2 className="h-4 w-4 mr-1" />Edit Banking</Button>
+            </div>
+            <Card>
+              <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Landmark className="h-4 w-4" />Banking Details</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Bank Name</span><span>{supplier.bank_name || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Name</span><span>{supplier.bank_account_name || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Number</span><span className="font-mono">{supplier.bank_account_number || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Branch Code</span><span className="font-mono">{supplier.bank_branch_code || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">SWIFT Code</span><span className="font-mono">{supplier.bank_swift_code || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Bank Country</span><span>{supplier.bank_country || '—'}</span></div>
+                <Separator />
+                <div className="flex justify-between"><span className="text-muted-foreground">Payment Method</span><span>{supplier.default_payment_method?.toUpperCase() || 'EFT'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Supplier Credit Limit</span><span><CurrencyDisplay amount={supplier.supplier_credit_limit} currency={supplier.currency_code} /></span></div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Performance */}
+          {/* Documents */}
+          <TabsContent value="documents" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button size="sm" onClick={() => setDocOpen(true)}><Plus className="h-4 w-4 mr-1" />Add Document</Button>
+            </div>
+            {documents.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">No documents uploaded yet</div>
+            ) : (
+              <div className="rounded-lg border bg-card overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead className="w-10"></TableHead>
+                  </TableRow></TableHeader>
+                  <TableBody>
+                    {documents.map(d => (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-medium">{d.document_name}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-xs">{fmt(d.document_type)}</Badge></TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{new Date(d.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{d.notes || '—'}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteDoc(d.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+
+
           <TabsContent value="performance" className="mt-4">
             <div className="grid md:grid-cols-3 gap-6">
               <Card><CardContent className="p-6 text-center">
