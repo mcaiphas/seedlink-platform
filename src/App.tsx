@@ -234,7 +234,13 @@ const App = () => (
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserList />} />
               <Route path="roles" element={<RoleList />} />
+              <Route path="permissions" element={<PermissionList />} />
               <Route path="organizations" element={<OrganizationList />} />
+
+              {/* Reports */}
+              <Route path="reports/sales" element={<SalesAnalytics />} />
+              <Route path="reports/inventory" element={<InventorySnapshot />} />
+              <Route path="reports/finance" element={<FinanceSummary />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
