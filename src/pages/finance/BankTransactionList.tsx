@@ -114,7 +114,7 @@ export default function BankTransactionList() {
   };
 
   return (
-    <DataPageShell title="Bank Transactions" subtitle="View and reconcile bank transactions">
+    <DataPageShell title="Bank Transactions" description="View and reconcile bank transactions">
       <div className="flex flex-wrap gap-4 mb-6">
         <Card className="flex-1 min-w-[180px]">
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Transactions</CardTitle></CardHeader>

@@ -58,7 +58,7 @@ export default function BankReconciliationDashboard() {
   const recentUnmatched = unmatched.slice(0, 10);
 
   return (
-    <DataPageShell title="Bank Reconciliation" subtitle="Overview of banking reconciliation status">
+    <DataPageShell title="Bank Reconciliation" description="Overview of banking reconciliation status">
       <div className="mb-4">
         <Select value={accountFilter} onValueChange={setAccountFilter}>
           <SelectTrigger className="w-[280px]"><SelectValue placeholder="All accounts" /></SelectTrigger>

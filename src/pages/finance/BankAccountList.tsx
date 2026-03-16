@@ -87,7 +87,7 @@ export default function BankAccountList() {
     .reduce((s: number, a: any) => s + Number(a.opening_balance || 0), 0);
 
   return (
-    <DataPageShell title="Bank Accounts" subtitle="Manage company bank accounts">
+    <DataPageShell title="Bank Accounts" description="Manage company bank accounts">
       <div className="flex flex-wrap gap-4 mb-6">
         <Card className="flex-1 min-w-[200px]">
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Accounts</CardTitle></CardHeader>

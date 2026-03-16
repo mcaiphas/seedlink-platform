@@ -157,7 +157,7 @@ export default function BankStatementImport() {
   });
 
   return (
-    <DataPageShell title="Bank Statement Import" subtitle="Upload and import bank statements">
+    <DataPageShell title="Bank Statement Import" description="Upload and import bank statements">
       <div className="flex flex-wrap gap-4 mb-6">
         <Card className="flex-1 min-w-[200px]">
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Imports</CardTitle></CardHeader>
