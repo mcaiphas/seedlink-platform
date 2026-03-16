@@ -370,6 +370,14 @@ const App = () => (
 
               <Route path="delivery-requests" element={<DeliveryRequestList />} />
               <Route path="delivery-status" element={<DeliveryStatusList />} />
+              <Route path="logistics" element={<LogisticsDashboard />} />
+              <Route path="logistics/deliveries" element={<LogisticsDeliveryList />} />
+              <Route path="logistics/planning" element={<DeliveryPlanningPage />} />
+              <Route path="logistics/vehicle-matching" element={<VehicleMatchingPage />} />
+              <Route path="logistics/dispatch" element={<DispatchBoard />} />
+              <Route path="logistics/in-progress" element={<DeliveriesInProgress />} />
+              <Route path="logistics/completed" element={<CompletedDeliveries />} />
+              <Route path="logistics/reports" element={<LogisticsReportsPage />} />
 
               {/* System */}
               <Route path="notifications" element={<NotificationList />} />
