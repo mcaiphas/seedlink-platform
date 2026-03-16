@@ -38,10 +38,12 @@ import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
 
 // Procurement
 import SupplierList from "@/pages/procurement/SupplierList";
+import SupplierDetail from "@/pages/procurement/SupplierDetail";
 import PurchaseOrderList from "@/pages/procurement/PurchaseOrderList";
 import PurchaseOrderForm from "@/pages/procurement/PurchaseOrderForm";
 import SupplierInvoiceList from "@/pages/procurement/SupplierInvoiceList";
 import GoodsReceiptList from "@/pages/procurement/GoodsReceiptList";
+import ProcurementDashboard from "@/pages/procurement/ProcurementDashboard";
 
 // Commerce / Finance
 import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
@@ -163,7 +165,9 @@ const App = () => (
               <Route path="credit-accounts" element={<CreditAccountList />} />
               <Route path="document-delivery-logs" element={<DocumentDeliveryLogList />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />
+              <Route path="procurement" element={<ProcurementDashboard />} />
               <Route path="suppliers" element={<SupplierList />} />
+              <Route path="suppliers/:id" element={<SupplierDetail />} />
               <Route path="purchase-orders" element={<PurchaseOrderList />} />
               <Route path="purchase-orders/new" element={<PurchaseOrderForm />} />
               <Route path="purchase-orders/:id/edit" element={<PurchaseOrderForm />} />

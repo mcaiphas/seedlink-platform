@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminPage } from '@/components/AdminPage';
 import { DataPageShell } from '@/components/DataPageShell';
@@ -11,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Download, ChevronLeft, ChevronRight, PackageCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -30,11 +30,15 @@ const SOURCE_TYPES = [
 
 export default function GoodsReceivingList() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const poIdFromUrl = searchParams.get('po');
+
   const [receipts, setReceipts] = useState<any[]>([]);
   const [depots, setDepots] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [packSizes, setPackSizes] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -43,32 +47,81 @@ export default function GoodsReceivingList() {
   const [createOpen, setCreateOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    source_type: 'supplier_delivery', supplier_id: '', depot_id: '', product_id: '', pack_size_id: '',
+    source_type: 'supplier_delivery', supplier_id: '', depot_id: '', purchase_order_id: '',
+    product_id: '', pack_size_id: '',
     quantity: '', unit_cost: '', weight_equivalent_kg: '', batch_number: '', expiry_date: '', notes: '',
   });
 
+  // PO lines for receiving
+  const [poLines, setPoLines] = useState<any[]>([]);
+  const [selectedPoLine, setSelectedPoLine] = useState<string>('');
+
   const [detail, setDetail] = useState<any>(null);
   const [detailItems, setDetailItems] = useState<any[]>([]);
-  const [postConfirm, setPostConfirm] = useState<any>(null);
 
   const fetchData = async () => {
     setLoading(true);
-    const [grRes, depRes, prodRes, psRes, supRes] = await Promise.all([
+    const [grRes, depRes, prodRes, psRes, supRes, poRes] = await Promise.all([
       supabase.from('goods_receipts').select('*, depots(name)').order('created_at', { ascending: false }).limit(300),
       supabase.from('depots').select('id, name, depot_code').eq('is_active', true).order('name'),
       supabase.from('products').select('id, name').eq('is_active', true).order('name').limit(500),
       supabase.from('product_pack_sizes').select('id, name, estimated_weight_kg').eq('is_active', true).order('sort_order'),
       supabase.from('suppliers').select('id, supplier_name').order('supplier_name'),
+      supabase.from('purchase_orders').select('id, po_number, supplier_id, depot_id, status')
+        .in('status', ['approved', 'sent', 'partially_received']).order('created_at', { ascending: false }),
     ]);
     setReceipts(grRes.data || []);
     setDepots(depRes.data || []);
     setProducts(prodRes.data || []);
     setPackSizes(psRes.data || []);
     setSuppliers(supRes.data || []);
+    setPurchaseOrders(poRes.data || []);
     setLoading(false);
+
+    // Auto-open if coming from PO
+    if (poIdFromUrl) {
+      const po = (poRes.data || []).find(p => p.id === poIdFromUrl);
+      if (po) {
+        setForm(f => ({ ...f, purchase_order_id: po.id, supplier_id: po.supplier_id, depot_id: po.depot_id || '', source_type: 'supplier_delivery' }));
+        loadPoLines(po.id);
+        setCreateOpen(true);
+      }
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const loadPoLines = async (poId: string) => {
+    const { data } = await supabase.from('purchase_order_items')
+      .select('*, products(name), product_pack_sizes(name)')
+      .eq('purchase_order_id', poId);
+    setPoLines(data || []);
+  };
+
+  const onPoSelect = async (poId: string) => {
+    setForm(f => ({ ...f, purchase_order_id: poId }));
+    const po = purchaseOrders.find(p => p.id === poId);
+    if (po) {
+      setForm(f => ({ ...f, supplier_id: po.supplier_id, depot_id: po.depot_id || f.depot_id }));
+    }
+    await loadPoLines(poId);
+  };
+
+  const onPoLineSelect = (lineId: string) => {
+    setSelectedPoLine(lineId);
+    const line = poLines.find(l => l.id === lineId);
+    if (line) {
+      const outstanding = Number(line.quantity) - Number(line.quantity_received || 0);
+      setForm(f => ({
+        ...f,
+        product_id: line.product_id || '',
+        pack_size_id: line.pack_size_id || '',
+        quantity: outstanding > 0 ? String(outstanding) : String(line.quantity),
+        unit_cost: line.unit_price ? String(line.unit_price) : f.unit_cost,
+        weight_equivalent_kg: line.weight_equivalent_kg ? String(line.weight_equivalent_kg) : '',
+      }));
+    }
+  };
 
   const filtered = useMemo(() => {
     let result = receipts;
@@ -82,7 +135,6 @@ export default function GoodsReceivingList() {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
   const supplierMap = useMemo(() => Object.fromEntries(suppliers.map(s => [s.id, s.supplier_name])), [suppliers]);
 
   const openDetail = async (gr: any) => {
@@ -107,6 +159,7 @@ export default function GoodsReceivingList() {
       receipt_number: receiptNumber,
       source_type: form.source_type,
       supplier_id: form.supplier_id || null,
+      purchase_order_id: form.purchase_order_id || null,
       depot_id: form.depot_id,
       received_by: user?.id,
       status: 'received',
@@ -117,16 +170,18 @@ export default function GoodsReceivingList() {
 
     await supabase.from('goods_receipt_items').insert({
       goods_receipt_id: gr.id,
+      purchase_order_item_id: selectedPoLine || null,
       product_id: form.product_id,
       pack_size_id: form.pack_size_id || null,
       quantity_received: qty,
+      accepted_quantity: qty,
       unit_cost: parseFloat(form.unit_cost) || null,
       weight_equivalent_kg: weightKg,
       batch_number: form.batch_number || null,
       expiry_date: form.expiry_date || null,
     });
 
-    // Update inventory immediately
+    // Update inventory
     const { data: inv } = await supabase.from('depot_inventory')
       .select('id, quantity_on_hand')
       .eq('product_id', form.product_id)
@@ -165,16 +220,40 @@ export default function GoodsReceivingList() {
       status: 'completed',
     });
 
+    // Update PO line received quantity
+    if (selectedPoLine) {
+      const poLine = poLines.find(l => l.id === selectedPoLine);
+      if (poLine) {
+        const newReceived = (Number(poLine.quantity_received) || 0) + qty;
+        await supabase.from('purchase_order_items').update({ quantity_received: newReceived }).eq('id', selectedPoLine);
+
+        // Update PO status
+        if (form.purchase_order_id) {
+          const { data: allLines } = await supabase.from('purchase_order_items').select('quantity, quantity_received').eq('purchase_order_id', form.purchase_order_id);
+          if (allLines) {
+            const fullyReceived = allLines.every(l => (Number(l.quantity_received) || 0) >= Number(l.quantity));
+            const anyReceived = allLines.some(l => (Number(l.quantity_received) || 0) > 0);
+            const newStatus = fullyReceived ? 'received' : anyReceived ? 'partially_received' : undefined;
+            if (newStatus) {
+              await supabase.from('purchase_orders').update({ status: newStatus }).eq('id', form.purchase_order_id);
+            }
+          }
+        }
+      }
+    }
+
     toast.success(`Receipt ${receiptNumber} — ${qty} units received and inventory updated`);
     setSaving(false);
     setCreateOpen(false);
-    setForm({ source_type: 'supplier_delivery', supplier_id: '', depot_id: '', product_id: '', pack_size_id: '', quantity: '', unit_cost: '', weight_equivalent_kg: '', batch_number: '', expiry_date: '', notes: '' });
+    setForm({ source_type: 'supplier_delivery', supplier_id: '', depot_id: '', purchase_order_id: '', product_id: '', pack_size_id: '', quantity: '', unit_cost: '', weight_equivalent_kg: '', batch_number: '', expiry_date: '', notes: '' });
+    setPoLines([]);
+    setSelectedPoLine('');
     fetchData();
   };
 
   return (
     <AdminPage>
-      <DataPageShell title="Goods Receiving" description="Receive stock into depots from suppliers, returns or internal operations"
+      <DataPageShell title="Goods Receiving" description="Receive stock into depots from suppliers, POs, or returns"
         loading={loading} searchValue={search} onSearchChange={v => { setSearch(v); setPage(0); }} searchPlaceholder="Search receipts..."
         action={
           <div className="flex gap-2">
@@ -203,16 +282,15 @@ export default function GoodsReceivingList() {
         ) : (
           <div className="rounded-lg border bg-card overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Receipt #</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Depot</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
+              <TableHeader><TableRow>
+                <TableHead>Receipt #</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Supplier</TableHead>
+                <TableHead>Depot</TableHead>
+                <TableHead>PO</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow></TableHeader>
               <TableBody>
                 {paged.map(r => (
                   <TableRow key={r.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetail(r)}>
@@ -220,6 +298,7 @@ export default function GoodsReceivingList() {
                     <TableCell><Badge variant="outline" className="text-xs capitalize">{r.source_type?.replace(/_/g, ' ')}</Badge></TableCell>
                     <TableCell>{supplierMap[r.supplier_id] || '—'}</TableCell>
                     <TableCell>{(r as any).depots?.name || '—'}</TableCell>
+                    <TableCell className="font-mono text-xs">{r.purchase_order_id ? 'Linked' : '—'}</TableCell>
                     <TableCell><StatusBadge type="document" value={r.status} /></TableCell>
                     <TableCell><DateDisplay date={r.receipt_date} /></TableCell>
                   </TableRow>
@@ -261,6 +340,42 @@ export default function GoodsReceivingList() {
                 </Select>
               </div>
             </div>
+
+            {/* PO Selection */}
+            {form.source_type === 'supplier_delivery' && purchaseOrders.length > 0 && (
+              <div className="space-y-1.5">
+                <Label>Purchase Order (optional)</Label>
+                <Select value={form.purchase_order_id} onValueChange={onPoSelect}>
+                  <SelectTrigger><SelectValue placeholder="Select PO" /></SelectTrigger>
+                  <SelectContent>
+                    {purchaseOrders.filter(po => !form.supplier_id || po.supplier_id === form.supplier_id).map(po => (
+                      <SelectItem key={po.id} value={po.id}>{po.po_number} ({po.status})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* PO Line Selection */}
+            {poLines.length > 0 && (
+              <div className="space-y-1.5">
+                <Label>PO Line Item</Label>
+                <Select value={selectedPoLine} onValueChange={onPoLineSelect}>
+                  <SelectTrigger><SelectValue placeholder="Select line" /></SelectTrigger>
+                  <SelectContent>
+                    {poLines.map(l => {
+                      const outstanding = Number(l.quantity) - Number(l.quantity_received || 0);
+                      return (
+                        <SelectItem key={l.id} value={l.id}>
+                          {(l as any).products?.name || l.product_description} — Outstanding: {outstanding}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label>Destination Depot *</Label>
               <Select value={form.depot_id} onValueChange={v => setForm(f => ({ ...f, depot_id: v }))}>

@@ -44,6 +44,7 @@ const STATUS_CONFIGS: Record<string, Record<string, StatusConfig>> = {
   document: {
     draft: { label: 'Draft', variant: 'outline' },
     pending: { label: 'Pending', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-200' },
+    submitted: { label: 'Submitted', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-200' },
     approved: { label: 'Approved', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
     posted: { label: 'Posted', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
     cancelled: { label: 'Cancelled', variant: 'destructive' },
