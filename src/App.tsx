@@ -66,6 +66,18 @@ import SupplierPaymentList from "@/pages/finance/SupplierPaymentList";
 import CustomerStatements from "@/pages/finance/CustomerStatements";
 import SupplierStatements from "@/pages/finance/SupplierStatements";
 
+// Accounting
+import AccountingPeriods from "@/pages/finance/AccountingPeriods";
+import PostingRules from "@/pages/finance/PostingRules";
+import ManualJournals from "@/pages/finance/ManualJournals";
+import TrialBalance from "@/pages/finance/TrialBalance";
+import ProfitAndLoss from "@/pages/finance/ProfitAndLoss";
+import BalanceSheet from "@/pages/finance/BalanceSheet";
+import GeneralLedgerReport from "@/pages/finance/GeneralLedgerReport";
+import JournalListing from "@/pages/finance/JournalListing";
+import AccountActivity from "@/pages/finance/AccountActivity";
+import FinanceDashboard from "@/pages/finance/FinanceDashboard";
+
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
