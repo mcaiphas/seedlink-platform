@@ -56,7 +56,13 @@ export default function SupplierDetail() {
   const [products, setProducts] = useState<any[]>([]);
   const [productLinkForm, setProductLinkForm] = useState({ product_id: '', supplier_product_code: '', standard_cost: '', minimum_order_qty: '', lead_time_days: '', is_preferred: false });
 
-  const fetchAll = async () => {
+  // Document dialog
+  const [docOpen, setDocOpen] = useState(false);
+  const [docForm, setDocForm] = useState({ document_name: '', document_type: 'general', file_url: '', notes: '' });
+
+  // Banking edit dialog
+  const [bankOpen, setBankOpen] = useState(false);
+  const [bankForm, setBankForm] = useState({ bank_name: '', bank_account_name: '', bank_account_number: '', bank_branch_code: '', bank_swift_code: '', bank_country: '' });
     if (!id) return;
     setLoading(true);
     const [supRes, conRes, spRes, poRes, grRes] = await Promise.all([
