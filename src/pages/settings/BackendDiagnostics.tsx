@@ -105,14 +105,14 @@ export default function BackendDiagnostics() {
     try {
       const { data } = await supabase
         .from('bank_statement_imports')
-        .select('id,created_at,status')
+        .select('id,created_at,import_status')
         .order('created_at', { ascending: false })
         .limit(1);
       const latest = data?.[0];
       results.push({
         label: 'Bank Statement Imports',
         status: latest ? 'ok' : 'warning',
-        detail: latest ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.status})` : 'No imports found',
+        detail: latest ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.import_status})` : 'No imports found',
         icon: Activity,
       });
     } catch {
