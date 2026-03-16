@@ -76,7 +76,7 @@ export default function SupplierStatements() {
 
   function handleExport() {
     if (!statement) return;
-    exportToCSV([
+    exportObjectsToCsv([
       { Date: 'Opening Balance', Type: '', Reference: '', Debit: '', Credit: '', Balance: statement.openingBalance },
       ...statement.entries.map(e => ({ Date: e.date, Type: e.type, Reference: e.ref, Debit: e.debit || '', Credit: e.credit || '', Balance: e.balance })),
       { Date: 'Closing Balance', Type: '', Reference: '', Debit: statement.totalDebits, Credit: statement.totalCredits, Balance: statement.closingBalance },

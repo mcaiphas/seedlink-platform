@@ -57,7 +57,7 @@ export default function CustomerAgingReport() {
   }), { current: 0, d30: 0, d60: 0, d90: 0, d120: 0, total: 0 });
 
   function handleExport() {
-    exportToCSV(filtered.map(d => ({
+    exportObjectsToCsv(filtered.map(d => ({
       Customer: d.customer_name, Code: d.customer_code, Current: d.current, '1-30 Days': d.d30, '31-60 Days': d.d60, '61-90 Days': d.d90, '90+ Days': d.d120, Total: d.total,
     })), 'customer-aging-report');
   }
