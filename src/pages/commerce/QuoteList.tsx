@@ -113,6 +113,20 @@ export default function QuoteList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setItems(prev => {
+      const next = [...prev];
+      const item = { ...next[idx] };
+      item.product_id = product.id;
+      item.description = product.name + (product.sku ? ` (${product.sku})` : '');
+      item.unit_price = product.default_selling_price || item.unit_price;
+      item.line_total = calcLineTotal(item.quantity, item.unit_price, item.discount_percent);
+      next[idx] = item;
+      return next;
+    });
+  }
+
   function addItem() {
     setItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, discount_percent: 0, weight_kg: 0, line_total: 0 }]);
   }
