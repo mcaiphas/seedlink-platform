@@ -265,6 +265,14 @@ const App = () => (
               <Route path="journal-listing" element={<JournalListing />} />
               <Route path="account-activity" element={<AccountActivity />} />
               <Route path="finance-dashboard" element={<FinanceDashboard />} />
+              <Route path="vat-codes" element={<VATCodes />} />
+              <Route path="vat-transactions" element={<VATTransactionReport />} />
+              <Route path="vat201-report" element={<VAT201Report />} />
+              <Route path="vat-control" element={<VATControlReconciliation />} />
+              <Route path="cash-movement" element={<CashMovementSummary />} />
+              <Route path="revenue-by-business-line" element={<RevenueByBusinessLine />} />
+              <Route path="expense-analysis" element={<ExpenseAnalysis />} />
+              <Route path="annual-financial-statements" element={<AnnualFinancialStatements />} />
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}

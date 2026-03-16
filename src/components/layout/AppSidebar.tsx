@@ -160,6 +160,20 @@ const sections: NavSection[] = [
       { title: 'Profit & Loss', url: '/profit-and-loss', icon: TrendingUp },
       { title: 'Balance Sheet', url: '/balance-sheet', icon: DollarSign },
       { title: 'Account Activity', url: '/account-activity', icon: Activity },
+      { title: 'Cash Movement', url: '/cash-movement', icon: ArrowDownUp },
+      { title: 'Revenue by Line', url: '/revenue-by-business-line', icon: BarChart3 },
+      { title: 'Expense Analysis', url: '/expense-analysis', icon: PieChart },
+      { title: 'Annual Statements', url: '/annual-financial-statements', icon: FileSpreadsheet },
+    ],
+  },
+  {
+    label: 'VAT & Tax',
+    adminOnly: true,
+    items: [
+      { title: 'VAT Codes', url: '/vat-codes', icon: Tags },
+      { title: 'VAT Transactions', url: '/vat-transactions', icon: Receipt },
+      { title: 'VAT Control', url: '/vat-control', icon: CheckCircle },
+      { title: 'VAT201 Report', url: '/vat201-report', icon: FileDown },
     ],
   },
   {
