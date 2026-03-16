@@ -165,7 +165,43 @@ export default function SupplierDetail() {
     setProductLinkOpen(true);
   };
 
-  if (loading) return <AdminPage><div className="space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full rounded-xl" /></div></AdminPage>;
+  const saveDoc = async () => {
+    if (!docForm.document_name) { toast.error('Document name required'); return; }
+    const { error } = await supabase.from('supplier_documents').insert({ ...docForm, supplier_id: id, uploaded_by: user?.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success('Document added');
+    setDocOpen(false);
+    setDocForm({ document_name: '', document_type: 'general', file_url: '', notes: '' });
+    fetchAll();
+  };
+
+  const deleteDoc = async (docId: string) => {
+    const { error } = await supabase.from('supplier_documents').delete().eq('id', docId);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Document removed');
+    fetchAll();
+  };
+
+  const openBankEdit = () => {
+    setBankForm({
+      bank_name: supplier?.bank_name || '',
+      bank_account_name: supplier?.bank_account_name || '',
+      bank_account_number: supplier?.bank_account_number || '',
+      bank_branch_code: supplier?.bank_branch_code || '',
+      bank_swift_code: supplier?.bank_swift_code || '',
+      bank_country: supplier?.bank_country || '',
+    });
+    setBankOpen(true);
+  };
+
+  const saveBanking = async () => {
+    const { error } = await supabase.from('suppliers').update(bankForm).eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Banking details updated');
+    setBankOpen(false);
+    fetchAll();
+  };
+
   if (!supplier) return <AdminPage><div className="text-center py-12"><p className="text-muted-foreground">Supplier not found</p><Button variant="outline" className="mt-4" onClick={() => navigate('/suppliers')}>Back</Button></div></AdminPage>;
 
   const fmt = (t: string) => t?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || '—';
