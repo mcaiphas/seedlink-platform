@@ -62,7 +62,9 @@ const navGroups: NavGroup[] = [
     label: 'Finance',
     adminOnly: true,
     items: [
-      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: DollarSign },
+      { title: 'GL Accounts', url: '/gl-accounts', icon: Notebook },
+      { title: 'Journal Entries', url: '/journal-entries', icon: Scale },
+      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
     ],
   },
   {
