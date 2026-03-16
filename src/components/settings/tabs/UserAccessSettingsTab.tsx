@@ -27,7 +27,7 @@ export function UserAccessSettingsTab() {
           <Select value={s.default_role || ''} onValueChange={v => update('default_role', v)}>
             <SelectTrigger><SelectValue placeholder="Select a default role" /></SelectTrigger>
             <SelectContent>
-              {roles.map(r => <SelectItem key={r.id} value={r.name}>{r.display_name}</SelectItem>)}
+              {roles.map(r => <SelectItem key={r.id} value={r.name}>{r.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</SelectItem>)}
             </SelectContent>
           </Select>
         </SettingsField>
