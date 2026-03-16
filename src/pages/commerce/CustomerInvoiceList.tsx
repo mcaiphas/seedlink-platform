@@ -324,7 +324,8 @@ export default function CustomerInvoiceList() {
               </div>
               {lineItems.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-end mb-2">
-                  <div className="col-span-5">{idx === 0 && <Label className="text-xs">Description</Label>}<Input value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value)} className="bg-card" /></div>
+                  <div className="col-span-3">{idx === 0 && <Label className="text-xs">Product</Label>}<ProductLineItemSelect value={item.product_id || null} onSelect={p => handleProductSelect(idx, p)} /></div>
+                  <div className="col-span-2">{idx === 0 && <Label className="text-xs">Description</Label>}<Input value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value)} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Qty</Label>}<Input type="number" value={item.quantity} onChange={e => updateLineItem(idx, 'quantity', Number(e.target.value))} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Unit Price</Label>}<Input type="number" value={item.unit_price} onChange={e => updateLineItem(idx, 'unit_price', Number(e.target.value))} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Total</Label>}<div className="h-10 flex items-center px-3 rounded-md border bg-muted text-sm font-medium"><CurrencyDisplay amount={item.line_total} /></div></div>
