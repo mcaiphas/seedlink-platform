@@ -132,12 +132,18 @@ export default function CustomerInvoiceList() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       await supabase.from('payments').insert({
-        order_id: paymentInvoice.order_id, customer_id: paymentInvoice.customer_id,
-        customer_invoice_id: paymentInvoice.id, amount: paymentData.amount,
-        payment_method: paymentData.payment_method, payment_reference: paymentData.payment_reference || null,
-        payment_status: 'paid', allocated_amount: paymentData.amount,
-        currency_code: paymentInvoice.currency_code, user_id: user?.id,
-      });
+        order_id: paymentInvoice.order_id || null,
+        customer_id: paymentInvoice.customer_id || null,
+        customer_invoice_id: paymentInvoice.id,
+        amount: paymentData.amount,
+        payment_method: paymentData.payment_method,
+        payment_reference: paymentData.payment_reference || null,
+        payment_status: 'paid',
+        allocated_amount: paymentData.amount,
+        currency_code: paymentInvoice.currency_code,
+        created_by: user?.id || null,
+        notes: paymentData.notes || null,
+      } as any);
 
       const newPaid = Number(paymentInvoice.paid_amount || 0) + paymentData.amount;
       const totalAmt = Number(paymentInvoice.total_amount);
