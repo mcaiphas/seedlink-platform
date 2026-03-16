@@ -26,10 +26,12 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, MoreHorizontal, Edit, UserX, Shield, Users, Download, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, UserPlus, MoreHorizontal, Edit, UserX, Shield, Users, Download, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { logAudit } from '@/lib/audit';
 import { exportToCsv } from '@/lib/csv-export';
+import { UserPermissionOverrides } from '@/components/UserPermissionOverrides';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Profile {
   id: string;
