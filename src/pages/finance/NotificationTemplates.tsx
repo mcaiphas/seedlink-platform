@@ -198,9 +198,14 @@ export default function NotificationTemplates() {
                     <Switch checked={t.is_active} onCheckedChange={v => toggleMutation.mutate({ id: t.id, active: v })} />
                   </TableCell>
                   <TableCell className="pr-6 text-right">
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(t)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => duplicateTemplate(t)} title="Duplicate">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(t)} title="Edit">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
