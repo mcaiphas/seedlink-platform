@@ -89,6 +89,7 @@ const sections: NavSection[] = [
   {
     label: 'Procurement',
     items: [
+      { title: 'Dashboard', url: '/procurement', icon: BarChart3 },
       { title: 'Suppliers', url: '/suppliers', icon: Building2 },
       { title: 'Purchase Orders', url: '/purchase-orders', icon: FileSpreadsheet },
       { title: 'Goods Receipts', url: '/goods-receipts', icon: PackageCheck },
