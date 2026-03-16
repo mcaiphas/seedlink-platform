@@ -59,12 +59,12 @@ export default function VATCodes() {
     if (editId) {
       const { error } = await supabase.from('vat_codes').update(payload).eq('id', editId);
       if (error) { toast.error(error.message); return; }
-      logAudit('update', 'vat_code', editId, {}, payload);
+      logAudit({ action: 'update', entity_type: 'vat_code', entity_id: editId, new_values: payload });
       toast.success('VAT code updated');
     } else {
       const { error } = await supabase.from('vat_codes').insert(payload);
       if (error) { toast.error(error.message); return; }
-      logAudit('create', 'vat_code', null, {}, payload);
+      logAudit({ action: 'create', entity_type: 'vat_code', new_values: payload });
       toast.success('VAT code created');
     }
     setOpen(false);

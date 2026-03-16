@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { KpiCard } from '@/components/commerce/PageShell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DollarSign, TrendingUp, TrendingDown, Landmark, Package, Users, Building2, Scale } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Landmark, Package, Users, Building2, Scale, Receipt } from 'lucide-react';
 import { CurrencyDisplay } from '@/components/commerce/StatusBadge';
 
 export default function FinanceDashboard() {
@@ -11,6 +11,7 @@ export default function FinanceDashboard() {
   const [kpis, setKpis] = useState({
     revenue: 0, cos: 0, grossProfit: 0, opex: 0, operatingProfit: 0, netProfit: 0,
     totalAssets: 0, totalLiabilities: 0, cashAtBank: 0, tradeDebtors: 0, tradeCreditors: 0, inventory: 0,
+    vatPayable: 0,
   });
 
   useEffect(() => {
@@ -38,14 +39,12 @@ export default function FinanceDashboard() {
         }, 0);
       }
 
-      // P&L for this month
       const revenue = sumByType(monthLines, ['revenue', 'other_income'], true);
       const cos = sumByType(monthLines, ['cost_of_sales'], false);
       const opex = sumByType(monthLines, ['expense', 'other_expense'], false);
       const grossProfit = revenue - cos;
       const operatingProfit = grossProfit - opex;
 
-      // Balance sheet as at today (all time)
       function balanceByCode(code: string) {
         const acct = accounts.find(a => a.account_code === code);
         if (!acct) return 0;
@@ -56,6 +55,13 @@ export default function FinanceDashboard() {
       const totalAssets = sumByType(posted.filter((l: any) => l.journal_entries.entry_date <= today), ['asset'], false);
       const totalLiabilities = sumByType(posted.filter((l: any) => l.journal_entries.entry_date <= today), ['liability'], true);
 
+      // VAT payable = net of VAT control accounts
+      const vatAccounts = accounts.filter(a => a.account_name.toLowerCase().includes('vat') || a.account_code.startsWith('2300'));
+      const vatPayable = vatAccounts.reduce((s, acct) => {
+        const acctLines = posted.filter((l: any) => l.gl_account_id === acct.id && l.journal_entries.entry_date <= today);
+        return s + acctLines.reduce((ss: number, l: any) => ss + (l.credit_amount || 0) - (l.debit_amount || 0), 0);
+      }, 0);
+
       setKpis({
         revenue, cos, grossProfit, opex, operatingProfit, netProfit: operatingProfit,
         totalAssets, totalLiabilities,
@@ -63,6 +69,7 @@ export default function FinanceDashboard() {
         tradeDebtors: balanceByCode('1200'),
         tradeCreditors: Math.abs(balanceByCode('2200')),
         inventory: balanceByCode('1100'),
+        vatPayable,
       });
       setLoading(false);
     }
@@ -93,7 +100,7 @@ export default function FinanceDashboard() {
         <KpiCard label="Trade Debtors" value={`ZAR ${kpis.tradeDebtors.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`} icon={Users} />
         <KpiCard label="Trade Creditors" value={`ZAR ${kpis.tradeCreditors.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`} icon={Building2} />
         <KpiCard label="Inventory Value" value={`ZAR ${kpis.inventory.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`} icon={Package} />
-        <KpiCard label="Total Assets" value={`ZAR ${kpis.totalAssets.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`} icon={TrendingUp} />
+        <KpiCard label="VAT Payable" value={`ZAR ${kpis.vatPayable.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`} icon={Receipt} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -124,6 +131,7 @@ export default function FinanceDashboard() {
               ['Trade Debtors', kpis.tradeDebtors],
               ['Trade Creditors', kpis.tradeCreditors],
               ['Inventory', kpis.inventory],
+              ['VAT Payable', kpis.vatPayable],
             ].map(([label, val]) => (
               <div key={label as string} className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{label as string}</span>
