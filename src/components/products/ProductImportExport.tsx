@@ -1,19 +1,30 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Download, Upload, FileText, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, FileSpreadsheet, ArrowRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const TEMPLATE_HEADERS = [
   'name', 'sku', 'product_type', 'status', 'brand', 'category', 'description',
   'price', 'compare_at_price', 'buying_price', 'currency_code', 'base_uom',
   'stock_quantity', 'is_active', 'requires_shipping', 'shipping_weight_kg',
-  'length_cm', 'width_cm', 'height_cm',
+  'length_cm', 'width_cm', 'height_cm', 'crop', 'seed_type', 'treatment',
+  'germination_pct', 'active_ingredient', 'market_segment',
+];
+
+const SAMPLE_ROW = [
+  'Pioneer P3456 Maize', 'SL-MAIZE-001', 'physical', 'draft', 'Pioneer', 'Seeds', 'High-yield hybrid maize seed',
+  '1250.00', '', '850.00', 'ZAR', 'kg',
+  '500', 'true', 'true', '25',
+  '40', '30', '20', 'Maize', 'Hybrid', 'Thiram',
+  '95', '', 'Commercial',
 ];
 
 interface Props {
@@ -26,8 +37,9 @@ interface Props {
 interface ImportRow {
   row: number;
   data: Record<string, string>;
-  status: 'valid' | 'error';
+  status: 'valid' | 'warning' | 'error';
   errors: string[];
+  warnings: string[];
 }
 
 export function ProductImportExport({ open, onOpenChange, onImportComplete, products }: Props) {
@@ -36,9 +48,11 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
   const [importResults, setImportResults] = useState<ImportRow[] | null>(null);
   const [importDone, setImportDone] = useState(false);
   const [successCount, setSuccessCount] = useState(0);
+  const [importProgress, setImportProgress] = useState(0);
+  const [step, setStep] = useState<'upload' | 'review' | 'done'>('upload');
 
   const downloadTemplate = () => {
-    const csv = TEMPLATE_HEADERS.join(',') + '\n';
+    const csv = TEMPLATE_HEADERS.join(',') + '\n' + SAMPLE_ROW.join(',') + '\n';
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -46,16 +60,19 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
     a.download = 'seedlink_products_template.csv';
     a.click();
     URL.revokeObjectURL(url);
+    toast({ title: 'Template downloaded', description: 'Fill in the template and upload to import products.' });
   };
 
   const exportProducts = () => {
     if (!products.length) { toast({ title: 'No products to export' }); return; }
     const headers = TEMPLATE_HEADERS;
+    const metaKeys = ['crop', 'seed_type', 'treatment', 'germination_pct', 'active_ingredient', 'market_segment'];
     const rows = products.map(p => headers.map(h => {
       if (h === 'buying_price') return p.metadata?.buying_price ?? '';
+      if (metaKeys.includes(h)) return p.metadata?.[h] ?? '';
       const v = p[h];
       if (v === null || v === undefined) return '';
-      if (typeof v === 'string' && v.includes(',')) return `"${v}"`;
+      if (typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('\n'))) return `"${v.replace(/"/g, '""')}"`;
       return String(v);
     }).join(','));
     const csv = headers.join(',') + '\n' + rows.join('\n');
@@ -66,14 +83,23 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
     a.download = `seedlink_products_export_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    toast({ title: `${products.length} products exported` });
   };
 
   const parseCSV = (text: string): Record<string, string>[] => {
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) return [];
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
     return lines.slice(1).map(line => {
-      const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const vals: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (const char of line) {
+        if (char === '"') { inQuotes = !inQuotes; }
+        else if (char === ',' && !inQuotes) { vals.push(current.trim()); current = ''; }
+        else { current += char; }
+      }
+      vals.push(current.trim());
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
       return obj;
@@ -82,35 +108,64 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
 
   const validateRow = (data: Record<string, string>, idx: number): ImportRow => {
     const errors: string[] = [];
+    const warnings: string[] = [];
     if (!data.name?.trim()) errors.push('Name is required');
-    if (data.price && isNaN(Number(data.price))) errors.push('Invalid price');
+    if (data.price && isNaN(Number(data.price))) errors.push('Invalid price format');
+    if (data.buying_price && isNaN(Number(data.buying_price))) errors.push('Invalid buying price format');
     if (data.stock_quantity && isNaN(Number(data.stock_quantity))) errors.push('Invalid stock quantity');
-    return { row: idx + 2, data, status: errors.length ? 'error' : 'valid', errors };
+    if (data.germination_pct) {
+      const g = Number(data.germination_pct);
+      if (isNaN(g) || g < 0 || g > 100) errors.push('Germination % must be 0-100');
+    }
+    if (data.status && !['draft', 'published', 'archived'].includes(data.status)) warnings.push(`Unknown status "${data.status}", defaulting to draft`);
+    if (data.product_type && !['physical', 'digital', 'service'].includes(data.product_type)) warnings.push(`Unknown product type "${data.product_type}", defaulting to physical`);
+    if (!data.price && !data.buying_price) warnings.push('No pricing set');
+    if (data.price && data.buying_price) {
+      const margin = ((Number(data.price) - Number(data.buying_price)) / Number(data.price)) * 100;
+      if (margin < 0) warnings.push('Negative margin detected');
+      else if (margin < 5) warnings.push(`Very low margin: ${margin.toFixed(1)}%`);
+    }
+    const status = errors.length > 0 ? 'error' : warnings.length > 0 ? 'warning' : 'valid';
+    return { row: idx + 2, data, status, errors, warnings };
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImporting(true);
-    setImportDone(false);
-    setSuccessCount(0);
 
     const text = await file.text();
     const parsed = parseCSV(text);
+    if (parsed.length === 0) {
+      toast({ title: 'Empty file', description: 'No data rows found in the CSV.', variant: 'destructive' });
+      return;
+    }
     const validated = parsed.map((d, i) => validateRow(d, i));
     setImportResults(validated);
+    setStep('review');
+    if (fileRef.current) fileRef.current.value = '';
+  };
 
-    const valid = validated.filter(r => r.status === 'valid');
-    if (valid.length === 0) { setImporting(false); return; }
+  const executeImport = async () => {
+    if (!importResults) return;
+    const valid = importResults.filter(r => r.status !== 'error');
+    if (valid.length === 0) { toast({ title: 'No valid rows to import', variant: 'destructive' }); return; }
 
+    setImporting(true);
+    setImportProgress(0);
     let success = 0;
-    for (const row of valid) {
-      const d = row.data;
+    const metaKeys = ['crop', 'seed_type', 'treatment', 'germination_pct', 'active_ingredient', 'market_segment'];
+
+    for (let i = 0; i < valid.length; i++) {
+      const d = valid[i].data;
+      const metadata: Record<string, any> = {};
+      if (d.buying_price) metadata.buying_price = Number(d.buying_price);
+      metaKeys.forEach(k => { if (d[k]) metadata[k] = d[k]; });
+
       const insert: any = {
         name: d.name,
         sku: d.sku || null,
-        product_type: d.product_type || 'physical',
-        status: d.status || 'draft',
+        product_type: ['physical', 'digital', 'service'].includes(d.product_type) ? d.product_type : 'physical',
+        status: ['draft', 'published', 'archived'].includes(d.status) ? d.status : 'draft',
         brand: d.brand || null,
         category: d.category || null,
         description: d.description || null,
@@ -125,25 +180,30 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
         length_cm: d.length_cm ? Number(d.length_cm) : null,
         width_cm: d.width_cm ? Number(d.width_cm) : null,
         height_cm: d.height_cm ? Number(d.height_cm) : null,
-        metadata: d.buying_price ? { buying_price: Number(d.buying_price) } : {},
+        metadata,
       };
       const { error } = await supabase.from('products').insert(insert);
       if (!error) success++;
-      else row.errors.push(error.message);
+      else valid[i].errors.push(error.message);
+      setImportProgress(((i + 1) / valid.length) * 100);
     }
 
     setSuccessCount(success);
     setImportDone(true);
     setImporting(false);
+    setStep('done');
     if (success > 0) onImportComplete();
-    if (fileRef.current) fileRef.current.value = '';
   };
 
-  const reset = () => { setImportResults(null); setImportDone(false); };
+  const reset = () => { setImportResults(null); setImportDone(false); setStep('upload'); setImportProgress(0); };
+
+  const errorCount = importResults?.filter(r => r.status === 'error').length || 0;
+  const warningCount = importResults?.filter(r => r.status === 'warning').length || 0;
+  const validCount = importResults?.filter(r => r.status !== 'error').length || 0;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) reset(); }}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import & Export Products</DialogTitle>
           <DialogDescription>Import products from CSV or export your product catalog.</DialogDescription>
@@ -156,61 +216,119 @@ export function ProductImportExport({ open, onOpenChange, onImportComplete, prod
           </TabsList>
 
           <TabsContent value="import" className="space-y-4 mt-4">
-            <div className="rounded-lg border border-dashed border-border p-6 text-center space-y-3">
-              <FileText className="mx-auto h-10 w-10 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Upload a CSV file</p>
-                <p className="text-xs text-muted-foreground">Use the template for best results</p>
-              </div>
-              <div className="flex justify-center gap-2">
-                <Button variant="outline" size="sm" onClick={downloadTemplate}>
-                  <Download className="mr-2 h-3 w-3" />Download Template
-                </Button>
-                <Button size="sm" disabled={importing} onClick={() => fileRef.current?.click()}>
-                  <Upload className="mr-2 h-3 w-3" />{importing ? 'Importing...' : 'Choose File'}
-                </Button>
-                <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
-              </div>
-            </div>
-
-            {importResults && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  {importDone && (
-                    <>
-                      <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{successCount} imported</Badge>
-                      {importResults.filter(r => r.errors.length > 0).length > 0 && (
-                        <Badge variant="destructive" className="gap-1">
-                          <XCircle className="h-3 w-3" />{importResults.filter(r => r.errors.length > 0).length} failed
-                        </Badge>
-                      )}
-                    </>
-                  )}
+            {step === 'upload' && (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center space-y-4">
+                <FileSpreadsheet className="mx-auto h-12 w-12 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Upload a CSV file to import products</p>
+                  <p className="text-xs text-muted-foreground mt-1">Download the template below for the correct format. Includes a sample row.</p>
                 </div>
-                <div className="max-h-48 overflow-y-auto rounded-md border text-xs">
-                  {importResults.filter(r => r.errors.length > 0).map(r => (
-                    <div key={r.row} className="flex items-start gap-2 p-2 border-b last:border-0">
-                      <AlertCircle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-medium">Row {r.row}:</span>{' '}
-                        {r.errors.join('; ')}
+                <div className="flex justify-center gap-2">
+                  <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                    <Download className="mr-2 h-3 w-3" />Download Template
+                  </Button>
+                  <Button size="sm" onClick={() => fileRef.current?.click()}>
+                    <Upload className="mr-2 h-3 w-3" />Choose CSV File
+                  </Button>
+                  <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1 pt-2">
+                  <p>Supported fields: name, SKU, pricing, stock, dimensions, agribusiness attributes</p>
+                  <p>Metadata fields (crop, seed_type, treatment, etc.) are automatically stored</p>
+                </div>
+              </div>
+            )}
+
+            {step === 'review' && importResults && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{validCount} valid</Badge>
+                  {warningCount > 0 && <Badge variant="secondary" className="gap-1 text-amber-600"><AlertCircle className="h-3 w-3" />{warningCount} warnings</Badge>}
+                  {errorCount > 0 && <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />{errorCount} errors</Badge>}
+                  <span className="text-xs text-muted-foreground">Total: {importResults.length} rows</span>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-16">Row</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>SKU</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Issues</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {importResults.map(r => (
+                        <TableRow key={r.row} className={r.status === 'error' ? 'bg-destructive/5' : r.status === 'warning' ? 'bg-amber-500/5' : ''}>
+                          <TableCell className="font-mono text-xs">{r.row}</TableCell>
+                          <TableCell className="text-sm font-medium">{r.data.name || <span className="text-destructive italic">Missing</span>}</TableCell>
+                          <TableCell className="text-xs font-mono text-muted-foreground">{r.data.sku || '—'}</TableCell>
+                          <TableCell>
+                            <Badge variant={r.status === 'error' ? 'destructive' : r.status === 'warning' ? 'secondary' : 'outline'} className="text-xs capitalize">{r.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-xs max-w-[200px]">
+                            {r.errors.map((e, i) => <p key={i} className="text-destructive">{e}</p>)}
+                            {r.warnings.map((w, i) => <p key={i} className="text-amber-600">{w}</p>)}
+                            {r.errors.length === 0 && r.warnings.length === 0 && <span className="text-muted-foreground">—</span>}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" size="sm" onClick={reset}>← Back</Button>
+                  <Button size="sm" onClick={executeImport} disabled={validCount === 0 || importing}>
+                    {importing ? 'Importing...' : `Import ${validCount} product${validCount !== 1 ? 's' : ''}`}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+
+                {importing && <Progress value={importProgress} className="h-2" />}
+              </div>
+            )}
+
+            {step === 'done' && importResults && (
+              <div className="space-y-4">
+                <div className="rounded-lg border p-6 text-center space-y-3">
+                  <CheckCircle className="mx-auto h-12 w-12 text-primary" />
+                  <p className="text-lg font-semibold">Import Complete</p>
+                  <div className="flex justify-center gap-3">
+                    <Badge variant="default" className="gap-1">{successCount} imported</Badge>
+                    {importResults.filter(r => r.errors.length > 0 && r.status !== 'error').length > 0 && (
+                      <Badge variant="destructive" className="gap-1">{importResults.filter(r => r.errors.length > 0 && r.status !== 'error').length} failed</Badge>
+                    )}
+                    {errorCount > 0 && <Badge variant="outline" className="gap-1">{errorCount} skipped (invalid)</Badge>}
+                  </div>
+                </div>
+
+                {importResults.filter(r => r.errors.length > 0).length > 0 && (
+                  <div className="max-h-40 overflow-y-auto rounded-md border text-xs">
+                    {importResults.filter(r => r.errors.length > 0).map(r => (
+                      <div key={r.row} className="flex items-start gap-2 p-2 border-b last:border-0">
+                        <AlertCircle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
+                        <div><span className="font-medium">Row {r.row}:</span> {r.errors.join('; ')}</div>
                       </div>
-                    </div>
-                  ))}
-                  {importResults.filter(r => r.errors.length > 0).length === 0 && importDone && (
-                    <div className="p-4 text-center text-muted-foreground">All rows imported successfully</div>
-                  )}
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-center">
+                  <Button variant="outline" size="sm" onClick={reset}>Import More</Button>
                 </div>
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="export" className="space-y-4 mt-4">
-            <div className="rounded-lg border p-6 text-center space-y-3">
-              <Download className="mx-auto h-10 w-10 text-muted-foreground" />
+            <div className="rounded-lg border p-8 text-center space-y-4">
+              <FileSpreadsheet className="mx-auto h-12 w-12 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Export {products.length} products</p>
-                <p className="text-xs text-muted-foreground">Download as CSV file</p>
+                <p className="text-sm font-medium">Export {products.length} product{products.length !== 1 ? 's' : ''}</p>
+                <p className="text-xs text-muted-foreground mt-1">Downloads as CSV with all product fields including pricing, attributes, and dimensions.</p>
               </div>
               <Button onClick={exportProducts} disabled={!products.length}>
                 <Download className="mr-2 h-4 w-4" />Export to CSV

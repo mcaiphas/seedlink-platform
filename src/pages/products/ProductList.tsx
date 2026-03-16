@@ -13,15 +13,15 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Plus, ArrowUpDown, ChevronLeft, ChevronRight, Download, Upload, MoreHorizontal,
-  Copy, Archive, Eye, Pencil, Package, Image as ImageIcon,
+  Plus, ArrowUpDown, ChevronLeft, ChevronRight, Upload, MoreHorizontal,
+  Copy, Archive, Eye, Pencil, Package, Image as ImageIcon, ShoppingCart, Layers,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ProductImportExport } from '@/components/products/ProductImportExport';
 
 type SortKey = 'name' | 'price' | 'stock_quantity' | 'created_at' | 'updated_at';
 type SortDir = 'asc' | 'desc';
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 25;
 
 export default function ProductList() {
   const navigate = useNavigate();
@@ -39,7 +39,6 @@ export default function ProductList() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showImportExport, setShowImportExport] = useState(false);
 
-  // Lookup data
   const [categories, setCategories] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [variantCounts, setVariantCounts] = useState<Record<string, number>>({});
@@ -70,14 +69,12 @@ export default function ProductList() {
     setCategories(catRes.data || []);
     setSuppliers(supRes.data || []);
 
-    // Count variants per product
     if (varRes.data) {
       const counts: Record<string, number> = {};
       varRes.data.forEach((v: any) => { counts[v.product_id] = (counts[v.product_id] || 0) + 1; });
       setVariantCounts(counts);
     }
 
-    // Map collections
     if (colRes.data) {
       const m: Record<string, string[]> = {};
       colRes.data.forEach((ci: any) => {
@@ -154,6 +151,13 @@ export default function ProductList() {
     else { toast({ title: `${selected.size} products archived` }); setSelected(new Set()); loadData(); }
   };
 
+  const handleBulkPublish = async () => {
+    if (selected.size === 0) return;
+    const { error } = await supabase.from('products').update({ status: 'published', is_active: true } as any).in('id', [...selected]);
+    if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    else { toast({ title: `${selected.size} products published` }); setSelected(new Set()); loadData(); }
+  };
+
   const getMargin = (p: any) => {
     const buy = p.metadata?.buying_price;
     const sell = p.price;
@@ -162,7 +166,7 @@ export default function ProductList() {
   };
 
   const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort(field)}>
+    <TableHead className="cursor-pointer select-none whitespace-nowrap" onClick={() => toggleSort(field)}>
       <div className="flex items-center gap-1">
         {label}
         <ArrowUpDown className={`h-3 w-3 ${sortKey === field ? 'text-primary' : 'text-muted-foreground/40'}`} />
@@ -172,11 +176,13 @@ export default function ProductList() {
 
   const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
 
+  const activeFilterCount = [statusFilter, categoryFilter, supplierFilter].filter(f => f !== 'all').length;
+
   return (
     <>
       <DataPageShell
         title="Products"
-        description={`${filtered.length} product${filtered.length !== 1 ? 's' : ''}`}
+        description={`${filtered.length} product${filtered.length !== 1 ? 's' : ''}${activeFilterCount > 0 ? ` · ${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : ''}`}
         loading={loading}
         searchValue={search}
         onSearchChange={setSearch}
@@ -222,11 +228,23 @@ export default function ProductList() {
             </SelectContent>
           </Select>
 
+          {activeFilterCount > 0 && (
+            <Button variant="ghost" size="sm" className="text-xs h-9" onClick={() => { setStatusFilter('all'); setCategoryFilter('all'); setSupplierFilter('all'); }}>
+              Clear filters
+            </Button>
+          )}
+
           {selected.size > 0 && (
             <div className="ml-auto flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{selected.size} selected</span>
+              <span className="text-sm text-muted-foreground font-medium">{selected.size} selected</span>
+              <Button variant="outline" size="sm" onClick={handleBulkPublish}>
+                <ShoppingCart className="mr-1 h-3 w-3" />Publish
+              </Button>
               <Button variant="outline" size="sm" onClick={handleBulkArchive}>
                 <Archive className="mr-1 h-3 w-3" />Archive
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => setSelected(new Set())}>
+                Deselect
               </Button>
             </div>
           )}
@@ -280,24 +298,25 @@ export default function ProductList() {
                     <TableCell className="text-sm">{p.category || '—'}</TableCell>
                     <TableCell>
                       {cols.length > 0
-                        ? cols.map(c => <Badge key={c} variant="outline" className="mr-1 text-xs">{c}</Badge>)
+                        ? cols.slice(0, 2).map(c => <Badge key={c} variant="outline" className="mr-1 text-xs">{c}</Badge>)
                         : <span className="text-muted-foreground text-xs">—</span>
                       }
+                      {cols.length > 2 && <span className="text-xs text-muted-foreground">+{cols.length - 2}</span>}
                     </TableCell>
                     <TableCell className="font-medium tabular-nums">
                       {p.price != null ? `${p.currency_code} ${Number(p.price).toFixed(2)}` : '—'}
                     </TableCell>
                     <TableCell className="tabular-nums">
-                      {margin ? <span className={Number(margin) < 10 ? 'text-destructive' : 'text-primary'}>{margin}%</span> : '—'}
+                      {margin ? <span className={Number(margin) < 10 ? 'text-destructive' : Number(margin) >= 20 ? 'text-primary' : 'text-amber-600'}>{margin}%</span> : '—'}
                     </TableCell>
                     <TableCell>
-                      <span className={p.stock_quantity <= 0 ? 'text-destructive font-medium' : 'tabular-nums'}>
+                      <span className={p.stock_quantity <= 0 ? 'text-destructive font-medium' : p.stock_quantity <= 10 ? 'text-amber-600 font-medium' : 'tabular-nums'}>
                         {p.stock_quantity}
                       </span>
                     </TableCell>
                     <TableCell>
                       {vCount > 0
-                        ? <Badge variant="secondary" className="text-xs"><Package className="h-3 w-3 mr-1" />{vCount}</Badge>
+                        ? <Badge variant="secondary" className="text-xs"><Layers className="h-3 w-3 mr-1" />{vCount}</Badge>
                         : <span className="text-muted-foreground text-xs">—</span>
                       }
                     </TableCell>
@@ -306,7 +325,7 @@ export default function ProductList() {
                         {p.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
+                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
                       {p.updated_at ? new Date(p.updated_at).toLocaleDateString() : '—'}
                     </TableCell>
                     <TableCell>
@@ -336,8 +355,11 @@ export default function ProductList() {
                   </TableRow>
                 );
               })}
-              {paged.length === 0 && (
-                <EmptyState message={queryStatus === 'empty' ? 'No products yet — add your first product' : 'No products match filters'} colSpan={13} />
+              {paged.length === 0 && !loading && (
+                <EmptyState
+                  message={queryStatus === 'empty' ? 'No products yet — add your first product to get started' : 'No products match your current filters'}
+                  colSpan={13}
+                />
               )}
             </TableBody>
           </Table>
@@ -345,11 +367,18 @@ export default function ProductList() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-2">
-            <p className="text-sm text-muted-foreground">Page {page + 1} of {totalPages} · {filtered.length} products</p>
+            <p className="text-sm text-muted-foreground">
+              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length} products
+            </p>
             <div className="flex gap-1">
               <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
+              {totalPages <= 7 && Array.from({ length: totalPages }, (_, i) => (
+                <Button key={i} variant={page === i ? 'default' : 'outline'} size="sm" className="w-9" onClick={() => setPage(i)}>
+                  {i + 1}
+                </Button>
+              ))}
               <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
