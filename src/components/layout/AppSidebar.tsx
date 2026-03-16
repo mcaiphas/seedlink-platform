@@ -101,10 +101,11 @@ const sections: NavSection[] = [
       { title: 'Stock Overview', url: '/stock-overview', icon: Boxes, permission: 'inventory:view' },
       { title: 'Depots', url: '/depots', icon: Warehouse, permission: 'inventory:view' },
       { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler, permission: 'inventory:view' },
+      { title: 'Goods Receiving', url: '/goods-receiving', icon: PackageCheck, permission: 'inventory:view' },
       { title: 'Stock Movements', url: '/stock-movements', icon: MoveHorizontal, permission: 'inventory:view' },
       { title: 'Stock Adjustments', url: '/stock-adjustments', icon: ClipboardList, permission: 'inventory:view' },
       { title: 'Stock Transfers', url: '/stock-transfers', icon: ArrowLeftRight, permission: 'inventory:view' },
-      { title: 'Inventory Batches', url: '/inventory-batches', icon: Boxes },
+      { title: 'Stock Counts', url: '/stock-counts', icon: ClipboardList, permission: 'inventory:view' },
     ],
   },
   {
