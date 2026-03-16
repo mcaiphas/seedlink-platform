@@ -1350,6 +1350,559 @@ export type Database = {
           },
         ]
       }
+      agro_advisory_rules: {
+        Row: {
+          application_rate_per_ha: number | null
+          application_rate_unit: string | null
+          created_at: string
+          created_by: string | null
+          crop: string
+          farming_system_id: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          priority: number
+          product_category: string
+          product_id: string | null
+          rationale: string | null
+          region_profile_id: string | null
+          rule_name: string
+          season: string | null
+          soil_profile_id: string | null
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop: string
+          farming_system_id?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          priority?: number
+          product_category: string
+          product_id?: string | null
+          rationale?: string | null
+          region_profile_id?: string | null
+          rule_name: string
+          season?: string | null
+          soil_profile_id?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop?: string
+          farming_system_id?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          priority?: number
+          product_category?: string
+          product_id?: string | null
+          rationale?: string | null
+          region_profile_id?: string | null
+          rule_name?: string
+          season?: string | null
+          soil_profile_id?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agro_advisory_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_advisory_rules_farming_system_id_fkey"
+            columns: ["farming_system_id"]
+            isOneToOne: false
+            referencedRelation: "agro_farming_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_advisory_rules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_advisory_rules_region_profile_id_fkey"
+            columns: ["region_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_region_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_advisory_rules_soil_profile_id_fkey"
+            columns: ["soil_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_soil_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_advisory_rules_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agro_farming_systems: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          system_code: string
+          system_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          system_code: string
+          system_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          system_code?: string
+          system_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agro_recommendation_items: {
+        Row: {
+          application_rate_per_ha: number | null
+          application_rate_unit: string | null
+          created_at: string
+          id: string
+          line_total: number | null
+          notes: string | null
+          pack_size_id: string | null
+          packs_needed: number | null
+          product_category: string
+          product_id: string | null
+          product_name: string | null
+          rationale: string | null
+          recommendation_id: string
+          sort_order: number
+          total_quantity: number | null
+          unit_price: number | null
+          variant_id: string | null
+        }
+        Insert: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          id?: string
+          line_total?: number | null
+          notes?: string | null
+          pack_size_id?: string | null
+          packs_needed?: number | null
+          product_category: string
+          product_id?: string | null
+          product_name?: string | null
+          rationale?: string | null
+          recommendation_id: string
+          sort_order?: number
+          total_quantity?: number | null
+          unit_price?: number | null
+          variant_id?: string | null
+        }
+        Update: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          created_at?: string
+          id?: string
+          line_total?: number | null
+          notes?: string | null
+          pack_size_id?: string | null
+          packs_needed?: number | null
+          product_category?: string
+          product_id?: string | null
+          product_name?: string | null
+          rationale?: string | null
+          recommendation_id?: string
+          sort_order?: number
+          total_quantity?: number | null
+          unit_price?: number | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agro_recommendation_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendation_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendation_items_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "agro_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendation_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agro_recommendations: {
+        Row: {
+          area_ha: number | null
+          assumptions: string | null
+          converted_to_id: string | null
+          converted_to_type: string | null
+          created_at: string
+          crop: string
+          customer_id: string | null
+          farm_id: string | null
+          farming_system_id: string | null
+          id: string
+          irrigation_type: string | null
+          planting_window: string | null
+          production_goal: string | null
+          production_scale: string | null
+          province: string | null
+          rainfall_zone: string | null
+          recommendation_number: string | null
+          region_profile_id: string | null
+          soil_profile_id: string | null
+          soil_type: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          yield_target: string | null
+        }
+        Insert: {
+          area_ha?: number | null
+          assumptions?: string | null
+          converted_to_id?: string | null
+          converted_to_type?: string | null
+          created_at?: string
+          crop: string
+          customer_id?: string | null
+          farm_id?: string | null
+          farming_system_id?: string | null
+          id?: string
+          irrigation_type?: string | null
+          planting_window?: string | null
+          production_goal?: string | null
+          production_scale?: string | null
+          province?: string | null
+          rainfall_zone?: string | null
+          recommendation_number?: string | null
+          region_profile_id?: string | null
+          soil_profile_id?: string | null
+          soil_type?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          yield_target?: string | null
+        }
+        Update: {
+          area_ha?: number | null
+          assumptions?: string | null
+          converted_to_id?: string | null
+          converted_to_type?: string | null
+          created_at?: string
+          crop?: string
+          customer_id?: string | null
+          farm_id?: string | null
+          farming_system_id?: string | null
+          id?: string
+          irrigation_type?: string | null
+          planting_window?: string | null
+          production_goal?: string | null
+          production_scale?: string | null
+          province?: string | null
+          rainfall_zone?: string | null
+          recommendation_number?: string | null
+          region_profile_id?: string | null
+          soil_profile_id?: string | null
+          soil_type?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          yield_target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agro_recommendations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendations_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendations_farming_system_id_fkey"
+            columns: ["farming_system_id"]
+            isOneToOne: false
+            referencedRelation: "agro_farming_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendations_region_profile_id_fkey"
+            columns: ["region_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_region_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendations_soil_profile_id_fkey"
+            columns: ["soil_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agro_soil_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_recommendations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agro_region_profiles: {
+        Row: {
+          agronomic_notes: string | null
+          common_crops: string[] | null
+          country: string
+          created_at: string
+          dominant_soil_patterns: string[] | null
+          id: string
+          is_active: boolean
+          preferred_planting_windows: string | null
+          production_zone: string
+          province: string
+          rainfall_class: string | null
+          risk_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          agronomic_notes?: string | null
+          common_crops?: string[] | null
+          country?: string
+          created_at?: string
+          dominant_soil_patterns?: string[] | null
+          id?: string
+          is_active?: boolean
+          preferred_planting_windows?: string | null
+          production_zone: string
+          province: string
+          rainfall_class?: string | null
+          risk_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agronomic_notes?: string | null
+          common_crops?: string[] | null
+          country?: string
+          created_at?: string
+          dominant_soil_patterns?: string[] | null
+          id?: string
+          is_active?: boolean
+          preferred_planting_windows?: string | null
+          production_zone?: string
+          province?: string
+          rainfall_class?: string | null
+          risk_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agro_soil_profiles: {
+        Row: {
+          agronomic_notes: string | null
+          created_at: string
+          drainage: string | null
+          id: string
+          is_active: boolean
+          leaching_risk: string | null
+          nutrient_holding: string | null
+          profile_name: string
+          texture_class: string
+          updated_at: string
+          water_holding: string | null
+        }
+        Insert: {
+          agronomic_notes?: string | null
+          created_at?: string
+          drainage?: string | null
+          id?: string
+          is_active?: boolean
+          leaching_risk?: string | null
+          nutrient_holding?: string | null
+          profile_name: string
+          texture_class: string
+          updated_at?: string
+          water_holding?: string | null
+        }
+        Update: {
+          agronomic_notes?: string | null
+          created_at?: string
+          drainage?: string | null
+          id?: string
+          is_active?: boolean
+          leaching_risk?: string | null
+          nutrient_holding?: string | null
+          profile_name?: string
+          texture_class?: string
+          updated_at?: string
+          water_holding?: string | null
+        }
+        Relationships: []
+      }
+      agro_solution_bundle_items: {
+        Row: {
+          application_rate_per_ha: number | null
+          application_rate_unit: string | null
+          bundle_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          product_category: string
+          product_id: string | null
+          sort_order: number
+          variant_id: string | null
+        }
+        Insert: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          bundle_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          product_category: string
+          product_id?: string | null
+          sort_order?: number
+          variant_id?: string | null
+        }
+        Update: {
+          application_rate_per_ha?: number | null
+          application_rate_unit?: string | null
+          bundle_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          product_category?: string
+          product_id?: string | null
+          sort_order?: number
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agro_solution_bundle_items_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "agro_solution_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_solution_bundle_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agro_solution_bundle_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agro_solution_bundles: {
+        Row: {
+          agronomic_objective: string | null
+          bundle_name: string
+          created_at: string
+          created_by: string | null
+          crop: string
+          estimated_area_ha: number | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          target_context: string | null
+          updated_at: string
+        }
+        Insert: {
+          agronomic_objective?: string | null
+          bundle_name: string
+          created_at?: string
+          created_by?: string | null
+          crop: string
+          estimated_area_ha?: number | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          target_context?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agronomic_objective?: string | null
+          bundle_name?: string
+          created_at?: string
+          created_by?: string | null
+          crop?: string
+          estimated_area_ha?: number | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          target_context?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agro_solution_bundles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agronomy_tool_runs: {
         Row: {
           created_at: string
@@ -11494,6 +12047,7 @@ export type Database = {
         Returns: boolean
       }
       current_user_has_role: { Args: { p_role_name: string }; Returns: boolean }
+      generate_agro_rec_number: { Args: never; Returns: string }
       generate_ccn_number: { Args: never; Returns: string }
       generate_ci_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }

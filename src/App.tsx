@@ -141,6 +141,13 @@ import SprayProgramList from "@/pages/agronomy/SprayProgramList";
 import CropCalendarList from "@/pages/agronomy/CropCalendarList";
 import YieldEstimatorList from "@/pages/agronomy/YieldEstimatorList";
 import IrrigationPlannerList from "@/pages/agronomy/IrrigationPlannerList";
+import RecommendationEngine from "@/pages/agronomy/RecommendationEngine";
+import RegionProfileList from "@/pages/agronomy/RegionProfileList";
+import SoilProfileList from "@/pages/agronomy/SoilProfileList";
+import FarmingSystemList from "@/pages/agronomy/FarmingSystemList";
+import AdvisoryRuleList from "@/pages/agronomy/AdvisoryRuleList";
+import SolutionBundleList from "@/pages/agronomy/SolutionBundleList";
+import RecommendationHistory from "@/pages/agronomy/RecommendationHistory";
 
 // Logistics
 import DeliveryRequestList from "@/pages/orders/DeliveryRequestList";
@@ -331,6 +338,13 @@ const App = () => (
               <Route path="agronomy/calendar" element={<CropCalendarList />} />
               <Route path="agronomy/yield" element={<YieldEstimatorList />} />
               <Route path="agronomy/irrigation" element={<IrrigationPlannerList />} />
+              <Route path="agronomy/recommend" element={<RecommendationEngine />} />
+              <Route path="agronomy/regions" element={<RegionProfileList />} />
+              <Route path="agronomy/soils" element={<SoilProfileList />} />
+              <Route path="agronomy/farming-systems" element={<FarmingSystemList />} />
+              <Route path="agronomy/advisory-rules" element={<AdvisoryRuleList />} />
+              <Route path="agronomy/bundles" element={<SolutionBundleList />} />
+              <Route path="agronomy/history" element={<RecommendationHistory />} />
 
               {/* Logistics */}
               <Route path="delivery-requests" element={<DeliveryRequestList />} />

@@ -23,6 +23,7 @@ import {
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
+  Zap, MapPin, Mountain, Tractor, History, Beaker,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -120,6 +121,24 @@ const sections: NavSection[] = [
     items: [
       { title: 'Delivery Requests', url: '/delivery-requests', icon: Truck, permission: 'logistics:view' },
       { title: 'Delivery Status', url: '/delivery-status', icon: PackageCheck, permission: 'logistics:view' },
+    ],
+  },
+  {
+    label: 'Agronomy Intelligence',
+    items: [
+      { title: 'Agronomy Dashboard', url: '/agronomy', icon: Sprout },
+      { title: 'Recommendation Engine', url: '/agronomy/recommend', icon: Zap },
+      {
+        title: 'Intelligence', icon: Beaker,
+        children: [
+          { title: 'Region Profiles', url: '/agronomy/regions', icon: MapPin },
+          { title: 'Soil Profiles', url: '/agronomy/soils', icon: Mountain },
+          { title: 'Farming Systems', url: '/agronomy/farming-systems', icon: Tractor },
+          { title: 'Advisory Rules', url: '/agronomy/advisory-rules', icon: BookOpen },
+          { title: 'Solution Bundles', url: '/agronomy/bundles', icon: Package },
+          { title: 'History', url: '/agronomy/history', icon: History },
+        ],
+      },
     ],
   },
   {
