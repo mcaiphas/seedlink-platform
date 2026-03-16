@@ -66,6 +66,18 @@ import SupplierPaymentList from "@/pages/finance/SupplierPaymentList";
 import CustomerStatements from "@/pages/finance/CustomerStatements";
 import SupplierStatements from "@/pages/finance/SupplierStatements";
 
+// Accounting
+import AccountingPeriods from "@/pages/finance/AccountingPeriods";
+import PostingRules from "@/pages/finance/PostingRules";
+import ManualJournals from "@/pages/finance/ManualJournals";
+import TrialBalance from "@/pages/finance/TrialBalance";
+import ProfitAndLoss from "@/pages/finance/ProfitAndLoss";
+import BalanceSheet from "@/pages/finance/BalanceSheet";
+import GeneralLedgerReport from "@/pages/finance/GeneralLedgerReport";
+import JournalListing from "@/pages/finance/JournalListing";
+import AccountActivity from "@/pages/finance/AccountActivity";
+import FinanceDashboard from "@/pages/finance/FinanceDashboard";
+
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
@@ -232,6 +244,18 @@ const App = () => (
               <Route path="supplier-payments" element={<SupplierPaymentList />} />
               <Route path="customer-statements" element={<CustomerStatements />} />
               <Route path="supplier-statements" element={<SupplierStatements />} />
+
+              {/* Accounting */}
+              <Route path="accounting-periods" element={<AccountingPeriods />} />
+              <Route path="posting-rules" element={<PostingRules />} />
+              <Route path="manual-journals" element={<ManualJournals />} />
+              <Route path="trial-balance" element={<TrialBalance />} />
+              <Route path="profit-and-loss" element={<ProfitAndLoss />} />
+              <Route path="balance-sheet" element={<BalanceSheet />} />
+              <Route path="general-ledger-report" element={<GeneralLedgerReport />} />
+              <Route path="journal-listing" element={<JournalListing />} />
+              <Route path="account-activity" element={<AccountActivity />} />
+              <Route path="finance-dashboard" element={<FinanceDashboard />} />
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
