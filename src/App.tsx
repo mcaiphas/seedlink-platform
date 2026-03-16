@@ -141,6 +141,13 @@ import SprayProgramList from "@/pages/agronomy/SprayProgramList";
 import CropCalendarList from "@/pages/agronomy/CropCalendarList";
 import YieldEstimatorList from "@/pages/agronomy/YieldEstimatorList";
 import IrrigationPlannerList from "@/pages/agronomy/IrrigationPlannerList";
+import RecommendationEngine from "@/pages/agronomy/RecommendationEngine";
+import RegionProfileList from "@/pages/agronomy/RegionProfileList";
+import SoilProfileList from "@/pages/agronomy/SoilProfileList";
+import FarmingSystemList from "@/pages/agronomy/FarmingSystemList";
+import AdvisoryRuleList from "@/pages/agronomy/AdvisoryRuleList";
+import SolutionBundleList from "@/pages/agronomy/SolutionBundleList";
+import RecommendationHistory from "@/pages/agronomy/RecommendationHistory";
 
 // Logistics
 import DeliveryRequestList from "@/pages/orders/DeliveryRequestList";
