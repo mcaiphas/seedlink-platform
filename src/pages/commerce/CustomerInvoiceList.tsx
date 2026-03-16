@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { generateDocNumber } from '@/lib/document-numbers';
 import { logAudit } from '@/lib/audit';
 import { FileText, Plus, Trash2, DollarSign } from 'lucide-react';
+import { ProductLineItemSelect, ProductOption } from '@/components/commerce/ProductLineItemSelect';
 
 interface LineItem {
   product_id?: string; description: string; quantity: number; unit_price: number; weight_kg: number; line_total: number;
