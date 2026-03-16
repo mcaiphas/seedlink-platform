@@ -37,6 +37,11 @@ const INCOME_CATEGORIES = [
   'training_income', 'interest_received', 'other_income',
 ];
 
+const BUSINESS_LINES = [
+  'Seedlink Inputs', 'Seedlink Grow', 'Seedlink Connect',
+  'Drovvi', 'Training', 'Logistics', 'Corporate',
+];
+
 export default function TransactionReview() {
   const { user } = useAuth();
   const qc = useQueryClient();
