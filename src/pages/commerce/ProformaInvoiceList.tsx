@@ -274,7 +274,11 @@ export default function ProformaInvoiceList() {
               </div>
               {items.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-end mb-2">
-                  <div className="col-span-4">
+                  <div className="col-span-2">
+                    {idx === 0 && <Label className="text-xs">Product</Label>}
+                    <ProductLineItemSelect value={item.product_id || null} onSelect={p => handleProductSelect(idx, p)} />
+                  </div>
+                  <div className="col-span-2">
                     {idx === 0 && <Label className="text-xs">Description</Label>}
                     <Input value={item.description} onChange={e => updateItem(idx, 'description', e.target.value)} className="bg-card" />
                   </div>

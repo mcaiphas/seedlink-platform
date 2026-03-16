@@ -287,10 +287,7 @@ export default function PurchaseOrderForm() {
                 {lines.map((line, idx) => (
                   <TableRow key={idx}>
                     <TableCell>
-                      <Select value={line.product_id || ''} onValueChange={v => updateLine(idx, 'product_id', v)} disabled={isLocked}>
-                        <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select product" /></SelectTrigger>
-                        <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                      </Select>
+                      <ProductLineItemSelect value={line.product_id || null} onSelect={p => handleProductSelect(idx, p)} disabled={isLocked} />
                     </TableCell>
                     <TableCell>
                       <Select value={line.pack_size_id || ''} onValueChange={v => updateLine(idx, 'pack_size_id', v)} disabled={isLocked}>

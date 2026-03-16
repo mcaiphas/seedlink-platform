@@ -264,7 +264,16 @@ export default function TransactionReview() {
               )}
 
               <div className="grid grid-cols-3 gap-3">
-                <div><Label>Business Line</Label><Input value={form.business_line} onChange={e => setForm(f => ({ ...f, business_line: e.target.value }))} placeholder="e.g. Seeds" /></div>
+                <div>
+                  <Label>Business Line</Label>
+                  <Select value={form.business_line} onValueChange={v => setForm(f => ({ ...f, business_line: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {BUSINESS_LINES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div><Label>Branch</Label><Input value={form.branch} onChange={e => setForm(f => ({ ...f, branch: e.target.value }))} /></div>
                 <div><Label>Segment</Label><Input value={form.segment} onChange={e => setForm(f => ({ ...f, segment: e.target.value }))} /></div>
               </div>
