@@ -52,9 +52,9 @@ export default function SeasonList() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Seasons" description="Manage production seasons for farm planning">
+      <PageHeader title="Seasons" description="Manage production seasons for farm planning" action={
         <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-2" />New Season</Button>
-      </PageHeader>
+      } />
 
       <Card>
         <CardContent className="p-0">

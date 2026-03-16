@@ -71,7 +71,7 @@ export default function CropPlanDetail() {
   const { data: products = [] } = useQuery({
     queryKey: ['products_select'],
     queryFn: async () => {
-      const { data } = await supabase.from('products').select('id, product_name, buying_price, selling_price').limit(500);
+      const { data } = await supabase.from('products').select('id, name, default_buying_price, default_selling_price').limit(500);
       return data || [];
     },
   });

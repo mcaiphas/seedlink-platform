@@ -55,9 +55,9 @@ export default function InputBudgetList() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Input Budgets" description="Aggregated input cost budgets across all crop plans">
+      <PageHeader title="Input Budgets" description="Aggregated input cost budgets across all crop plans" action={
         <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" />Export</Button>
-      </PageHeader>
+      } />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total Plans</p><p className="text-2xl font-bold">{plans.length}</p></CardContent></Card>
