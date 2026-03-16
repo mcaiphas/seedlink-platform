@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Bell, Plus, Pencil } from 'lucide-react';
+import { Bell, Plus, Pencil, Copy } from 'lucide-react';
 
 const CHANNELS = [
   { value: 'email', label: 'Email' },
