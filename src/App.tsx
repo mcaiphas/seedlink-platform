@@ -181,6 +181,9 @@ const App = () => (
               <Route path="credit-accounts" element={<CreditAccountList />} />
               <Route path="document-delivery-logs" element={<DocumentDeliveryLogList />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />
+              <Route path="quotes" element={<QuoteList />} />
+              <Route path="proforma-invoices" element={<ProformaInvoiceList />} />
+              <Route path="payment-requests" element={<PaymentRequestList />} />
               <Route path="procurement" element={<ProcurementDashboard />} />
               <Route path="suppliers" element={<SupplierList />} />
               <Route path="suppliers/:id" element={<SupplierDetail />} />
