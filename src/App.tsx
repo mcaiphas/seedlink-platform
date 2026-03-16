@@ -112,7 +112,11 @@ import PaymentGateways from "@/pages/settings/PaymentGateways";
 import ProfileSettings from "@/pages/settings/ProfileSettings";
 import UserList from "@/pages/system/UserList";
 import RoleList from "@/pages/system/RoleList";
+import PermissionList from "@/pages/system/PermissionList";
 import OrganizationList from "@/pages/system/OrganizationList";
+import SalesAnalytics from "@/pages/reports/SalesAnalytics";
+import InventorySnapshot from "@/pages/reports/InventorySnapshot";
+import FinanceSummary from "@/pages/reports/FinanceSummary";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -230,7 +234,13 @@ const App = () => (
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserList />} />
               <Route path="roles" element={<RoleList />} />
+              <Route path="permissions" element={<PermissionList />} />
               <Route path="organizations" element={<OrganizationList />} />
+
+              {/* Reports */}
+              <Route path="reports/sales" element={<SalesAnalytics />} />
+              <Route path="reports/inventory" element={<InventorySnapshot />} />
+              <Route path="reports/finance" element={<FinanceSummary />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
