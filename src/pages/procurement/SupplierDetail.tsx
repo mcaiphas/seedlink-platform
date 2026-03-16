@@ -602,6 +602,49 @@ export default function SupplierDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Banking Details Dialog */}
+      <Dialog open={bankOpen} onOpenChange={setBankOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Edit Banking Details</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Bank Name</Label><Input value={bankForm.bank_name} onChange={e => setBankForm({ ...bankForm, bank_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Account Name</Label><Input value={bankForm.bank_account_name} onChange={e => setBankForm({ ...bankForm, bank_account_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Account Number</Label><Input value={bankForm.bank_account_number} onChange={e => setBankForm({ ...bankForm, bank_account_number: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5"><Label>Branch Code</Label><Input value={bankForm.bank_branch_code} onChange={e => setBankForm({ ...bankForm, bank_branch_code: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>SWIFT Code</Label><Input value={bankForm.bank_swift_code} onChange={e => setBankForm({ ...bankForm, bank_swift_code: e.target.value })} /></div>
+            </div>
+            <div className="space-y-1.5"><Label>Bank Country</Label><Input value={bankForm.bank_country} onChange={e => setBankForm({ ...bankForm, bank_country: e.target.value })} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBankOpen(false)}>Cancel</Button>
+            <Button onClick={saveBanking}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Supplier Document Dialog */}
+      <Dialog open={docOpen} onOpenChange={setDocOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Add Document</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Document Name *</Label><Input value={docForm.document_name} onChange={e => setDocForm({ ...docForm, document_name: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Document Type</Label>
+              <Select value={docForm.document_type} onValueChange={v => setDocForm({ ...docForm, document_type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{DOC_TYPES.map(t => <SelectItem key={t} value={t}>{fmt(t)}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5"><Label>File URL</Label><Input value={docForm.file_url} onChange={e => setDocForm({ ...docForm, file_url: e.target.value })} placeholder="https://..." /></div>
+            <div className="space-y-1.5"><Label>Notes</Label><Textarea value={docForm.notes} onChange={e => setDocForm({ ...docForm, notes: e.target.value })} rows={2} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDocOpen(false)}>Cancel</Button>
+            <Button onClick={saveDoc}>Add Document</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminPage>
   );
 }
