@@ -167,7 +167,8 @@ import PortalStatements from "@/pages/portal/PortalStatements";
 import CreditControlDashboard from "@/pages/finance/CreditControlDashboard";
 import RefundList from "@/pages/finance/RefundList";
 import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
-import ReminderTemplates from "@/pages/finance/ReminderTemplates";
+import NotificationTemplates from "@/pages/finance/NotificationTemplates";
+import TransactionReview from "@/pages/finance/TransactionReview";
 
 // Banking
 import BankAccountList from "@/pages/finance/BankAccountList";
