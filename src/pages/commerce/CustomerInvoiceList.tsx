@@ -115,6 +115,7 @@ export default function CustomerInvoiceList() {
       if (newInv) {
         await supabase.from('customer_invoice_items').insert(lineItems.map(i => ({
           customer_invoice_id: newInv.id, description: i.description,
+          product_id: i.product_id || null,
           quantity: i.quantity, unit_price: i.unit_price, line_total: i.line_total,
         })));
         setInvoices(prev => [newInv, ...prev]);
