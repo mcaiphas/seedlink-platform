@@ -111,6 +111,7 @@ export default function ProformaInvoiceList() {
           proforma_invoice_id: newProforma.id, description: item.description, quantity: item.quantity,
           unit_price: item.unit_price, discount_percent: item.discount_percent,
           weight_kg: item.weight_kg, line_total: item.line_total, sort_order: idx,
+          product_id: item.product_id || null,
         })));
         logAudit({ action: 'create', entity_type: 'proforma_invoice', entity_id: newProforma.id });
       }
