@@ -146,8 +146,11 @@ const App = () => (
               {/* Procurement */}
               <Route path="suppliers" element={<SupplierList />} />
               <Route path="purchase-orders" element={<PurchaseOrderList />} />
+              <Route path="purchase-orders/new" element={<PurchaseOrderForm />} />
+              <Route path="purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
               <Route path="supplier-invoices" element={<SupplierInvoiceList />} />
               <Route path="goods-receipts" element={<GoodsReceiptList />} />
+              <Route path="commerce-accounting" element={<CommerceAccounting />} />
 
               {/* Warehouse */}
               <Route path="depots" element={<DepotList />} />
