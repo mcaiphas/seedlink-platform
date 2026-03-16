@@ -39,6 +39,9 @@ import PaymentList from "@/pages/orders/PaymentList";
 import CreditAccountList from "@/pages/orders/CreditAccountList";
 import DocumentDeliveryLogList from "@/pages/orders/DocumentDeliveryLogList";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
+import QuoteList from "@/pages/commerce/QuoteList";
+import ProformaInvoiceList from "@/pages/commerce/ProformaInvoiceList";
+import PaymentRequestList from "@/pages/commerce/PaymentRequestList";
 
 // Procurement
 import SupplierList from "@/pages/procurement/SupplierList";
