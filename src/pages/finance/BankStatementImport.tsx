@@ -15,43 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, FileSpreadsheet, AlertTriangle } from 'lucide-react';
 
-interface ParsedRow {
-  transaction_date: string;
-  description: string;
-  reference_number: string;
-  debit_amount: number;
-  credit_amount: number;
-}
-
-function parseCSV(text: string): ParsedRow[] {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
-  const header = lines[0].toLowerCase().split(',').map((h) => h.trim().replace(/"/g, ''));
-  const dateIdx = header.findIndex((h) => h.includes('date'));
-  const descIdx = header.findIndex((h) => h.includes('desc') || h.includes('narr') || h.includes('detail'));
-  const refIdx = header.findIndex((h) => h.includes('ref'));
-  const debitIdx = header.findIndex((h) => h.includes('debit') || h.includes('withdrawal'));
-  const creditIdx = header.findIndex((h) => h.includes('credit') || h.includes('deposit'));
-  const amountIdx = header.findIndex((h) => h === 'amount');
-
-  return lines.slice(1).map((line) => {
-    const cols = line.split(',').map((c) => c.trim().replace(/"/g, ''));
-    const rawAmount = amountIdx >= 0 ? Number(cols[amountIdx]?.replace(/[^\d.-]/g, '') || 0) : 0;
-    let debit = debitIdx >= 0 ? Math.abs(Number(cols[debitIdx]?.replace(/[^\d.-]/g, '') || 0)) : 0;
-    let credit = creditIdx >= 0 ? Math.abs(Number(cols[creditIdx]?.replace(/[^\d.-]/g, '') || 0)) : 0;
-    if (amountIdx >= 0 && debitIdx < 0 && creditIdx < 0) {
-      if (rawAmount < 0) debit = Math.abs(rawAmount);
-      else credit = rawAmount;
-    }
-    return {
-      transaction_date: cols[dateIdx] || '',
-      description: cols[descIdx >= 0 ? descIdx : 1] || '',
-      reference_number: cols[refIdx >= 0 ? refIdx : 2] || '',
-      debit_amount: debit,
-      credit_amount: credit,
-    };
-  }).filter((r) => r.transaction_date);
-}
+// ParsedRow is now imported from '@/lib/file-parsers'
 
 export default function BankStatementImport() {
   const { user } = useAuth();
