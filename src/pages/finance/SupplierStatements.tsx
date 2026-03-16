@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { exportToCSV } from '@/lib/csv-export';
+import { exportToCsv as exportToCSV } from '@/lib/csv-export';
 import { Download, FileText, Building2 } from 'lucide-react';
 
 export default function SupplierStatements() {

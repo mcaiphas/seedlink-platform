@@ -5,7 +5,7 @@ import { CurrencyDisplay } from '@/components/commerce/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { exportToCSV } from '@/lib/csv-export';
+import { exportToCsv as exportToCSV } from '@/lib/csv-export';
 import { Download, BarChart3 } from 'lucide-react';
 
 export default function SupplierAgingReport() {
