@@ -22,6 +22,7 @@ import {
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
+  Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -143,6 +144,16 @@ const sections: NavSection[] = [
       { title: 'Journal Entries', url: '/journal-entries', icon: Scale },
       { title: 'GL Accounts', url: '/gl-accounts', icon: Notebook },
       { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Banking',
+    adminOnly: true,
+    items: [
+      { title: 'Reconciliation', url: '/bank-reconciliation', icon: CheckCircle },
+      { title: 'Bank Accounts', url: '/bank-accounts', icon: Landmark },
+      { title: 'Transactions', url: '/bank-transactions', icon: ArrowDownUp },
+      { title: 'Statement Import', url: '/bank-statement-import', icon: Upload },
     ],
   },
   {

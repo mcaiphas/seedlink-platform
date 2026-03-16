@@ -157,6 +157,12 @@ import RefundList from "@/pages/finance/RefundList";
 import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
 import ReminderTemplates from "@/pages/finance/ReminderTemplates";
 
+// Banking
+import BankAccountList from "@/pages/finance/BankAccountList";
+import BankTransactionList from "@/pages/finance/BankTransactionList";
+import BankStatementImport from "@/pages/finance/BankStatementImport";
+import BankReconciliationDashboard from "@/pages/finance/BankReconciliationDashboard";
+
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -313,6 +319,12 @@ const App = () => (
               <Route path="refunds" element={<RefundList />} />
               <Route path="communication-logs" element={<CustomerCommunicationLog />} />
               <Route path="reminder-templates" element={<ReminderTemplates />} />
+
+              {/* Banking */}
+              <Route path="bank-accounts" element={<BankAccountList />} />
+              <Route path="bank-transactions" element={<BankTransactionList />} />
+              <Route path="bank-statement-import" element={<BankStatementImport />} />
+              <Route path="bank-reconciliation" element={<BankReconciliationDashboard />} />
 
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />

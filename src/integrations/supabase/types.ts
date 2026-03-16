@@ -1685,6 +1685,219 @@ export type Database = {
           },
         ]
       }
+      bank_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          account_type: string
+          bank_name: string
+          branch_code: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          opening_balance: number
+          opening_balance_date: string
+          swift_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          account_type?: string
+          bank_name: string
+          branch_code?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          opening_balance?: number
+          opening_balance_date?: string
+          swift_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          account_type?: string
+          bank_name?: string
+          branch_code?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          opening_balance?: number
+          opening_balance_date?: string
+          swift_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_accounts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_statement_imports: {
+        Row: {
+          bank_account_id: string
+          created_at: string
+          duplicate_rows: number
+          error_log: Json | null
+          file_format: string
+          file_name: string
+          id: string
+          import_status: string
+          imported_at: string | null
+          imported_by: string | null
+          imported_rows: number
+          total_rows: number
+        }
+        Insert: {
+          bank_account_id: string
+          created_at?: string
+          duplicate_rows?: number
+          error_log?: Json | null
+          file_format?: string
+          file_name: string
+          id?: string
+          import_status?: string
+          imported_at?: string | null
+          imported_by?: string | null
+          imported_rows?: number
+          total_rows?: number
+        }
+        Update: {
+          bank_account_id?: string
+          created_at?: string
+          duplicate_rows?: number
+          error_log?: Json | null
+          file_format?: string
+          file_name?: string
+          id?: string
+          import_status?: string
+          imported_at?: string | null
+          imported_by?: string | null
+          imported_rows?: number
+          total_rows?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_statement_imports_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_statement_imports_imported_by_fkey"
+            columns: ["imported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transactions: {
+        Row: {
+          bank_account_id: string
+          category: string | null
+          created_at: string
+          credit_amount: number
+          debit_amount: number
+          description: string | null
+          id: string
+          matched_at: string | null
+          matched_by: string | null
+          matched_entity_id: string | null
+          matched_entity_type: string | null
+          notes: string | null
+          reconciliation_status: string
+          reference_number: string | null
+          running_balance: number | null
+          source: string
+          statement_import_id: string | null
+          transaction_date: string
+          updated_at: string
+        }
+        Insert: {
+          bank_account_id: string
+          category?: string | null
+          created_at?: string
+          credit_amount?: number
+          debit_amount?: number
+          description?: string | null
+          id?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          matched_entity_id?: string | null
+          matched_entity_type?: string | null
+          notes?: string | null
+          reconciliation_status?: string
+          reference_number?: string | null
+          running_balance?: number | null
+          source?: string
+          statement_import_id?: string | null
+          transaction_date: string
+          updated_at?: string
+        }
+        Update: {
+          bank_account_id?: string
+          category?: string | null
+          created_at?: string
+          credit_amount?: number
+          debit_amount?: number
+          description?: string | null
+          id?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          matched_entity_id?: string | null
+          matched_entity_type?: string | null
+          notes?: string | null
+          reconciliation_status?: string
+          reference_number?: string | null
+          running_balance?: number | null
+          source?: string
+          statement_import_id?: string | null
+          transaction_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transactions_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_matched_by_fkey"
+            columns: ["matched_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_statement_import_fk"
+            columns: ["statement_import_id"]
+            isOneToOne: false
+            referencedRelation: "bank_statement_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           cart_id: string
