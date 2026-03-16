@@ -179,12 +179,14 @@ export default function ApprovalCenter() {
             </TableHeader>
             <TableBody>
               {filtered.map(r => {
-                const typeInfo = TYPE_LABELS[r.request_type] || { label: r.request_type, color: '' };
-                const Icon = typeInfo.icon || Clock;
+                const typeInfo = TYPE_LABELS[r.request_type];
+                const label = typeInfo?.label || r.request_type;
+                const color = typeInfo?.color || '';
+                const Icon = typeInfo?.icon || Clock;
                 return (
                   <TableRow key={r.id}>
                     <TableCell>
-                      <Badge variant="outline" className={`${typeInfo.color} text-xs gap-1`}>
+                      <Badge variant="outline" className={`${color} text-xs gap-1`}>
                         <Icon className="h-3 w-3" />{typeInfo.label}
                       </Badge>
                     </TableCell>
