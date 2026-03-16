@@ -56,6 +56,15 @@ import ProcurementDashboard from "@/pages/procurement/ProcurementDashboard";
 import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
 import GLAccountList from "@/pages/finance/GLAccountList";
 import JournalEntryList from "@/pages/finance/JournalEntryList";
+import DebtorLedger from "@/pages/finance/DebtorLedger";
+import CreditorLedger from "@/pages/finance/CreditorLedger";
+import CustomerAgingReport from "@/pages/finance/CustomerAgingReport";
+import SupplierAgingReport from "@/pages/finance/SupplierAgingReport";
+import CustomerCreditNoteList from "@/pages/finance/CustomerCreditNoteList";
+import SupplierCreditNoteList from "@/pages/finance/SupplierCreditNoteList";
+import SupplierPaymentList from "@/pages/finance/SupplierPaymentList";
+import CustomerStatements from "@/pages/finance/CustomerStatements";
+import SupplierStatements from "@/pages/finance/SupplierStatements";
 
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
