@@ -1,132 +1,72 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminPage } from '@/components/AdminPage';
-import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { DollarSign, TrendingUp, TrendingDown, ArrowRight, FileSpreadsheet, Receipt, PackageCheck, ShoppingCart } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
+import { TrendingUp, TrendingDown, DollarSign, Landmark, Package, Receipt, Truck, CreditCard } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+
+const fmt = (v: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
+const FLOWS = [
+  { title: 'Goods Receipt', icon: Package, debit: 'Inventory', credit: 'GRNI (Goods Received Not Invoiced)', desc: 'When goods are received against a PO, inventory increases and a GRNI liability is created.' },
+  { title: 'Supplier Invoice', icon: Receipt, debit: 'GRNI / Inventory / Expense', credit: 'Accounts Payable', desc: 'Supplier invoice clears GRNI and creates an accounts payable obligation.' },
+  { title: 'Customer Invoice', icon: TrendingUp, debit: 'Accounts Receivable', credit: 'Sales Revenue', desc: 'Revenue is recognized and an accounts receivable asset is created.' },
+  { title: 'Fulfillment / Stock Issue', icon: Truck, debit: 'Cost of Goods Sold', credit: 'Inventory', desc: 'When goods ship, COGS increases and inventory decreases.' },
+  { title: 'Supplier Payment', icon: CreditCard, debit: 'Accounts Payable', credit: 'Bank', desc: 'Payment to supplier reduces payable liability and bank balance.' },
+  { title: 'Customer Payment', icon: DollarSign, debit: 'Bank', credit: 'Accounts Receivable', desc: 'Customer payment increases bank and clears the receivable.' },
+];
 
 export default function CommerceAccounting() {
-  const [loading, setLoading] = useState(true);
-  const [supplierInvoices, setSupplierInvoices] = useState<any[]>([]);
-  const [customerInvoices, setCustomerInvoices] = useState<any[]>([]);
-  const [goodsReceipts, setGoodsReceipts] = useState<any[]>([]);
-  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+  const [payable, setPayable] = useState(0);
+  const [receivable, setReceivable] = useState(0);
+  const [grCount, setGrCount] = useState(0);
+  const [siCount, setSiCount] = useState(0);
+  const [ciCount, setCiCount] = useState(0);
 
   useEffect(() => {
-    Promise.all([
-      supabase.from('supplier_invoices').select('id, supplier_invoice_number, total_amount, currency_code, status, invoice_date, suppliers(supplier_name)').order('invoice_date', { ascending: false }).limit(50),
-      supabase.from('customer_invoices').select('id, invoice_number, total_amount, currency_code, status, invoice_date, profiles(full_name)').order('invoice_date', { ascending: false }).limit(50),
-      supabase.from('goods_receipts').select('id, receipt_number, status, receipt_date, suppliers(supplier_name)').order('receipt_date', { ascending: false }).limit(50),
-      supabase.from('purchase_orders').select('id, po_number, total_amount, currency_code, status, order_date, suppliers(supplier_name)').order('order_date', { ascending: false }).limit(50),
-    ]).then(([siR, ciR, grR, poR]) => {
-      setSupplierInvoices(siR.data || []);
-      setCustomerInvoices(ciR.data || []);
-      setGoodsReceipts(grR.data || []);
-      setPurchaseOrders(poR.data || []);
-      setLoading(false);
+    Promise.allSettled([
+      supabase.from('supplier_invoices').select('total_amount, status'),
+      supabase.from('customer_invoices').select('total_amount, status'),
+      supabase.from('goods_receipts').select('id'),
+      supabase.from('supplier_invoices').select('id'),
+      supabase.from('customer_invoices').select('id'),
+    ]).then(([siRes, ciRes, grRes, siCntRes, ciCntRes]) => {
+      if (siRes.status === 'fulfilled' && siRes.value.data) setPayable(siRes.value.data.filter((i: any) => i.status !== 'paid').reduce((s: number, i: any) => s + Number(i.total_amount || 0), 0));
+      if (ciRes.status === 'fulfilled' && ciRes.value.data) setReceivable(ciRes.value.data.filter((i: any) => i.status !== 'paid').reduce((s: number, i: any) => s + Number(i.total_amount || 0), 0));
+      if (grRes.status === 'fulfilled') setGrCount(grRes.value.data?.length || 0);
+      if (siCntRes.status === 'fulfilled') setSiCount(siCntRes.value.data?.length || 0);
+      if (ciCntRes.status === 'fulfilled') setCiCount(ciCntRes.value.data?.length || 0);
     });
   }, []);
 
-  const payable = useMemo(() => supplierInvoices.filter(i => i.status !== 'paid').reduce((s, i) => s + Number(i.total_amount || 0), 0), [supplierInvoices]);
-  const receivable = useMemo(() => customerInvoices.filter(i => i.status !== 'paid').reduce((s, i) => s + Number(i.total_amount || 0), 0), [customerInvoices]);
-  const paidOut = useMemo(() => supplierInvoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total_amount || 0), 0), [supplierInvoices]);
-  const collected = useMemo(() => customerInvoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total_amount || 0), 0), [customerInvoices]);
-
-  if (loading) return <AdminPage><div className="space-y-4"><Skeleton className="h-10 w-48" /><Skeleton className="h-96 w-full" /></div></AdminPage>;
-
-  const FlowRow = ({ label, debit, credit }: { label: string; debit: string; credit: string }) => (
-    <TableRow>
-      <TableCell className="font-medium text-sm">{label}</TableCell>
-      <TableCell className="text-right"><Badge variant="outline" className="text-xs font-mono">{debit}</Badge></TableCell>
-      <TableCell className="text-right"><Badge variant="outline" className="text-xs font-mono">{credit}</Badge></TableCell>
-    </TableRow>
-  );
-
   return (
-    <AdminPage>
-      <div className="space-y-6 pb-10">
-        <PageHeader title="Commerce Accounting" description="Payables, receivables, and transaction flow overview" />
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card><CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-destructive/10 flex items-center justify-center"><TrendingDown className="h-5 w-5 text-destructive" /></div>
-            <div><p className="text-xs text-muted-foreground">Accounts Payable</p><p className="text-xl font-bold tabular-nums">ZAR {payable.toFixed(2)}</p></div>
-          </CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center"><TrendingUp className="h-5 w-5 text-primary" /></div>
-            <div><p className="text-xs text-muted-foreground">Accounts Receivable</p><p className="text-xl font-bold tabular-nums">ZAR {receivable.toFixed(2)}</p></div>
-          </CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center"><DollarSign className="h-5 w-5 text-muted-foreground" /></div>
-            <div><p className="text-xs text-muted-foreground">Paid to Suppliers</p><p className="text-xl font-bold tabular-nums">ZAR {paidOut.toFixed(2)}</p></div>
-          </CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center"><DollarSign className="h-5 w-5 text-primary" /></div>
-            <div><p className="text-xs text-muted-foreground">Collected Revenue</p><p className="text-xl font-bold tabular-nums">ZAR {collected.toFixed(2)}</p></div>
-          </CardContent></Card>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><FileSpreadsheet className="h-4 w-4 text-primary" />Procurement Flow</CardTitle><CardDescription>Debit/Credit effect of procurement transactions</CardDescription></CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader><TableRow><TableHead>Transaction</TableHead><TableHead className="text-right">Debit</TableHead><TableHead className="text-right">Credit</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  <FlowRow label="Goods Receipt → Inventory" debit="Inventory" credit="GRNI" />
-                  <FlowRow label="Supplier Invoice → Payable" debit="GRNI" credit="Accounts Payable" />
-                  <FlowRow label="Payment → Supplier" debit="Accounts Payable" credit="Bank / Cash" />
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><ShoppingCart className="h-4 w-4 text-primary" />Sales Flow</CardTitle><CardDescription>Debit/Credit effect of sales transactions</CardDescription></CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader><TableRow><TableHead>Transaction</TableHead><TableHead className="text-right">Debit</TableHead><TableHead className="text-right">Credit</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  <FlowRow label="Customer Invoice → Revenue" debit="Accounts Receivable" credit="Revenue" />
-                  <FlowRow label="Fulfillment → COGS" debit="COGS" credit="Inventory" />
-                  <FlowRow label="Payment Received" debit="Bank / Cash" credit="Accounts Receivable" />
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Recent Supplier Invoices</CardTitle></CardHeader>
-            <CardContent>
-              {supplierInvoices.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No supplier invoices yet</p> : (
-                <div className="space-y-2">{supplierInvoices.slice(0, 8).map(i => (
-                  <div key={i.id} className="flex items-center justify-between p-2 rounded border text-sm">
-                    <div><span className="font-mono text-xs text-primary">{i.supplier_invoice_number}</span><span className="text-muted-foreground ml-2">{(i.suppliers as any)?.supplier_name}</span></div>
-                    <div className="flex items-center gap-2"><span className="tabular-nums font-medium">{i.currency_code} {Number(i.total_amount).toFixed(2)}</span><Badge variant={i.status === 'paid' ? 'default' : 'secondary'} className="text-[10px] capitalize">{i.status}</Badge></div>
-                  </div>
-                ))}</div>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle className="text-base">Recent Customer Invoices</CardTitle></CardHeader>
-            <CardContent>
-              {customerInvoices.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No customer invoices yet</p> : (
-                <div className="space-y-2">{customerInvoices.slice(0, 8).map(i => (
-                  <div key={i.id} className="flex items-center justify-between p-2 rounded border text-sm">
-                    <div><span className="font-mono text-xs text-primary">{i.invoice_number}</span><span className="text-muted-foreground ml-2">{(i.profiles as any)?.full_name || 'Customer'}</span></div>
-                    <div className="flex items-center gap-2"><span className="tabular-nums font-medium">{i.currency_code} {Number(i.total_amount).toFixed(2)}</span><Badge variant={i.status === 'paid' ? 'default' : 'secondary'} className="text-[10px] capitalize">{i.status}</Badge></div>
-                  </div>
-                ))}</div>
-              )}
-            </CardContent>
-          </Card>
+    <div className="space-y-6">
+      <PageHeader title="Commerce Accounting" description="Financial visibility for procurement and sales operations" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Accounts Payable', value: fmt(payable), icon: TrendingDown, color: 'text-destructive' },
+          { label: 'Accounts Receivable', value: fmt(receivable), icon: TrendingUp, color: 'text-primary' },
+          { label: 'Goods Receipts', value: grCount, icon: Package, color: 'text-foreground' },
+          { label: 'Invoices', value: siCount + ciCount, icon: Receipt, color: 'text-foreground' },
+        ].map(s => (
+          <Card key={s.label}><CardContent className="pt-5"><div className="flex items-start justify-between"><div><p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p><p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p></div><div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><s.icon className="h-5 w-5 text-muted-foreground" /></div></div></CardContent></Card>
+        ))}
+      </div>
+      <div>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><Landmark className="h-5 w-5 text-primary" />Accounting Flow Reference</h2>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {FLOWS.map(flow => (
+            <Card key={flow.title} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3"><div className="flex items-center gap-3"><div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center"><flow.icon className="h-4 w-4 text-primary" /></div><CardTitle className="text-sm font-semibold">{flow.title}</CardTitle></div></CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-2 text-sm"><Badge variant="outline" className="text-xs bg-primary/5 border-primary/20 font-mono">DR</Badge><span className="font-medium">{flow.debit}</span></div>
+                <div className="flex items-center gap-2 text-sm"><Badge variant="outline" className="text-xs bg-muted font-mono">CR</Badge><span className="font-medium">{flow.credit}</span></div>
+                <Separator /><p className="text-xs text-muted-foreground leading-relaxed">{flow.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-    </AdminPage>
+    </div>
   );
 }

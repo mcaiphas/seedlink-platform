@@ -2190,6 +2190,7 @@ export type Database = {
           quantity: number
           quantity_uom: string
           unit_price: number
+          updated_at: string
           variant_id: string | null
         }
         Insert: {
@@ -2202,6 +2203,7 @@ export type Database = {
           quantity: number
           quantity_uom?: string
           unit_price?: number
+          updated_at?: string
           variant_id?: string | null
         }
         Update: {
@@ -2214,6 +2216,7 @@ export type Database = {
           quantity?: number
           quantity_uom?: string
           unit_price?: number
+          updated_at?: string
           variant_id?: string | null
         }
         Relationships: [
@@ -2946,6 +2949,33 @@ export type Database = {
           },
         ]
       }
+      gl_accounts: {
+        Row: {
+          account_code: string
+          account_name: string
+          account_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          account_code: string
+          account_name: string
+          account_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          account_code?: string
+          account_name?: string
+          account_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
       goods_receipt_items: {
         Row: {
           batch_number: string | null
@@ -2957,6 +2987,7 @@ export type Database = {
           quantity_received: number
           quantity_uom: string
           unit_cost: number | null
+          updated_at: string
           variant_id: string | null
         }
         Insert: {
@@ -2969,6 +3000,7 @@ export type Database = {
           quantity_received: number
           quantity_uom?: string
           unit_cost?: number | null
+          updated_at?: string
           variant_id?: string | null
         }
         Update: {
@@ -2981,6 +3013,7 @@ export type Database = {
           quantity_received?: number
           quantity_uom?: string
           unit_cost?: number | null
+          updated_at?: string
           variant_id?: string | null
         }
         Relationships: [
@@ -3355,6 +3388,110 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entry_date: string
+          id: string
+          journal_number: string
+          reference_id: string | null
+          reference_type: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entry_date?: string
+          id?: string
+          journal_number: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entry_date?: string
+          id?: string
+          journal_number?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      journal_entry_lines: {
+        Row: {
+          created_at: string
+          credit_amount: number
+          debit_amount: number
+          depot_id: string | null
+          gl_account_id: string
+          id: string
+          journal_entry_id: string
+          line_description: string | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          credit_amount?: number
+          debit_amount?: number
+          depot_id?: string | null
+          gl_account_id: string
+          id?: string
+          journal_entry_id: string
+          line_description?: string | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          credit_amount?: number
+          debit_amount?: number
+          depot_id?: string | null
+          gl_account_id?: string
+          id?: string
+          journal_entry_id?: string
+          line_description?: string | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_entry_lines_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entry_lines_gl_account_id_fkey"
+            columns: ["gl_account_id"]
+            isOneToOne: false
+            referencedRelation: "gl_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entry_lines_journal_entry_id_fkey"
+            columns: ["journal_entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entry_lines_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -6551,6 +6688,7 @@ export type Database = {
           quantity: number
           quantity_uom: string
           unit_price: number
+          updated_at: string
           variant_id: string | null
         }
         Insert: {
@@ -6563,6 +6701,7 @@ export type Database = {
           quantity: number
           quantity_uom?: string
           unit_price?: number
+          updated_at?: string
           variant_id?: string | null
         }
         Update: {
@@ -6575,6 +6714,7 @@ export type Database = {
           quantity?: number
           quantity_uom?: string
           unit_price?: number
+          updated_at?: string
           variant_id?: string | null
         }
         Relationships: [
@@ -7178,6 +7318,92 @@ export type Database = {
           },
         ]
       }
+      stock_adjustment_items: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          quantity_adjustment: number
+          stock_adjustment_id: string
+          unit_cost: number | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity_adjustment?: number
+          stock_adjustment_id: string
+          unit_cost?: number | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity_adjustment?: number
+          stock_adjustment_id?: string
+          unit_cost?: number | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_adjustment_items_stock_adjustment_id_fkey"
+            columns: ["stock_adjustment_id"]
+            isOneToOne: false
+            referencedRelation: "stock_adjustments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_adjustment_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_adjustments: {
+        Row: {
+          adjustment_number: string
+          created_at: string
+          created_by: string | null
+          depot_id: string | null
+          id: string
+          reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment_number: string
+          created_at?: string
+          created_by?: string | null
+          depot_id?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment_number?: string
+          created_at?: string
+          created_by?: string | null
+          depot_id?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_adjustments_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_movements: {
         Row: {
           batch_id: string | null
@@ -7540,37 +7766,66 @@ export type Database = {
         Row: {
           created_at: string
           description: string
+          goods_receipt_item_id: string | null
           id: string
           line_total: number
+          product_id: string | null
           purchase_order_item_id: string | null
           quantity: number
           quantity_uom: string
           supplier_invoice_id: string
+          tax_amount: number
           unit_price: number
+          updated_at: string
+          variant_id: string | null
         }
         Insert: {
           created_at?: string
           description: string
+          goods_receipt_item_id?: string | null
           id?: string
           line_total?: number
+          product_id?: string | null
           purchase_order_item_id?: string | null
           quantity: number
           quantity_uom?: string
           supplier_invoice_id: string
+          tax_amount?: number
           unit_price?: number
+          updated_at?: string
+          variant_id?: string | null
         }
         Update: {
           created_at?: string
           description?: string
+          goods_receipt_item_id?: string | null
           id?: string
           line_total?: number
+          product_id?: string | null
           purchase_order_item_id?: string | null
           quantity?: number
           quantity_uom?: string
           supplier_invoice_id?: string
+          tax_amount?: number
           unit_price?: number
+          updated_at?: string
+          variant_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "supplier_invoice_items_goods_receipt_item_id_fkey"
+            columns: ["goods_receipt_item_id"]
+            isOneToOne: false
+            referencedRelation: "goods_receipt_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "supplier_invoice_items_purchase_order_item_id_fkey"
             columns: ["purchase_order_item_id"]
@@ -7583,6 +7838,13 @@ export type Database = {
             columns: ["supplier_invoice_id"]
             isOneToOne: false
             referencedRelation: "supplier_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_invoice_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -8221,7 +8483,9 @@ export type Database = {
       current_profile_id: { Args: never; Returns: string }
       generate_ci_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }
+      generate_je_number: { Args: never; Returns: string }
       generate_po_number: { Args: never; Returns: string }
+      generate_sa_number: { Args: never; Returns: string }
       generate_si_number: { Args: never; Returns: string }
       has_role: { Args: { role_name: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }

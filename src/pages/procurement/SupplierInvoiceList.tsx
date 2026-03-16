@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { generateDocNumber } from '@/lib/document-numbers';
-import { AdminPage } from '@/components/AdminPage';
 import { DataPageShell, EmptyState } from '@/components/DataPageShell';
-import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
-import { QueryStatusBanner } from '@/components/QueryStatusBanner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,115 +9,107 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Filter, Receipt } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+
+const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  draft: { label: 'Draft', variant: 'secondary' }, submitted: { label: 'Submitted', variant: 'outline' },
+  approved: { label: 'Approved', variant: 'default' }, paid: { label: 'Paid', variant: 'default' },
+  cancelled: { label: 'Cancelled', variant: 'destructive' },
+};
+
+interface SILine { purchase_order_item_id: string | null; goods_receipt_item_id: string | null; product_id: string | null; variant_id: string | null; description: string; quantity: number; quantity_uom: string; unit_price: number; tax_amount: number; line_total: number; }
 
 export default function SupplierInvoiceList() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<QueryStatus>('loading');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
-  const [pos, setPos] = useState<any[]>([]);
-  const [form, setForm] = useState({ supplier_invoice_number: '', supplier_id: '', purchase_order_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', total_amount: '0', currency_code: 'ZAR', status: 'pending', notes: '' });
+  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+  const [supplierId, setSupplierId] = useState('');
+  const [poId, setPoId] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [siLines, setSiLines] = useState<SILine[]>([]);
 
-  const load = async () => {
-    setLoading(true);
-    const [invR, sR, poR] = await Promise.all([
-      supabase.from('supplier_invoices').select('*, suppliers(supplier_name), purchase_orders(po_number)').order('created_at', { ascending: false }).limit(500),
-      supabase.from('suppliers').select('id, supplier_name').order('supplier_name'),
-      supabase.from('purchase_orders').select('id, po_number').order('created_at', { ascending: false }).limit(200),
-    ]);
-    if (invR.error) { const c = classifyError(invR.error); setStatus(c.status); setErrorMsg(c.message); setData([]); }
-    else { setStatus(invR.data?.length ? 'success' : 'empty'); setData(invR.data || []); }
-    setSuppliers(sR.data || []); setPos(poR.data || []);
-    setLoading(false);
-  };
-  useEffect(() => { load(); }, []);
+  const load = async () => { setLoading(true); const { data: d } = await supabase.from('supplier_invoices').select('*, suppliers(supplier_name), purchase_orders(po_number)').order('created_at', { ascending: false }); setData(d || []); setLoading(false); };
+  useEffect(() => { load(); supabase.from('suppliers').select('id, supplier_name, supplier_code').eq('is_active', true).order('supplier_name').then(r => setSuppliers(r.data || [])); supabase.from('purchase_orders').select('id, po_number, supplier_id').order('created_at', { ascending: false }).then(r => setPurchaseOrders(r.data || [])); }, []);
 
-  const filtered = data.filter(r => !search || r.supplier_invoice_number?.toLowerCase().includes(search.toLowerCase()));
-
-  const openNew = async () => {
-    const num = await generateDocNumber('si');
-    setForm({ supplier_invoice_number: num, supplier_id: '', purchase_order_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', total_amount: '0', currency_code: 'ZAR', status: 'pending', notes: '' });
-    setDialogOpen(true);
+  const loadPOLines = async (purchaseOrderId: string) => {
+    setPoId(purchaseOrderId);
+    const po = purchaseOrders.find(p => p.id === purchaseOrderId);
+    if (po) setSupplierId(po.supplier_id);
+    const { data: items } = await supabase.from('purchase_order_items').select('*').eq('purchase_order_id', purchaseOrderId);
+    if (items) setSiLines(items.map(i => ({ purchase_order_item_id: i.id, goods_receipt_item_id: null, product_id: null, variant_id: i.variant_id, description: i.product_description, quantity: Number(i.quantity), quantity_uom: i.quantity_uom, unit_price: Number(i.unit_price), tax_amount: Number(i.line_total) * 0.15, line_total: Number(i.line_total) })));
   };
 
-  const handleSave = async () => {
-    if (!form.supplier_invoice_number || !form.supplier_id) { toast({ title: 'Invoice number and supplier required', variant: 'destructive' }); return; }
+  const handleCreate = async () => {
+    if (!supplierId) { toast({ title: 'Select a supplier', variant: 'destructive' }); return; }
     setSaving(true);
-    const total = parseFloat(form.total_amount) || 0;
-    const payload: any = { supplier_invoice_number: form.supplier_invoice_number, supplier_id: form.supplier_id, purchase_order_id: form.purchase_order_id || null, invoice_date: form.invoice_date, due_date: form.due_date || null, total_amount: total, subtotal_amount: total, tax_amount: 0, currency_code: form.currency_code, status: form.status, notes: form.notes || null };
-    const { error } = await supabase.from('supplier_invoices').insert(payload);
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); setSaving(false); return; }
-    toast({ title: 'Supplier invoice created' }); setSaving(false); setDialogOpen(false); load();
+    const siNumber = await generateDocNumber('si');
+    const subtotal = siLines.reduce((s, l) => s + l.line_total, 0);
+    const taxTotal = siLines.reduce((s, l) => s + l.tax_amount, 0);
+    const { data: si, error } = await supabase.from('supplier_invoices').insert({ supplier_invoice_number: siNumber, supplier_id: supplierId, purchase_order_id: poId || null, invoice_date: invoiceDate, due_date: dueDate || null, currency_code: 'ZAR', subtotal_amount: subtotal, tax_amount: taxTotal, total_amount: subtotal + taxTotal, status: 'draft', notes: notes || null }).select('id').single();
+    if (error || !si) { toast({ title: 'Error', description: error?.message, variant: 'destructive' }); setSaving(false); return; }
+    if (siLines.length) await supabase.from('supplier_invoice_items').insert(siLines.map(l => ({ supplier_invoice_id: si.id, purchase_order_item_id: l.purchase_order_item_id, goods_receipt_item_id: l.goods_receipt_item_id, product_id: l.product_id, variant_id: l.variant_id, description: l.description, quantity: l.quantity, quantity_uom: l.quantity_uom, unit_price: l.unit_price, tax_amount: l.tax_amount, line_total: l.line_total })));
+    toast({ title: `Supplier invoice ${siNumber} created` }); setSaving(false); setDialogOpen(false); load();
   };
 
-  const statusColor = (s: string) => s === 'paid' ? 'default' : s === 'approved' ? 'default' : 'secondary';
+  const filtered = useMemo(() => data.filter(r => { const ms = !search || r.supplier_invoice_number?.toLowerCase().includes(search.toLowerCase()) || r.suppliers?.supplier_name?.toLowerCase().includes(search.toLowerCase()); const mst = statusFilter === 'all' || r.status === statusFilter; return ms && mst; }), [data, search, statusFilter]);
+  const fmt = (v: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
 
   return (
-    <AdminPage>
-      <DataPageShell title="Supplier Invoices" description={`${filtered.length} invoices`} loading={loading} searchValue={search} onSearchChange={setSearch} searchPlaceholder="Search invoices..." action={<Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />New Invoice</Button>}>
-        {status !== 'success' && status !== 'loading' && status !== 'empty' && <QueryStatusBanner status={status} message={errorMsg || undefined} tableName="supplier_invoices" />}
-        <div className="rounded-lg border bg-card overflow-x-auto">
-          <Table>
-            <TableHeader><TableRow>
-              <TableHead>Invoice #</TableHead><TableHead>Supplier</TableHead><TableHead>PO #</TableHead><TableHead className="text-right">Total</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead><TableHead>Due</TableHead>
-            </TableRow></TableHeader>
-            <TableBody>
-              {filtered.map(r => (
-                <TableRow key={r.id}>
-                  <TableCell><span className="font-medium font-mono text-primary">{r.supplier_invoice_number}</span></TableCell>
-                  <TableCell>{(r.suppliers as any)?.supplier_name || '—'}</TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{(r.purchase_orders as any)?.po_number || '—'}</TableCell>
-                  <TableCell className="text-right tabular-nums font-medium">{r.currency_code} {Number(r.total_amount || 0).toFixed(2)}</TableCell>
-                  <TableCell><Badge variant={statusColor(r.status) as any} className="capitalize">{r.status}</Badge></TableCell>
-                  <TableCell className="text-muted-foreground">{new Date(r.invoice_date).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-muted-foreground">{r.due_date ? new Date(r.due_date).toLocaleDateString() : '—'}</TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && <EmptyState message="No invoices found" colSpan={7} />}
-            </TableBody>
-          </Table>
+    <div className="space-y-6">
+      <DataPageShell title="Supplier Invoices" description="Manage and match supplier invoices to procurement"
+        action={<Button onClick={() => { setDialogOpen(true); setSupplierId(''); setPoId(''); setSiLines([]); setNotes(''); }} className="gap-2"><Plus className="h-4 w-4" />New Invoice</Button>}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[{ label: 'Total', value: data.length }, { label: 'Draft', value: data.filter(r => r.status === 'draft').length }, { label: 'Approved', value: data.filter(r => r.status === 'approved').length }, { label: 'Total Value', value: fmt(data.reduce((s, r) => s + Number(r.total_amount || 0), 0)) }].map(s => (
+            <div key={s.label} className="rounded-xl border bg-card p-4"><p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p><p className="text-2xl font-bold mt-1">{s.value}</p></div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search invoice or supplier..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" /></div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-[140px]"><Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" /><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All Status</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="submitted">Submitted</SelectItem><SelectItem value="approved">Approved</SelectItem><SelectItem value="paid">Paid</SelectItem></SelectContent></Select>
+        </div>
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <Table><TableHeader><TableRow className="bg-muted/30"><TableHead className="font-semibold">Invoice #</TableHead><TableHead className="font-semibold">Supplier</TableHead><TableHead className="font-semibold">PO Ref</TableHead><TableHead className="font-semibold">Date</TableHead><TableHead className="font-semibold">Due</TableHead><TableHead className="font-semibold text-right">Total</TableHead><TableHead className="font-semibold">Status</TableHead></TableRow></TableHeader>
+            <TableBody>{filtered.map(r => { const st = STATUS_MAP[r.status] || { label: r.status, variant: 'outline' as const }; return (
+              <TableRow key={r.id} className="hover:bg-muted/20">
+                <TableCell><div className="flex items-center gap-2"><Receipt className="h-4 w-4 text-primary" /><span className="font-mono font-medium text-sm">{r.supplier_invoice_number}</span></div></TableCell>
+                <TableCell className="font-medium">{r.suppliers?.supplier_name || '—'}</TableCell><TableCell className="font-mono text-sm text-muted-foreground">{r.purchase_orders?.po_number || '—'}</TableCell>
+                <TableCell className="text-sm">{r.invoice_date}</TableCell><TableCell className="text-sm text-muted-foreground">{r.due_date || '—'}</TableCell>
+                <TableCell className="text-right font-mono font-medium">{fmt(Number(r.total_amount || 0))}</TableCell><TableCell><Badge variant={st.variant} className="text-xs">{st.label}</Badge></TableCell>
+              </TableRow>); })}{filtered.length === 0 && !loading && <EmptyState message="No supplier invoices found" colSpan={7} />}</TableBody></Table>
         </div>
       </DataPageShell>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>New Supplier Invoice</DialogTitle><DialogDescription>Capture a supplier invoice and link to a purchase order.</DialogDescription></DialogHeader>
-          <div className="space-y-4 py-2">
+        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>New Supplier Invoice</DialogTitle><DialogDescription>Create an invoice and optionally match it to a purchase order.</DialogDescription></DialogHeader>
+          <div className="space-y-5 py-2">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2"><Label>Invoice Number <span className="text-destructive">*</span></Label><Input value={form.supplier_invoice_number} onChange={e => setForm(f => ({ ...f, supplier_invoice_number: e.target.value }))} className="font-mono" /></div>
-              <div className="space-y-2"><Label>Supplier <span className="text-destructive">*</span></Label>
-                <Select value={form.supplier_id} onValueChange={v => setForm(f => ({ ...f, supplier_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select supplier" /></SelectTrigger>
-                  <SelectContent>{suppliers.map(s => <SelectItem key={s.id} value={s.id}>{s.supplier_name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2"><Label>Purchase Order</Label>
-                <Select value={form.purchase_order_id || '__none'} onValueChange={v => setForm(f => ({ ...f, purchase_order_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Link to PO" /></SelectTrigger>
-                  <SelectContent><SelectItem value="__none">None</SelectItem>{pos.map(p => <SelectItem key={p.id} value={p.id}>{p.po_number}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2"><Label>Total Amount</Label><Input type="number" step="0.01" value={form.total_amount} onChange={e => setForm(f => ({ ...f, total_amount: e.target.value }))} className="tabular-nums" /></div>
-              <div className="space-y-2"><Label>Invoice Date</Label><Input type="date" value={form.invoice_date} onChange={e => setForm(f => ({ ...f, invoice_date: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Due Date</Label><Input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="pending">Pending</SelectItem><SelectItem value="approved">Approved</SelectItem><SelectItem value="paid">Paid</SelectItem><SelectItem value="disputed">Disputed</SelectItem></SelectContent>
-                </Select>
-              </div>
+              <div className="space-y-1.5"><Label>Supplier <span className="text-destructive">*</span></Label><Select value={supplierId} onValueChange={setSupplierId}><SelectTrigger><SelectValue placeholder="Select supplier" /></SelectTrigger><SelectContent>{suppliers.map(s => <SelectItem key={s.id} value={s.id}>{s.supplier_name}</SelectItem>)}</SelectContent></Select></div>
+              <div className="space-y-1.5"><Label>Match to PO</Label><Select value={poId} onValueChange={loadPOLines}><SelectTrigger><SelectValue placeholder="Optional — select PO" /></SelectTrigger><SelectContent>{purchaseOrders.filter(po => !supplierId || po.supplier_id === supplierId).map(po => <SelectItem key={po.id} value={po.id}>{po.po_number}</SelectItem>)}</SelectContent></Select></div>
+              <div className="space-y-1.5"><Label>Invoice Date</Label><Input type="date" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label>Due Date</Label><Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
             </div>
-            <div className="space-y-2"><Label>Notes</Label><Input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} /></div>
+            {siLines.length > 0 && <>
+              <Separator />
+              <div className="rounded-lg border overflow-hidden"><Table><TableHeader><TableRow className="bg-muted/30"><TableHead className="font-semibold">Description</TableHead><TableHead className="w-[80px] font-semibold">Qty</TableHead><TableHead className="w-[100px] font-semibold">Unit Price</TableHead><TableHead className="w-[100px] font-semibold">Tax</TableHead><TableHead className="w-[100px] font-semibold text-right">Total</TableHead></TableRow></TableHeader>
+                <TableBody>{siLines.map((l, idx) => (<TableRow key={idx}><TableCell className="text-sm">{l.description}</TableCell><TableCell><Input type="number" value={l.quantity} onChange={e => setSiLines(prev => prev.map((sl, i) => i === idx ? { ...sl, quantity: Number(e.target.value), line_total: Number(e.target.value) * sl.unit_price } : sl))} className="h-8 text-sm" /></TableCell><TableCell><Input type="number" step={0.01} value={l.unit_price} onChange={e => setSiLines(prev => prev.map((sl, i) => i === idx ? { ...sl, unit_price: Number(e.target.value), line_total: sl.quantity * Number(e.target.value) } : sl))} className="h-8 text-sm font-mono" /></TableCell><TableCell className="font-mono text-sm">{fmt(l.tax_amount)}</TableCell><TableCell className="text-right font-mono text-sm font-medium">{fmt(l.line_total)}</TableCell></TableRow>))}</TableBody></Table></div>
+              <div className="text-right space-y-1"><p className="text-sm text-muted-foreground">Subtotal: <span className="font-mono font-medium text-foreground">{fmt(siLines.reduce((s, l) => s + l.line_total, 0))}</span></p><p className="text-sm text-muted-foreground">Tax: <span className="font-mono font-medium text-foreground">{fmt(siLines.reduce((s, l) => s + l.tax_amount, 0))}</span></p><p className="font-semibold">Total: <span className="font-mono">{fmt(siLines.reduce((s, l) => s + l.line_total + l.tax_amount, 0))}</span></p></div>
+            </>}
+            <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} /></div>
           </div>
-          <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Create Invoice'}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleCreate} disabled={saving}>{saving ? 'Creating...' : 'Create Invoice'}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminPage>
+    </div>
   );
 }

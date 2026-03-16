@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { generateDocNumber } from '@/lib/document-numbers';
-import { AdminPage } from '@/components/AdminPage';
 import { DataPageShell, EmptyState } from '@/components/DataPageShell';
-import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
-import { QueryStatusBanner } from '@/components/QueryStatusBanner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,163 +9,178 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
-import { Plus, PackageCheck } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Plus, Search, PackageCheck, Truck } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+
+interface GRLine {
+  purchase_order_item_id: string | null;
+  variant_id: string | null;
+  batch_number: string;
+  quantity_received: number;
+  quantity_uom: string;
+  unit_cost: number;
+  expiry_date: string;
+  product_description?: string;
+  ordered_qty?: number;
+}
 
 export default function GoodsReceiptList() {
+  const { user } = useAuth();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<QueryStatus>('loading');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [suppliers, setSuppliers] = useState<any[]>([]);
-  const [depots, setDepots] = useState<any[]>([]);
-  const [pos, setPos] = useState<any[]>([]);
-  const [poItems, setPoItems] = useState<any[]>([]);
-  const [form, setForm] = useState({ receipt_number: '', supplier_id: '', depot_id: '', purchase_order_id: '', receipt_date: new Date().toISOString().split('T')[0], notes: '', status: 'received' });
+  const [selectedPO, setSelectedPO] = useState('');
+  const [receiptDate, setReceiptDate] = useState(new Date().toISOString().split('T')[0]);
+  const [notes, setNotes] = useState('');
+  const [grLines, setGrLines] = useState<GRLine[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+  const [poDetails, setPoDetails] = useState<any>(null);
 
   const load = async () => {
     setLoading(true);
-    const [grR, sR, dR, poR] = await Promise.all([
-      supabase.from('goods_receipts').select('*, suppliers(supplier_name), depots(name), purchase_orders(po_number)').order('created_at', { ascending: false }).limit(500),
-      supabase.from('suppliers').select('id, supplier_name').order('supplier_name'),
-      supabase.from('depots').select('id, name').order('name'),
-      supabase.from('purchase_orders').select('id, po_number, supplier_id').order('created_at', { ascending: false }).limit(200),
-    ]);
-    if (grR.error) { const c = classifyError(grR.error); setStatus(c.status); setErrorMsg(c.message); setData([]); }
-    else { setStatus(grR.data?.length ? 'success' : 'empty'); setData(grR.data || []); }
-    setSuppliers(sR.data || []); setDepots(dR.data || []); setPos(poR.data || []);
+    const { data: d } = await supabase.from('goods_receipts').select('*, purchase_orders(po_number), suppliers(supplier_name), depots(name)').order('created_at', { ascending: false });
+    setData(d || []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
-
-  // When a PO is selected, load its items for stock movement creation
-  useEffect(() => {
-    if (!form.purchase_order_id) { setPoItems([]); return; }
-    supabase.from('purchase_order_items').select('*, product_variants(id, variant_name, sku)')
-      .eq('purchase_order_id', form.purchase_order_id).then(({ data }) => setPoItems(data || []));
-    // Auto-fill supplier from PO
-    const po = pos.find(p => p.id === form.purchase_order_id);
-    if (po?.supplier_id) setForm(f => ({ ...f, supplier_id: po.supplier_id }));
-  }, [form.purchase_order_id, pos]);
-
-  const filtered = data.filter(r => !search || r.receipt_number?.toLowerCase().includes(search.toLowerCase()));
-
-  const openNew = async () => {
-    const num = await generateDocNumber('gr');
-    setForm({ receipt_number: num, supplier_id: '', depot_id: '', purchase_order_id: '', receipt_date: new Date().toISOString().split('T')[0], notes: '', status: 'received' });
-    setDialogOpen(true);
+  const loadPOs = async () => {
+    const { data: pos } = await supabase.from('purchase_orders').select('id, po_number, supplier_id, depot_id, suppliers(supplier_name), depots(name)').in('status', ['approved', 'submitted']).order('created_at', { ascending: false });
+    setPurchaseOrders(pos || []);
   };
+  useEffect(() => { load(); loadPOs(); }, []);
 
-  const handleSave = async () => {
-    if (!form.receipt_number) { toast({ title: 'Receipt number required', variant: 'destructive' }); return; }
-    setSaving(true);
-    const payload: any = { receipt_number: form.receipt_number, supplier_id: form.supplier_id || null, depot_id: form.depot_id || null, purchase_order_id: form.purchase_order_id || null, receipt_date: form.receipt_date, notes: form.notes || null, status: form.status };
-    const { data: grData, error } = await supabase.from('goods_receipts').insert(payload).select('id').single();
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); setSaving(false); return; }
-
-    // Auto-create stock movements for PO items with variants
-    if (grData && poItems.length > 0) {
-      const movements = poItems
-        .filter(item => item.variant_id)
-        .map(item => ({
-          variant_id: item.variant_id,
-          depot_id: form.depot_id || null,
-          movement_type: 'goods_receipt',
-          quantity: Number(item.quantity),
-          quantity_uom: item.quantity_uom || 'unit',
-          unit_cost: Number(item.unit_price) || null,
-          reference_type: 'goods_receipt',
-          reference_id: grData.id,
-          notes: `GR ${form.receipt_number} from PO`,
-        }));
-      if (movements.length > 0) {
-        const { error: mvErr } = await supabase.from('stock_movements').insert(movements as any);
-        if (mvErr) toast({ title: 'Stock movement warning', description: mvErr.message, variant: 'destructive' });
-        else toast({ title: `${movements.length} stock movements created` });
-      }
+  const loadPOLines = async (poId: string) => {
+    setSelectedPO(poId);
+    const po = purchaseOrders.find(p => p.id === poId);
+    setPoDetails(po);
+    const { data: items } = await supabase.from('purchase_order_items').select('*').eq('purchase_order_id', poId);
+    if (items) {
+      setGrLines(items.map(i => ({
+        purchase_order_item_id: i.id, variant_id: i.variant_id, batch_number: '',
+        quantity_received: Number(i.quantity), quantity_uom: i.quantity_uom,
+        unit_cost: Number(i.unit_price), expiry_date: '',
+        product_description: i.product_description, ordered_qty: Number(i.quantity),
+      })));
     }
-
-    toast({ title: 'Goods receipt created' }); setSaving(false); setDialogOpen(false); load();
   };
+
+  const handleCreate = async () => {
+    if (!selectedPO || grLines.length === 0) { toast({ title: 'Select PO and review lines', variant: 'destructive' }); return; }
+    setSaving(true);
+    const grNumber = await generateDocNumber('gr');
+    const po = purchaseOrders.find(p => p.id === selectedPO);
+    const { data: gr, error: grErr } = await supabase.from('goods_receipts').insert({
+      receipt_number: grNumber, purchase_order_id: selectedPO,
+      supplier_id: po?.supplier_id || null, depot_id: po?.depot_id || null,
+      received_by: user?.id || null, receipt_date: receiptDate,
+      status: 'received', notes: notes || null,
+    }).select('id').single();
+    if (grErr || !gr) { toast({ title: 'Error', description: grErr?.message, variant: 'destructive' }); setSaving(false); return; }
+
+    const linePayloads = grLines.filter(l => l.quantity_received > 0).map(l => ({
+      goods_receipt_id: gr.id, purchase_order_item_id: l.purchase_order_item_id,
+      variant_id: l.variant_id, batch_number: l.batch_number || null,
+      quantity_received: l.quantity_received, quantity_uom: l.quantity_uom,
+      unit_cost: l.unit_cost, expiry_date: l.expiry_date || null,
+    }));
+    if (linePayloads.length) {
+      await supabase.from('goods_receipt_items').insert(linePayloads);
+      const movements = linePayloads.filter(l => l.variant_id).map(l => ({
+        variant_id: l.variant_id!, depot_id: po?.depot_id || null,
+        movement_type: 'receipt', quantity: l.quantity_received,
+        quantity_uom: l.quantity_uom, unit_cost: l.unit_cost,
+        reference_type: 'goods_receipt', reference_id: gr.id,
+        notes: `GR ${grNumber}`, created_by: user?.id || null,
+      }));
+      if (movements.length) await supabase.from('stock_movements').insert(movements);
+    }
+    toast({ title: `Goods receipt ${grNumber} created` });
+    setSaving(false); setDialogOpen(false); setSelectedPO(''); setGrLines([]); setNotes(''); load();
+  };
+
+  const filtered = useMemo(() => data.filter(r => !search || r.receipt_number?.toLowerCase().includes(search.toLowerCase()) || r.purchase_orders?.po_number?.toLowerCase().includes(search.toLowerCase())), [data, search]);
 
   return (
-    <AdminPage>
-      <DataPageShell title="Goods Receipts" description={`${filtered.length} receipts`} loading={loading} searchValue={search} onSearchChange={setSearch} searchPlaceholder="Search receipts..." action={<Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />New Receipt</Button>}>
-        {status !== 'success' && status !== 'loading' && status !== 'empty' && <QueryStatusBanner status={status} message={errorMsg || undefined} tableName="goods_receipts" />}
-        <div className="rounded-lg border bg-card overflow-x-auto">
+    <div className="space-y-6">
+      <DataPageShell title="Goods Receipts" description="Receive goods against purchase orders"
+        action={<Button onClick={() => { setDialogOpen(true); setSelectedPO(''); setGrLines([]); setNotes(''); }} className="gap-2"><Plus className="h-4 w-4" />Receive Goods</Button>}>
+        <div className="grid grid-cols-3 gap-4">
+          {[{ label: 'Total Receipts', value: data.length }, { label: 'Received', value: data.filter(r => r.status === 'received').length }, { label: 'This Month', value: data.filter(r => new Date(r.receipt_date).getMonth() === new Date().getMonth()).length }].map(s => (
+            <div key={s.label} className="rounded-xl border bg-card p-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <p className="text-2xl font-bold mt-1">{s.value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search receipt or PO number..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <div className="rounded-xl border bg-card overflow-hidden">
           <Table>
-            <TableHeader><TableRow>
-              <TableHead>Receipt #</TableHead><TableHead>PO #</TableHead><TableHead>Supplier</TableHead><TableHead>Depot</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead>
+            <TableHeader><TableRow className="bg-muted/30">
+              <TableHead className="font-semibold">Receipt #</TableHead><TableHead className="font-semibold">Purchase Order</TableHead>
+              <TableHead className="font-semibold">Supplier</TableHead><TableHead className="font-semibold">Depot</TableHead>
+              <TableHead className="font-semibold">Date</TableHead><TableHead className="font-semibold">Status</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {filtered.map(r => (
-                <TableRow key={r.id}>
-                  <TableCell><span className="font-medium font-mono text-primary">{r.receipt_number}</span></TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{(r.purchase_orders as any)?.po_number || '—'}</TableCell>
-                  <TableCell>{(r.suppliers as any)?.supplier_name || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground">{(r.depots as any)?.name || '—'}</TableCell>
-                  <TableCell><Badge variant="secondary" className="capitalize">{r.status}</Badge></TableCell>
-                  <TableCell className="text-muted-foreground">{new Date(r.receipt_date).toLocaleDateString()}</TableCell>
+                <TableRow key={r.id} className="hover:bg-muted/20">
+                  <TableCell><div className="flex items-center gap-2"><PackageCheck className="h-4 w-4 text-primary" /><span className="font-mono font-medium text-sm">{r.receipt_number}</span></div></TableCell>
+                  <TableCell className="font-mono text-sm">{r.purchase_orders?.po_number || '—'}</TableCell>
+                  <TableCell>{r.suppliers?.supplier_name || '—'}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{r.depots?.name || '—'}</TableCell>
+                  <TableCell className="text-sm">{r.receipt_date}</TableCell>
+                  <TableCell><Badge variant="default" className="text-xs">{r.status}</Badge></TableCell>
                 </TableRow>
               ))}
-              {filtered.length === 0 && <EmptyState message="No goods receipts found" colSpan={6} />}
+              {filtered.length === 0 && !loading && <EmptyState message="No goods receipts found" colSpan={6} />}
             </TableBody>
           </Table>
         </div>
       </DataPageShell>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>New Goods Receipt</DialogTitle><DialogDescription>Receive goods against a purchase order or ad-hoc. Stock movements are created automatically for linked PO items.</DialogDescription></DialogHeader>
-          <div className="space-y-4 py-2">
+        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Receive Goods</DialogTitle><DialogDescription>Select a purchase order and confirm received quantities.</DialogDescription></DialogHeader>
+          <div className="space-y-5 py-2">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2"><Label>Receipt Number</Label><Input value={form.receipt_number} onChange={e => setForm(f => ({ ...f, receipt_number: e.target.value }))} className="font-mono" /></div>
-              <div className="space-y-2"><Label>Date</Label><Input type="date" value={form.receipt_date} onChange={e => setForm(f => ({ ...f, receipt_date: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Purchase Order</Label>
-                <Select value={form.purchase_order_id || '__none'} onValueChange={v => setForm(f => ({ ...f, purchase_order_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Link to PO" /></SelectTrigger>
-                  <SelectContent><SelectItem value="__none">None</SelectItem>{pos.map(p => <SelectItem key={p.id} value={p.id}>{p.po_number}</SelectItem>)}</SelectContent>
-                </Select>
+              <div className="space-y-1.5"><Label>Purchase Order <span className="text-destructive">*</span></Label>
+                <Select value={selectedPO} onValueChange={loadPOLines}><SelectTrigger><SelectValue placeholder="Select PO" /></SelectTrigger>
+                  <SelectContent>{purchaseOrders.map(po => <SelectItem key={po.id} value={po.id}>{po.po_number} — {po.suppliers?.supplier_name}</SelectItem>)}</SelectContent></Select>
               </div>
-              <div className="space-y-2"><Label>Supplier</Label>
-                <Select value={form.supplier_id || '__none'} onValueChange={v => setForm(f => ({ ...f, supplier_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select supplier" /></SelectTrigger>
-                  <SelectContent><SelectItem value="__none">None</SelectItem>{suppliers.map(s => <SelectItem key={s.id} value={s.id}>{s.supplier_name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2"><Label>Depot</Label>
-                <Select value={form.depot_id || '__none'} onValueChange={v => setForm(f => ({ ...f, depot_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select depot" /></SelectTrigger>
-                  <SelectContent><SelectItem value="__none">None</SelectItem>{depots.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2"><Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="received">Received</SelectItem><SelectItem value="partial">Partial</SelectItem><SelectItem value="inspecting">Inspecting</SelectItem></SelectContent>
-                </Select>
-              </div>
+              <div className="space-y-1.5"><Label>Receipt Date</Label><Input type="date" value={receiptDate} onChange={e => setReceiptDate(e.target.value)} /></div>
             </div>
-            {poItems.length > 0 && (
-              <div className="rounded-lg border p-3 space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">PO Line Items (stock will be auto-received)</p>
-                {poItems.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span>{item.product_description}</span>
-                    <span className="tabular-nums text-muted-foreground">{item.quantity} {item.quantity_uom}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="space-y-2"><Label>Notes</Label><Input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} /></div>
+            {poDetails && <div className="flex gap-4 text-sm">
+              <div className="rounded-lg border bg-muted/20 p-3 flex-1"><p className="text-xs text-muted-foreground">Supplier</p><p className="font-medium">{poDetails.suppliers?.supplier_name}</p></div>
+              <div className="rounded-lg border bg-muted/20 p-3 flex-1"><p className="text-xs text-muted-foreground">Depot</p><p className="font-medium">{poDetails.depots?.name || 'Not set'}</p></div>
+            </div>}
+            {grLines.length > 0 && <div className="rounded-lg border overflow-hidden">
+              <Table><TableHeader><TableRow className="bg-muted/30">
+                <TableHead className="font-semibold">Item</TableHead><TableHead className="w-[80px] font-semibold">Ordered</TableHead>
+                <TableHead className="w-[90px] font-semibold">Receive</TableHead><TableHead className="w-[100px] font-semibold">Batch #</TableHead>
+                <TableHead className="w-[100px] font-semibold">Unit Cost</TableHead><TableHead className="w-[110px] font-semibold">Expiry</TableHead>
+              </TableRow></TableHeader>
+              <TableBody>{grLines.map((line, idx) => (
+                <TableRow key={idx}>
+                  <TableCell className="text-sm">{line.product_description}</TableCell>
+                  <TableCell className="text-sm font-mono text-muted-foreground">{line.ordered_qty}</TableCell>
+                  <TableCell><Input type="number" min={0} value={line.quantity_received} onChange={e => setGrLines(prev => prev.map((l, i) => i === idx ? { ...l, quantity_received: Number(e.target.value) } : l))} className="h-8 text-sm" /></TableCell>
+                  <TableCell><Input value={line.batch_number} onChange={e => setGrLines(prev => prev.map((l, i) => i === idx ? { ...l, batch_number: e.target.value } : l))} className="h-8 text-sm" /></TableCell>
+                  <TableCell><Input type="number" step={0.01} value={line.unit_cost} onChange={e => setGrLines(prev => prev.map((l, i) => i === idx ? { ...l, unit_cost: Number(e.target.value) } : l))} className="h-8 text-sm font-mono" /></TableCell>
+                  <TableCell><Input type="date" value={line.expiry_date} onChange={e => setGrLines(prev => prev.map((l, i) => i === idx ? { ...l, expiry_date: e.target.value } : l))} className="h-8 text-sm" /></TableCell>
+                </TableRow>
+              ))}</TableBody></Table>
+            </div>}
+            <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} /></div>
+            {grLines.length > 0 && <div className="rounded-lg border bg-primary/5 p-3 flex items-center gap-2 text-sm"><Truck className="h-4 w-4 text-primary" /><span>Stock movements will be created automatically for received quantities.</span></div>}
           </div>
-          <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Create Receipt'}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleCreate} disabled={saving || !selectedPO}>{saving ? 'Processing...' : 'Confirm Receipt'}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminPage>
+    </div>
   );
 }
