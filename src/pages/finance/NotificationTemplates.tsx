@@ -123,6 +123,18 @@ export default function NotificationTemplates() {
     setShowForm(true);
   }
 
+  function duplicateTemplate(t: Template) {
+    setEditing(null);
+    setForm({
+      code: t.code + '_copy', title: t.title + ' (Copy)', channel: t.channel,
+      subject: t.subject || '', body: t.body || '',
+      trigger_event: t.trigger_event || 'manual',
+      recipient_type: t.recipient_type || 'customer',
+      description: t.description || '', is_active: false,
+    });
+    setShowForm(true);
+  }
+
   const channelBadge = (ch: string) => {
     const colors: Record<string, string> = {
       email: 'bg-blue-500/10 text-blue-700 border-blue-200',
