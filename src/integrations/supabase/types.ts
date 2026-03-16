@@ -3317,12 +3317,15 @@ export type Database = {
           expiry_date: string | null
           goods_receipt_id: string
           id: string
+          pack_size_id: string | null
+          product_id: string | null
           purchase_order_item_id: string | null
           quantity_received: number
           quantity_uom: string
           unit_cost: number | null
           updated_at: string
           variant_id: string | null
+          weight_equivalent_kg: number | null
         }
         Insert: {
           batch_number?: string | null
@@ -3330,12 +3333,15 @@ export type Database = {
           expiry_date?: string | null
           goods_receipt_id: string
           id?: string
+          pack_size_id?: string | null
+          product_id?: string | null
           purchase_order_item_id?: string | null
           quantity_received: number
           quantity_uom?: string
           unit_cost?: number | null
           updated_at?: string
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Update: {
           batch_number?: string | null
@@ -3343,12 +3349,15 @@ export type Database = {
           expiry_date?: string | null
           goods_receipt_id?: string
           id?: string
+          pack_size_id?: string | null
+          product_id?: string | null
           purchase_order_item_id?: string | null
           quantity_received?: number
           quantity_uom?: string
           unit_cost?: number | null
           updated_at?: string
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Relationships: [
           {
@@ -3356,6 +3365,20 @@ export type Database = {
             columns: ["goods_receipt_id"]
             isOneToOne: false
             referencedRelation: "goods_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goods_receipt_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goods_receipt_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
           {
@@ -3377,6 +3400,7 @@ export type Database = {
           receipt_date: string
           receipt_number: string
           received_by: string | null
+          source_type: string
           status: string
           supplier_id: string | null
           updated_at: string
@@ -3390,6 +3414,7 @@ export type Database = {
           receipt_date?: string
           receipt_number: string
           received_by?: string | null
+          source_type?: string
           status?: string
           supplier_id?: string | null
           updated_at?: string
@@ -3403,6 +3428,7 @@ export type Database = {
           receipt_date?: string
           receipt_number?: string
           received_by?: string | null
+          source_type?: string
           status?: string
           supplier_id?: string | null
           updated_at?: string
@@ -7836,33 +7862,62 @@ export type Database = {
       }
       stock_adjustment_items: {
         Row: {
+          adjustment_type: string
           created_at: string
           id: string
           notes: string | null
+          pack_size_id: string | null
+          product_id: string | null
+          quantity: number
           quantity_adjustment: number
           stock_adjustment_id: string
           unit_cost: number | null
           variant_id: string | null
+          weight_equivalent_kg: number | null
         }
         Insert: {
+          adjustment_type?: string
           created_at?: string
           id?: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
           quantity_adjustment?: number
           stock_adjustment_id: string
           unit_cost?: number | null
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Update: {
+          adjustment_type?: string
           created_at?: string
           id?: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
           quantity_adjustment?: number
           stock_adjustment_id?: string
           unit_cost?: number | null
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "stock_adjustment_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_adjustment_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "stock_adjustment_items_stock_adjustment_id_fkey"
             columns: ["stock_adjustment_id"]
@@ -7882,37 +7937,184 @@ export type Database = {
       stock_adjustments: {
         Row: {
           adjustment_number: string
+          adjustment_type: string
+          approved_by: string | null
           created_at: string
           created_by: string | null
           depot_id: string | null
           id: string
+          posted_at: string | null
           reason: string | null
+          reason_code: string | null
           status: string
           updated_at: string
         }
         Insert: {
           adjustment_number: string
+          adjustment_type?: string
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           depot_id?: string | null
           id?: string
+          posted_at?: string | null
           reason?: string | null
+          reason_code?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
           adjustment_number?: string
+          adjustment_type?: string
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           depot_id?: string | null
           id?: string
+          posted_at?: string | null
           reason?: string | null
+          reason_code?: string | null
           status?: string
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "stock_adjustments_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "stock_adjustments_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_count_items: {
+        Row: {
+          counted_quantity: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          pack_size_id: string | null
+          product_id: string | null
+          stock_count_id: string
+          system_quantity: number
+          variance: number | null
+          weight_equivalent_kg: number | null
+        }
+        Insert: {
+          counted_quantity?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
+          stock_count_id: string
+          system_quantity?: number
+          variance?: number | null
+          weight_equivalent_kg?: number | null
+        }
+        Update: {
+          counted_quantity?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
+          stock_count_id?: string
+          system_quantity?: number
+          variance?: number | null
+          weight_equivalent_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_count_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_count_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_count_items_stock_count_id_fkey"
+            columns: ["stock_count_id"]
+            isOneToOne: false
+            referencedRelation: "stock_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_counts: {
+        Row: {
+          approved_by: string | null
+          count_date: string
+          count_number: string
+          count_type: string
+          created_at: string
+          created_by: string | null
+          depot_id: string
+          id: string
+          notes: string | null
+          posted_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          count_date?: string
+          count_number: string
+          count_type?: string
+          created_at?: string
+          created_by?: string | null
+          depot_id: string
+          id?: string
+          notes?: string | null
+          posted_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          count_date?: string
+          count_number?: string
+          count_type?: string
+          created_at?: string
+          created_by?: string | null
+          depot_id?: string
+          id?: string
+          notes?: string | null
+          posted_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_counts_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_counts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_counts_depot_id_fkey"
             columns: ["depot_id"]
             isOneToOne: false
             referencedRelation: "depots"
@@ -7927,15 +8129,23 @@ export type Database = {
           created_at: string
           created_by: string | null
           depot_id: string | null
+          destination_depot_id: string | null
           id: string
           movement_type: string
           notes: string | null
+          pack_size_id: string | null
+          product_id: string | null
           quantity: number
           quantity_uom: string
+          reason_code: string | null
           reference_id: string | null
+          reference_number: string | null
           reference_type: string | null
+          source_depot_id: string | null
+          status: string
           unit_cost: number | null
-          variant_id: string
+          variant_id: string | null
+          weight_equivalent_kg: number | null
         }
         Insert: {
           batch_id?: string | null
@@ -7943,15 +8153,23 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           depot_id?: string | null
+          destination_depot_id?: string | null
           id?: string
           movement_type: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
           quantity: number
           quantity_uom?: string
+          reason_code?: string | null
           reference_id?: string | null
+          reference_number?: string | null
           reference_type?: string | null
+          source_depot_id?: string | null
+          status?: string
           unit_cost?: number | null
-          variant_id: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Update: {
           batch_id?: string | null
@@ -7959,15 +8177,23 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           depot_id?: string | null
+          destination_depot_id?: string | null
           id?: string
           movement_type?: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
           quantity?: number
           quantity_uom?: string
+          reason_code?: string | null
           reference_id?: string | null
+          reference_number?: string | null
           reference_type?: string | null
+          source_depot_id?: string | null
+          status?: string
           unit_cost?: number | null
-          variant_id?: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Relationships: [
           {
@@ -7998,6 +8224,34 @@ export type Database = {
             referencedRelation: "depots"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stock_movements_destination_depot_id_fkey"
+            columns: ["destination_depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_source_depot_id_fkey"
+            columns: ["source_depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
         ]
       }
       stock_transfer_items: {
@@ -8006,36 +8260,45 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          pack_size_id: string | null
+          product_id: string | null
           quantity_uom: string
           received_quantity: number | null
           requested_quantity: number
           sent_quantity: number | null
           transfer_id: string
-          variant_id: string
+          variant_id: string | null
+          weight_equivalent_kg: number | null
         }
         Insert: {
           batch_id?: string | null
           created_at?: string
           id?: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
           quantity_uom?: string
           received_quantity?: number | null
           requested_quantity: number
           sent_quantity?: number | null
           transfer_id: string
-          variant_id: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Update: {
           batch_id?: string | null
           created_at?: string
           id?: string
           notes?: string | null
+          pack_size_id?: string | null
+          product_id?: string | null
           quantity_uom?: string
           received_quantity?: number | null
           requested_quantity?: number
           sent_quantity?: number | null
           transfer_id?: string
-          variant_id?: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Relationships: [
           {
@@ -8043,6 +8306,20 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "inventory_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
           {
@@ -8058,37 +8335,49 @@ export type Database = {
         Row: {
           approved_by: string | null
           created_at: string
+          dispatched_at: string | null
           from_depot_id: string
           id: string
           notes: string | null
+          received_at: string | null
           requested_by: string | null
           status: string
           to_depot_id: string
+          transfer_date: string | null
           transfer_number: string
+          transfer_reason: string | null
           updated_at: string
         }
         Insert: {
           approved_by?: string | null
           created_at?: string
+          dispatched_at?: string | null
           from_depot_id: string
           id?: string
           notes?: string | null
+          received_at?: string | null
           requested_by?: string | null
           status?: string
           to_depot_id: string
+          transfer_date?: string | null
           transfer_number: string
+          transfer_reason?: string | null
           updated_at?: string
         }
         Update: {
           approved_by?: string | null
           created_at?: string
+          dispatched_at?: string | null
           from_depot_id?: string
           id?: string
           notes?: string | null
+          received_at?: string | null
           requested_by?: string | null
           status?: string
           to_depot_id?: string
+          transfer_date?: string | null
           transfer_number?: string
+          transfer_reason?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -9119,6 +9408,7 @@ export type Database = {
       generate_je_number: { Args: never; Returns: string }
       generate_po_number: { Args: never; Returns: string }
       generate_sa_number: { Args: never; Returns: string }
+      generate_sc_number: { Args: never; Returns: string }
       generate_si_number: { Args: never; Returns: string }
       has_role: { Args: { role_name: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
