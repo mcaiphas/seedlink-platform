@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, Trash2, Save, Send } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { ProductLineItemSelect, ProductOption } from '@/components/commerce/ProductLineItemSelect';
 
 interface POLine {
   id?: string;
