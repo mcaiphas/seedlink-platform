@@ -183,6 +183,8 @@ const App = () => (
               <Route path="inventory-batches" element={<InventoryBatchList />} />
               <Route path="stock-movements" element={<StockMovementList />} />
               <Route path="stock-transfers" element={<StockTransferList />} />
+              <Route path="stock-counts" element={<StockCountList />} />
+              <Route path="goods-receiving" element={<GoodsReceivingList />} />
               <Route path="pick-waves" element={<PickWaveList />} />
               <Route path="pick-tasks" element={<PickTaskList />} />
               <Route path="fulfillment-batches" element={<FulfillmentBatchList />} />
