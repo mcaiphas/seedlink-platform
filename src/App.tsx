@@ -134,6 +134,7 @@ const App = () => (
               <Route path="attributes" element={<AttributeList />} />
               <Route path="variants" element={<VariantList />} />
               <Route path="pack-sizes" element={<PackSizeList />} />
+              <Route path="import-jobs" element={<ImportJobList />} />
               <Route path="orders" element={<OrderList />} />
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />
