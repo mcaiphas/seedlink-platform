@@ -3,11 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import {
-  Save, ArrowLeft, Package, Tag, DollarSign, Truck, Warehouse, Layers, Box, Sprout, Image as ImageIcon, Beaker,
+  Save, ArrowLeft, Package, Tag, DollarSign, Truck, Warehouse, Layers, Box, Sprout, Image as ImageIcon, Beaker, Wand2,
 } from 'lucide-react';
 import { GeneralTab } from '@/components/products/tabs/GeneralTab';
 import { ClassificationTab } from '@/components/products/tabs/ClassificationTab';
@@ -87,6 +88,19 @@ const emptySeedDetails: SeedDetailsData = {
   purity_percent: '', thousand_kernel_weight_g: '', seeds_per_kg: '', notes: '',
 };
 
+const TAB_CONFIG = [
+  { value: 'general', label: 'General', icon: Package },
+  { value: 'classification', label: 'Classification', icon: Tag },
+  { value: 'pricing', label: 'Pricing', icon: DollarSign },
+  { value: 'packing', label: 'Pack Sizes', icon: Box },
+  { value: 'variants', label: 'Variants', icon: Layers },
+  { value: 'shipping', label: 'Shipping', icon: Truck },
+  { value: 'inventory', label: 'Depot / Inventory', icon: Warehouse },
+  { value: 'media', label: 'Media', icon: ImageIcon },
+  { value: 'seed', label: 'Seed Details', icon: Sprout },
+  { value: 'attributes', label: 'Attributes', icon: Beaker },
+] as const;
+
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -95,6 +109,7 @@ export default function ProductForm() {
   const [seedDetails, setSeedDetails] = useState<SeedDetailsData>(emptySeedDetails);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -189,11 +204,11 @@ export default function ProductForm() {
   const handleSave = async () => {
     if (!form.name.trim()) {
       toast({ title: 'Validation', description: 'Product name is required', variant: 'destructive' });
+      setActiveTab('general');
       return;
     }
     setSaving(true);
 
-    // Auto-calculate margin if not set
     let marginPct = form.default_margin_percent ? Number(form.default_margin_percent) : null;
     const buy = form.default_buying_price ? Number(form.default_buying_price) : null;
     const sell = form.default_selling_price ? Number(form.default_selling_price) : null;
@@ -222,7 +237,7 @@ export default function ProductForm() {
       default_buying_price: buy,
       default_selling_price: sell,
       default_margin_percent: marginPct,
-      price: sell, // keep legacy price in sync
+      price: sell,
       compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
       currency_code: form.currency_code,
       base_uom: form.base_uom,
@@ -247,7 +262,6 @@ export default function ProductForm() {
       productId = data.id;
     }
 
-    // Save collections
     if (productId) {
       await supabase.from('product_collection_items').delete().eq('product_id', productId);
       if (selectedCollections.length > 0) {
@@ -257,7 +271,6 @@ export default function ProductForm() {
       }
     }
 
-    // Save seed details if any field is filled
     const hasSeedData = Object.values(seedDetails).some(v => v !== '');
     if (productId && hasSeedData) {
       const seedPayload: any = {
@@ -297,6 +310,12 @@ export default function ProductForm() {
     );
   }
 
+  // Compute completion indicators
+  const hasClassification = !!(form.category_id || form.supplier_id || selectedCollections.length);
+  const hasPricing = !!(form.default_buying_price || form.default_selling_price);
+  const hasShipping = !!(form.shipping_weight_kg || form.length_cm);
+  const hasSeedData = Object.values(seedDetails).some(v => v !== '');
+
   return (
     <div className="space-y-6 pb-10">
       <PageHeader
@@ -304,14 +323,17 @@ export default function ProductForm() {
         description={isEdit ? form.name : 'Create a new product in your catalog'}
         action={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate(-1)}>
+            <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
               <ArrowLeft className="mr-2 h-4 w-4" />Back
             </Button>
             {!form.sku && (
-              <Button variant="outline" onClick={() => { const s = generateSkuSuggestion(); update('sku', s); toast({ title: `SKU suggested: ${s}` }); }}>
-                Generate SKU
+              <Button variant="outline" size="sm" onClick={() => { const s = generateSkuSuggestion(); update('sku', s); toast({ title: `SKU suggested: ${s}` }); }}>
+                <Wand2 className="mr-2 h-4 w-4" />Generate SKU
               </Button>
             )}
+            <Badge variant={form.status === 'published' ? 'default' : 'outline'} className="capitalize hidden sm:flex">
+              {form.status}
+            </Badge>
             <Button onClick={handleSave} disabled={saving}>
               <Save className="mr-2 h-4 w-4" />{saving ? 'Saving...' : 'Save Product'}
             </Button>
@@ -319,24 +341,33 @@ export default function ProductForm() {
         }
       />
 
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1.5 rounded-lg">
-          <TabsTrigger value="general" className="gap-1.5"><Package className="h-3.5 w-3.5" />General</TabsTrigger>
-          <TabsTrigger value="classification" className="gap-1.5"><Tag className="h-3.5 w-3.5" />Classification</TabsTrigger>
-          <TabsTrigger value="pricing" className="gap-1.5"><DollarSign className="h-3.5 w-3.5" />Pricing</TabsTrigger>
-          <TabsTrigger value="packing" className="gap-1.5"><Box className="h-3.5 w-3.5" />Pack Sizes</TabsTrigger>
-          <TabsTrigger value="variants" className="gap-1.5"><Layers className="h-3.5 w-3.5" />Variants</TabsTrigger>
-          <TabsTrigger value="shipping" className="gap-1.5"><Truck className="h-3.5 w-3.5" />Shipping</TabsTrigger>
-          <TabsTrigger value="inventory" className="gap-1.5"><Warehouse className="h-3.5 w-3.5" />Depot / Inventory</TabsTrigger>
-          <TabsTrigger value="media" className="gap-1.5"><ImageIcon className="h-3.5 w-3.5" />Media</TabsTrigger>
-          <TabsTrigger value="seed" className="gap-1.5"><Sprout className="h-3.5 w-3.5" />Seed Details</TabsTrigger>
-          <TabsTrigger value="attributes" className="gap-1.5"><Beaker className="h-3.5 w-3.5" />Attributes</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="border rounded-lg bg-card p-1.5 overflow-x-auto">
+          <TabsList className="flex h-auto gap-0.5 bg-transparent w-full">
+            {TAB_CONFIG.map(tab => {
+              const Icon = tab.icon;
+              const hasDot = (tab.value === 'classification' && hasClassification) ||
+                (tab.value === 'pricing' && hasPricing) ||
+                (tab.value === 'shipping' && hasShipping) ||
+                (tab.value === 'seed' && hasSeedData);
+              return (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="gap-1.5 text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex-1 min-w-0 px-2"
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="hidden sm:inline truncate">{tab.label}</span>
+                  {hasDot && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary data-[state=active]:bg-primary-foreground" />}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         <TabsContent value="general">
           <GeneralTab form={form} update={update} />
         </TabsContent>
-
         <TabsContent value="classification">
           <ClassificationTab
             form={form} update={update}
@@ -346,43 +377,35 @@ export default function ProductForm() {
             depots={depots} organizations={organizations}
           />
         </TabsContent>
-
         <TabsContent value="pricing">
           <PricingTab form={form} update={update} />
         </TabsContent>
-
         <TabsContent value="packing">
           <PackSizesTab packSizes={packSizes} />
         </TabsContent>
-
         <TabsContent value="variants">
           {isEdit && id ? (
             <ProductVariantManager productId={id} currencyCode={form.currency_code} packSizes={packSizes} depots={depots} />
           ) : (
-            <div className="rounded-lg border border-dashed p-10 text-center">
+            <div className="rounded-lg border border-dashed p-10 text-center bg-card">
               <Layers className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-sm font-medium">Save the product first</p>
               <p className="text-xs text-muted-foreground mt-1">Variants can be managed after the product is created.</p>
             </div>
           )}
         </TabsContent>
-
         <TabsContent value="shipping">
           <ShippingTab form={form} update={update} />
         </TabsContent>
-
         <TabsContent value="inventory">
           <InventoryTab form={form} update={update} setForm={setForm} depots={depots} />
         </TabsContent>
-
         <TabsContent value="media">
           <MediaTab form={form} update={update} />
         </TabsContent>
-
         <TabsContent value="seed">
           <SeedDetailsTab seedDetails={seedDetails} setSeedDetails={setSeedDetails} isEdit={isEdit} />
         </TabsContent>
-
         <TabsContent value="attributes">
           <AttributesTab form={form} setForm={setForm} />
         </TabsContent>
