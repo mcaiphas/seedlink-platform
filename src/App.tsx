@@ -244,7 +244,18 @@ const App = () => (
               <Route path="supplier-payments" element={<SupplierPaymentList />} />
               <Route path="customer-statements" element={<CustomerStatements />} />
               <Route path="supplier-statements" element={<SupplierStatements />} />
-              <Route path="stock-adjustments" element={<StockAdjustmentList />} />
+
+              {/* Accounting */}
+              <Route path="accounting-periods" element={<AccountingPeriods />} />
+              <Route path="posting-rules" element={<PostingRules />} />
+              <Route path="manual-journals" element={<ManualJournals />} />
+              <Route path="trial-balance" element={<TrialBalance />} />
+              <Route path="profit-and-loss" element={<ProfitAndLoss />} />
+              <Route path="balance-sheet" element={<BalanceSheet />} />
+              <Route path="general-ledger-report" element={<GeneralLedgerReport />} />
+              <Route path="journal-listing" element={<JournalListing />} />
+              <Route path="account-activity" element={<AccountActivity />} />
+              <Route path="finance-dashboard" element={<FinanceDashboard />} />
 
               {/* Warehouse */}
               <Route path="stock-overview" element={<StockOverview />} />
