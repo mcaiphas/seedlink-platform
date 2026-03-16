@@ -144,6 +144,19 @@ import OperationsFinance from "@/pages/reports/OperationsFinance";
 import ManagementDashboard from "@/pages/reports/ManagementDashboard";
 import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
 import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
+
+// Customer Portal
+import CustomerPortalDashboard from "@/pages/portal/CustomerPortalDashboard";
+import PortalInvoices from "@/pages/portal/PortalInvoices";
+import PortalQuotes from "@/pages/portal/PortalQuotes";
+import PortalStatements from "@/pages/portal/PortalStatements";
+
+// Finance extras
+import CreditControlDashboard from "@/pages/finance/CreditControlDashboard";
+import RefundList from "@/pages/finance/RefundList";
+import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
+import ReminderTemplates from "@/pages/finance/ReminderTemplates";
+
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -288,6 +301,18 @@ const App = () => (
 
               {/* Approvals */}
               <Route path="approvals" element={<ApprovalCenter />} />
+
+              {/* Customer Portal */}
+              <Route path="portal" element={<CustomerPortalDashboard />} />
+              <Route path="portal/invoices" element={<PortalInvoices />} />
+              <Route path="portal/quotes" element={<PortalQuotes />} />
+              <Route path="portal/statements" element={<PortalStatements />} />
+
+              {/* Finance extras */}
+              <Route path="credit-control" element={<CreditControlDashboard />} />
+              <Route path="refunds" element={<RefundList />} />
+              <Route path="communication-logs" element={<CustomerCommunicationLog />} />
+              <Route path="reminder-templates" element={<ReminderTemplates />} />
 
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />

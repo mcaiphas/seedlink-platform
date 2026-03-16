@@ -21,7 +21,7 @@ import {
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
-  BookOpen, FileDown, Banknote,
+  BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -125,20 +125,33 @@ const sections: NavSection[] = [
     label: 'Finance',
     adminOnly: true,
     items: [
+      { title: 'Credit Control', url: '/credit-control', icon: ShieldAlert },
       { title: 'Debtors (AR)', url: '/debtors', icon: TrendingUp },
       { title: 'Creditors (AP)', url: '/creditors', icon: TrendingDown },
       { title: 'Customer Aging', url: '/customer-aging', icon: BarChart3 },
       { title: 'Supplier Aging', url: '/supplier-aging', icon: BarChart3 },
       { title: 'Customer Credit Notes', url: '/customer-credit-notes', icon: FileDown },
       { title: 'Supplier Credit Notes', url: '/supplier-credit-notes', icon: FileDown },
+      { title: 'Refunds', url: '/refunds', icon: RotateCcw },
       { title: 'Supplier Payments', url: '/supplier-payments', icon: Banknote },
       { title: 'Customer Statements', url: '/customer-statements', icon: BookOpen },
       { title: 'Supplier Statements', url: '/supplier-statements', icon: BookOpen },
+      { title: 'Communication Logs', url: '/communication-logs', icon: MessageSquare },
+      { title: 'Reminder Templates', url: '/reminder-templates', icon: Bell },
       { title: 'Operations Finance', url: '/reports/operations-finance', icon: Activity },
       { title: 'Inventory Valuation', url: '/reports/valuation', icon: DollarSign },
       { title: 'Journal Entries', url: '/journal-entries', icon: Scale },
       { title: 'GL Accounts', url: '/gl-accounts', icon: Notebook },
       { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Customer Portal',
+    items: [
+      { title: 'Portal Dashboard', url: '/portal', icon: User },
+      { title: 'My Invoices', url: '/portal/invoices', icon: Receipt },
+      { title: 'My Quotes', url: '/portal/quotes', icon: FileText },
+      { title: 'My Statement', url: '/portal/statements', icon: BookOpen },
     ],
   },
   {

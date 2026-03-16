@@ -2323,6 +2323,57 @@ export type Database = {
           },
         ]
       }
+      customer_communication_logs: {
+        Row: {
+          action: string
+          action_type: string
+          created_at: string
+          customer_id: string
+          id: string
+          notes: string | null
+          performed_by: string | null
+          reference_id: string | null
+          reference_type: string | null
+        }
+        Insert: {
+          action: string
+          action_type?: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          notes?: string | null
+          performed_by?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Update: {
+          action?: string
+          action_type?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          performed_by?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_communication_logs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_communication_logs_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_credit_accounts: {
         Row: {
           account_number: string | null
@@ -2452,6 +2503,7 @@ export type Database = {
       }
       customer_credit_notes: {
         Row: {
+          applied_invoice_id: string | null
           created_at: string
           created_by: string | null
           credit_note_number: string
@@ -2462,6 +2514,7 @@ export type Database = {
           issue_date: string
           notes: string | null
           reason_code: string
+          refund_id: string | null
           status: string
           subtotal_amount: number
           tax_amount: number
@@ -2469,6 +2522,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          applied_invoice_id?: string | null
           created_at?: string
           created_by?: string | null
           credit_note_number: string
@@ -2479,6 +2533,7 @@ export type Database = {
           issue_date?: string
           notes?: string | null
           reason_code?: string
+          refund_id?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
@@ -2486,6 +2541,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          applied_invoice_id?: string | null
           created_at?: string
           created_by?: string | null
           credit_note_number?: string
@@ -2496,6 +2552,7 @@ export type Database = {
           issue_date?: string
           notes?: string | null
           reason_code?: string
+          refund_id?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
@@ -2705,6 +2762,82 @@ export type Database = {
             columns: ["sales_rep_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          credit_note_id: string | null
+          customer_id: string
+          gateway_transaction_id: string | null
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          payment_reference: string | null
+          refund_date: string
+          refund_method: string
+          refund_number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          credit_note_id?: string | null
+          customer_id: string
+          gateway_transaction_id?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_reference?: string | null
+          refund_date?: string
+          refund_method?: string
+          refund_number: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          credit_note_id?: string | null
+          customer_id?: string
+          gateway_transaction_id?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_reference?: string | null
+          refund_date?: string
+          refund_method?: string
+          refund_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_refunds_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_refunds_credit_note_id_fkey"
+            columns: ["credit_note_id"]
+            isOneToOne: false
+            referencedRelation: "customer_credit_notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_refunds_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
             referencedColumns: ["id"]
           },
         ]
@@ -6189,6 +6322,63 @@ export type Database = {
           },
         ]
       }
+      payment_gateway_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency_code: string
+          gateway_code: string
+          gateway_status: string
+          gateway_transaction_id: string | null
+          id: string
+          metadata: Json | null
+          payment_id: string | null
+          payment_request_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency_code?: string
+          gateway_code: string
+          gateway_status?: string
+          gateway_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_id?: string | null
+          payment_request_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency_code?: string
+          gateway_code?: string
+          gateway_status?: string
+          gateway_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_id?: string | null
+          payment_request_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_gateway_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_gateway_transactions_payment_request_id_fkey"
+            columns: ["payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_gateways: {
         Row: {
           code: string
@@ -8170,6 +8360,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reminder_templates: {
+        Row: {
+          body_template: string
+          created_at: string
+          days_offset: number
+          id: string
+          is_active: boolean
+          reminder_type: string
+          subject_template: string
+          template_code: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          created_at?: string
+          days_offset?: number
+          id?: string
+          is_active?: boolean
+          reminder_type?: string
+          subject_template: string
+          template_code: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          created_at?: string
+          days_offset?: number
+          id?: string
+          is_active?: boolean
+          reminder_type?: string
+          subject_template?: string
+          template_code?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
@@ -10641,6 +10870,7 @@ export type Database = {
       generate_po_number: { Args: never; Returns: string }
       generate_pr_number: { Args: never; Returns: string }
       generate_qt_number: { Args: never; Returns: string }
+      generate_refund_number: { Args: never; Returns: string }
       generate_sa_number: { Args: never; Returns: string }
       generate_sc_number: { Args: never; Returns: string }
       generate_scn_number: { Args: never; Returns: string }
