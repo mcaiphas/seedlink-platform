@@ -1,101 +1,126 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DataPageShell, EmptyState } from '@/components/DataPageShell';
+import { PageShell, EmptyState } from '@/components/commerce/PageShell';
+import { StatusBadge, CurrencyDisplay, DateDisplay } from '@/components/commerce/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Search, Filter, BookOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Scale } from 'lucide-react';
 
 export default function JournalEntryList() {
-  const [data, setData] = useState<any[]>([]);
+  const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<any>(null);
-  const [entryLines, setEntryLines] = useState<any[]>([]);
+  const [detail, setDetail] = useState<any>(null);
+  const [lines, setLines] = useState<any[]>([]);
+  const [glMap, setGlMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    (async () => { setLoading(true); const { data: d } = await supabase.from('journal_entries').select('*').order('created_at', { ascending: false }); setData(d || []); setLoading(false); })();
+    Promise.all([
+      supabase.from('journal_entries').select('*').order('created_at', { ascending: false }).limit(200),
+      supabase.from('gl_accounts').select('id, account_code, account_name'),
+    ]).then(([{ data: jes }, { data: gls }]) => {
+      setEntries(jes || []);
+      setGlMap(Object.fromEntries((gls || []).map(g => [g.id, `${g.account_code} - ${g.account_name}`])));
+      setLoading(false);
+    });
   }, []);
 
-  const openDetail = async (entry: any) => {
-    setSelectedEntry(entry); setDetailOpen(true);
-    const { data: lines } = await supabase.from('journal_entry_lines').select('*, gl_accounts(account_code, account_name)').eq('journal_entry_id', entry.id);
-    setEntryLines(lines || []);
-  };
+  const filtered = useMemo(() =>
+    entries.filter(e => {
+      if (search && !(e.journal_number || '').toLowerCase().includes(search.toLowerCase()) && !(e.description || '').toLowerCase().includes(search.toLowerCase())) return false;
+      if (statusFilter !== 'all' && e.status !== statusFilter) return false;
+      return true;
+    }), [entries, search, statusFilter]);
 
-  const filtered = useMemo(() => data.filter(r => {
-    const ms = !search || r.journal_number?.toLowerCase().includes(search.toLowerCase()) || r.description?.toLowerCase().includes(search.toLowerCase());
-    const mst = statusFilter === 'all' || r.status === statusFilter;
-    return ms && mst;
-  }), [data, search, statusFilter]);
-
-  const fmt = (v: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(v);
+  async function openDetail(je: any) {
+    setDetail(je);
+    const { data } = await supabase.from('journal_entry_lines').select('*').eq('journal_entry_id', je.id);
+    setLines(data || []);
+  }
 
   return (
-    <div className="space-y-6">
-      <DataPageShell title="Journal Entries" description="View commerce journal entries and their accounting impact">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search journals..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" /></div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-[140px]"><Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" /><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All Status</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="posted">Posted</SelectItem></SelectContent></Select>
-        </div>
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <Table><TableHeader><TableRow className="bg-muted/30"><TableHead className="font-semibold">Journal #</TableHead><TableHead className="font-semibold">Date</TableHead><TableHead className="font-semibold">Reference</TableHead><TableHead className="font-semibold">Description</TableHead><TableHead className="font-semibold">Status</TableHead></TableRow></TableHeader>
-            <TableBody>{filtered.map(r => (
-              <TableRow key={r.id} className="hover:bg-muted/20 cursor-pointer" onClick={() => openDetail(r)}>
-                <TableCell><div className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /><span className="font-mono font-medium text-sm">{r.journal_number}</span></div></TableCell>
-                <TableCell className="text-sm">{r.entry_date}</TableCell>
-                <TableCell><span className="text-xs font-mono bg-muted px-2 py-0.5 rounded">{r.reference_type || '—'}</span></TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-[300px] truncate">{r.description || '—'}</TableCell>
-                <TableCell><Badge variant={r.status === 'posted' ? 'default' : 'secondary'} className="text-xs">{r.status}</Badge></TableCell>
-              </TableRow>
-            ))}{filtered.length === 0 && !loading && <EmptyState message="No journal entries found" colSpan={5} />}</TableBody></Table>
-        </div>
-      </DataPageShell>
+    <PageShell title="Journal Entries" subtitle="Financial journal entries and postings" loading={loading} search={search} onSearchChange={setSearch} searchPlaceholder="Search journals..."
+      filters={
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[130px] bg-card"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="posted">Posted</SelectItem>
+            <SelectItem value="reversed">Reversed</SelectItem>
+          </SelectContent>
+        </Select>
+      }
+    >
+      {filtered.length === 0 ? (
+        <EmptyState icon={Scale} title="No journal entries" description="Journal entries are auto-generated from commerce operations." />
+      ) : (
+        <Card className="shadow-sm"><CardContent className="p-0">
+          <Table>
+            <TableHeader><TableRow className="hover:bg-transparent">
+              <TableHead className="pl-6">Journal #</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Reference</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="pr-6">Date</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>
+              {filtered.map(e => (
+                <TableRow key={e.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetail(e)}>
+                  <TableCell className="pl-6 font-medium">{e.journal_number}</TableCell>
+                  <TableCell className="text-sm max-w-[250px] truncate">{e.description || '—'}</TableCell>
+                  <TableCell><Badge variant="outline" className="capitalize text-xs">{e.reference_type?.replace(/_/g, ' ') || '—'}</Badge></TableCell>
+                  <TableCell><StatusBadge type="document" value={e.status} /></TableCell>
+                  <TableCell className="pr-6"><DateDisplay date={e.entry_date} /></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent></Card>
+      )}
 
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader><DialogTitle>Journal Entry — {selectedEntry?.journal_number}</DialogTitle><DialogDescription>{selectedEntry?.description || 'No description'}</DialogDescription></DialogHeader>
-          {selectedEntry && (
-            <div className="space-y-4 py-2">
-              <div className="flex gap-4 text-sm">
-                <div className="rounded-lg border bg-muted/20 p-3 flex-1"><p className="text-xs text-muted-foreground">Date</p><p className="font-medium">{selectedEntry.entry_date}</p></div>
-                <div className="rounded-lg border bg-muted/20 p-3 flex-1"><p className="text-xs text-muted-foreground">Reference</p><p className="font-medium font-mono">{selectedEntry.reference_type || '—'}</p></div>
-                <div className="rounded-lg border bg-muted/20 p-3 flex-1"><p className="text-xs text-muted-foreground">Status</p><Badge variant={selectedEntry.status === 'posted' ? 'default' : 'secondary'} className="text-xs mt-1">{selectedEntry.status}</Badge></div>
+      <Dialog open={!!detail} onOpenChange={() => setDetail(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Journal {detail?.journal_number}</DialogTitle></DialogHeader>
+          {detail && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge type="document" value={detail.status} /></div>
+                <div><p className="text-xs text-muted-foreground">Date</p><DateDisplay date={detail.entry_date} /></div>
+                <div><p className="text-xs text-muted-foreground">Reference</p><Badge variant="outline" className="capitalize text-xs">{detail.reference_type?.replace(/_/g, ' ')}</Badge></div>
               </div>
+              {detail.description && <p className="text-sm text-muted-foreground border rounded-lg p-3">{detail.description}</p>}
               <Separator />
-              <div className="rounded-lg border overflow-hidden">
-                <Table><TableHeader><TableRow className="bg-muted/30"><TableHead className="font-semibold">Account</TableHead><TableHead className="font-semibold">Description</TableHead><TableHead className="font-semibold text-right">Debit</TableHead><TableHead className="font-semibold text-right">Credit</TableHead></TableRow></TableHeader>
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Journal Lines</h4>
+                <Table>
+                  <TableHeader><TableRow><TableHead>Account</TableHead><TableHead className="text-right">Debit</TableHead><TableHead className="text-right">Credit</TableHead><TableHead>Description</TableHead></TableRow></TableHeader>
                   <TableBody>
-                    {entryLines.map(l => (
+                    {lines.map(l => (
                       <TableRow key={l.id}>
-                        <TableCell><div><p className="font-mono text-sm">{l.gl_accounts?.account_code}</p><p className="text-xs text-muted-foreground">{l.gl_accounts?.account_name}</p></div></TableCell>
-                        <TableCell className="text-sm">{l.line_description || '—'}</TableCell>
-                        <TableCell className="text-right font-mono">{Number(l.debit_amount) > 0 ? fmt(Number(l.debit_amount)) : '—'}</TableCell>
-                        <TableCell className="text-right font-mono">{Number(l.credit_amount) > 0 ? fmt(Number(l.credit_amount)) : '—'}</TableCell>
+                        <TableCell className="text-sm">{glMap[l.gl_account_id] || l.gl_account_id?.slice(0, 8)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{l.debit_amount > 0 ? <CurrencyDisplay amount={l.debit_amount} /> : '—'}</TableCell>
+                        <TableCell className="text-right tabular-nums">{l.credit_amount > 0 ? <CurrencyDisplay amount={l.credit_amount} /> : '—'}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{l.line_description || '—'}</TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="bg-muted/20 font-semibold">
-                      <TableCell colSpan={2} className="text-right">Totals</TableCell>
-                      <TableCell className="text-right font-mono">{fmt(entryLines.reduce((s, l) => s + Number(l.debit_amount || 0), 0))}</TableCell>
-                      <TableCell className="text-right font-mono">{fmt(entryLines.reduce((s, l) => s + Number(l.credit_amount || 0), 0))}</TableCell>
-                    </TableRow>
-                  </TableBody></Table>
-              </div>
-              {(() => { const d = entryLines.reduce((s, l) => s + Number(l.debit_amount || 0), 0); const c = entryLines.reduce((s, l) => s + Number(l.credit_amount || 0), 0); const balanced = Math.abs(d - c) < 0.01; return (
-                <div className={`rounded-lg border p-3 text-sm flex items-center gap-2 ${balanced ? 'bg-primary/5 border-primary/20' : 'bg-destructive/5 border-destructive/20'}`}>
-                  <Badge variant={balanced ? 'default' : 'destructive'} className="text-xs">{balanced ? 'Balanced' : 'Unbalanced'}</Badge>
-                  <span>{balanced ? 'Debits equal credits' : `Difference: ${fmt(Math.abs(d - c))}`}</span>
+                  </TableBody>
+                </Table>
+                <Separator className="my-2" />
+                <div className="flex justify-end gap-8 text-sm font-semibold">
+                  <div>Total Debit: <CurrencyDisplay amount={lines.reduce((s, l) => s + (l.debit_amount || 0), 0)} /></div>
+                  <div>Total Credit: <CurrencyDisplay amount={lines.reduce((s, l) => s + (l.credit_amount || 0), 0)} /></div>
                 </div>
-              ); })()}
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

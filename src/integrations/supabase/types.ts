@@ -5380,6 +5380,7 @@ export type Database = {
       order_items: {
         Row: {
           created_at: string
+          description: string | null
           id: string
           line_total: number
           metadata: Json
@@ -5387,11 +5388,15 @@ export type Database = {
           product_id: string | null
           product_name: string
           quantity: number
+          quantity_uom: string | null
           sku: string | null
           unit_price: number
+          updated_at: string
+          variant_id: string | null
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
           line_total?: number
           metadata?: Json
@@ -5399,11 +5404,15 @@ export type Database = {
           product_id?: string | null
           product_name: string
           quantity?: number
+          quantity_uom?: string | null
           sku?: string | null
           unit_price?: number
+          updated_at?: string
+          variant_id?: string | null
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
           line_total?: number
           metadata?: Json
@@ -5411,8 +5420,11 @@ export type Database = {
           product_id?: string | null
           product_name?: string
           quantity?: number
+          quantity_uom?: string | null
           sku?: string | null
           unit_price?: number
+          updated_at?: string
+          variant_id?: string | null
         }
         Relationships: [
           {
@@ -5427,6 +5439,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -8852,6 +8871,43 @@ export type Database = {
         Args: { buying_price: number; selling_price: number }
         Returns: number
       }
+      create_credit_ledger_for_invoice: {
+        Args: {
+          p_customer_id: string
+          p_invoice_id: string
+          p_invoice_total: number
+          p_order_id: string
+        }
+        Returns: undefined
+      }
+      create_customer_invoice_from_order: {
+        Args: { p_order_id: string }
+        Returns: string
+      }
+      create_customer_invoice_items_from_order: {
+        Args: { p_customer_invoice_id: string; p_order_id: string }
+        Returns: undefined
+      }
+      create_document_delivery_log: {
+        Args: {
+          p_created_by: string
+          p_delivery_channel: string
+          p_document_id: string
+          p_document_type: string
+          p_recipient_email: string
+          p_recipient_phone: string
+          p_subject: string
+        }
+        Returns: string
+      }
+      create_invoice_delivery_log: {
+        Args: {
+          p_created_by: string
+          p_customer_id: string
+          p_invoice_id: string
+        }
+        Returns: undefined
+      }
       create_journal_entry: {
         Args: {
           p_created_by: string
@@ -8893,6 +8949,12 @@ export type Database = {
           document_title: string
           similarity: number
         }[]
+      }
+      next_customer_invoice_number: { Args: never; Returns: string }
+      next_journal_number: { Args: never; Returns: string }
+      order_has_customer_invoice: {
+        Args: { p_order_id: string }
+        Returns: boolean
       }
       recalculate_credit_available: {
         Args: { p_credit_account_id: string }
