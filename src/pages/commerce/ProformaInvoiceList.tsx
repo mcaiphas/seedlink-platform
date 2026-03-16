@@ -76,6 +76,20 @@ export default function ProformaInvoiceList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setItems(prev => {
+      const next = [...prev];
+      const item = { ...next[idx] };
+      item.product_id = product.id;
+      item.description = product.name + (product.sku ? ` (${product.sku})` : '');
+      item.unit_price = product.default_selling_price || item.unit_price;
+      item.line_total = item.quantity * item.unit_price * (1 - item.discount_percent / 100);
+      next[idx] = item;
+      return next;
+    });
+  }
+
   async function handleSave() {
     if (!formData.customer_id) { toast({ title: 'Select a customer', variant: 'destructive' }); return; }
     setSaving(true);
