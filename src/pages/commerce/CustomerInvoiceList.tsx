@@ -18,7 +18,7 @@ import { logAudit } from '@/lib/audit';
 import { FileText, Plus, Trash2, DollarSign } from 'lucide-react';
 
 interface LineItem {
-  description: string; quantity: number; unit_price: number; weight_kg: number; line_total: number;
+  product_id?: string; description: string; quantity: number; unit_price: number; weight_kg: number; line_total: number;
 }
 
 export default function CustomerInvoiceList() {
