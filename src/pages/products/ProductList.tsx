@@ -14,14 +14,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Plus, ArrowUpDown, ChevronLeft, ChevronRight, Upload, MoreHorizontal,
-  Copy, Archive, Eye, Pencil, Package, Image as ImageIcon, ShoppingCart, Layers,
+  Copy, Archive, Eye, Pencil, Image as ImageIcon, ShoppingCart, Layers, Download,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ProductImportExport } from '@/components/products/ProductImportExport';
 
-type SortKey = 'name' | 'price' | 'stock_quantity' | 'created_at' | 'updated_at';
+type SortKey = 'name' | 'default_selling_price' | 'stock_quantity' | 'created_at' | 'updated_at';
 type SortDir = 'asc' | 'desc';
 const PAGE_SIZE = 25;
+
+const SKU_PREFIXES: Record<string, string> = {
+  Seeds: 'SD', 'Crop Protection': 'CP', Fertiliser: 'FZ', Equipment: 'EQ',
+  Training: 'TR', Services: 'SV', 'Lime & Soil Amendments': 'LM',
+  Irrigation: 'IR', Packaging: 'PK', 'Marketplace Commodity': 'MC',
+};
 
 export default function ProductList() {
   const navigate = useNavigate();
@@ -49,8 +55,8 @@ export default function ProductList() {
     setQueryStatus('loading');
 
     const [prodRes, catRes, supRes, varRes, colRes] = await Promise.all([
-      supabase.from('products').select('*, product_subcategories(name), suppliers!fk_products_supplier(supplier_name)').order('created_at', { ascending: false }).limit(500),
-      supabase.from('product_categories').select('id, name').order('sort_order'),
+      supabase.from('products').select('*, product_categories!products_category_id_fkey(name, sku_prefix), product_subcategories(name), suppliers!fk_products_supplier(supplier_name)').order('created_at', { ascending: false }).limit(500),
+      supabase.from('product_categories').select('id, name, sku_prefix').order('sort_order'),
       supabase.from('suppliers').select('id, supplier_name').order('supplier_name').limit(200),
       supabase.from('product_variants').select('product_id'),
       supabase.from('product_collection_items').select('product_id, product_collections(name)'),
@@ -95,9 +101,9 @@ export default function ProductList() {
   const filtered = useMemo(() => {
     let result = products.filter(p => {
       const s = search.toLowerCase();
-      const matchSearch = !search || p.name?.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s) || (p.brand || '').toLowerCase().includes(s);
+      const matchSearch = !search || p.name?.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s) || (p.sku_base || '').toLowerCase().includes(s) || (p.brand || '').toLowerCase().includes(s);
       const matchStatus = statusFilter === 'all' || p.status === statusFilter;
-      const matchCategory = categoryFilter === 'all' || p.category === categoryFilter;
+      const matchCategory = categoryFilter === 'all' || p.category_id === categoryFilter || p.category === categoryFilter;
       const matchSupplier = supplierFilter === 'all' || p.supplier_id === supplierFilter;
       return matchSearch && matchStatus && matchCategory && matchSupplier;
     });
@@ -132,8 +138,8 @@ export default function ProductList() {
   };
 
   const handleDuplicate = async (product: any) => {
-    const { id, created_at, updated_at, product_subcategories: _s, suppliers: _sup, ...rest } = product;
-    const { error } = await supabase.from('products').insert({ ...rest, name: `${rest.name} (Copy)`, sku: rest.sku ? `${rest.sku}-COPY` : null, status: 'draft' } as any);
+    const { id, created_at, updated_at, product_categories: _pc, product_subcategories: _s, suppliers: _sup, ...rest } = product;
+    const { error } = await supabase.from('products').insert({ ...rest, name: `${rest.name} (Copy)`, sku: rest.sku ? `${rest.sku}-COPY` : null, sku_base: rest.sku_base ? `${rest.sku_base}-COPY` : null, status: 'draft' } as any);
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
     else { toast({ title: 'Product duplicated' }); loadData(); }
   };
@@ -159,9 +165,10 @@ export default function ProductList() {
   };
 
   const getMargin = (p: any) => {
-    const buy = p.metadata?.buying_price;
-    const sell = p.price;
-    if (buy && sell && sell > 0) return (((sell - buy) / sell) * 100).toFixed(1);
+    if (p.default_margin_percent != null) return Number(p.default_margin_percent).toFixed(1);
+    const buy = p.default_buying_price;
+    const sell = p.default_selling_price ?? p.price;
+    if (buy && sell && buy > 0) return (((sell - buy) / buy) * 100).toFixed(1);
     return null;
   };
 
@@ -174,9 +181,25 @@ export default function ProductList() {
     </TableHead>
   );
 
-  const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
-
   const activeFilterCount = [statusFilter, categoryFilter, supplierFilter].filter(f => f !== 'all').length;
+
+  const handleExportCSV = () => {
+    if (!products.length) { toast({ title: 'No products to export' }); return; }
+    const headers = ['name', 'sku_base', 'sku', 'category', 'brand', 'default_buying_price', 'default_selling_price', 'default_margin_percent', 'status', 'is_active', 'currency_code', 'stock_quantity', 'updated_at'];
+    const rows = products.map(p => headers.map(h => {
+      const v = p[h];
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'string' && (v.includes(',') || v.includes('"'))) return `"${v.replace(/"/g, '""')}"`;
+      return String(v);
+    }).join(','));
+    const csv = headers.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `seedlink_products_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `${products.length} products exported` });
+  };
 
   return (
     <>
@@ -189,8 +212,11 @@ export default function ProductList() {
         searchPlaceholder="Search by name, SKU, or brand..."
         action={
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportCSV}>
+              <Download className="mr-2 h-4 w-4" />Export
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowImportExport(true)}>
-              <Upload className="mr-2 h-4 w-4" />Import / Export
+              <Upload className="mr-2 h-4 w-4" />Import
             </Button>
             <Button asChild>
               <Link to="/products/new"><Plus className="mr-2 h-4 w-4" />Add Product</Link>
@@ -202,7 +228,6 @@ export default function ProductList() {
           <QueryStatusBanner status={queryStatus} message={errorMessage || undefined} tableName="products" />
         )}
 
-        {/* Filters + Bulk actions */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[130px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -217,7 +242,7 @@ export default function ProductList() {
             <SelectTrigger className="w-[150px] h-9"><SelectValue placeholder="Category" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={supplierFilter} onValueChange={setSupplierFilter}>
@@ -250,22 +275,21 @@ export default function ProductList() {
           )}
         </div>
 
-        {/* Table */}
         <div className="rounded-lg border bg-card overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10">
-                  <Checkbox checked={allOnPageSelected} onCheckedChange={toggleAll} />
-                </TableHead>
+                <TableHead className="w-10"><Checkbox checked={allOnPageSelected} onCheckedChange={toggleAll} /></TableHead>
                 <TableHead className="w-10" />
                 <SortHeader label="Name" field="name" />
+                <TableHead>SKU Base</TableHead>
                 <TableHead>SKU</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Collection</TableHead>
-                <SortHeader label="Price" field="price" />
+                <TableHead>Brand</TableHead>
+                <TableHead>Supplier</TableHead>
+                <SortHeader label="Buying" field="default_selling_price" />
+                <TableHead>Selling</TableHead>
                 <TableHead>Margin</TableHead>
-                <SortHeader label="Stock" field="stock_quantity" />
                 <TableHead>Variants</TableHead>
                 <TableHead>Status</TableHead>
                 <SortHeader label="Updated" field="updated_at" />
@@ -277,42 +301,43 @@ export default function ProductList() {
                 const margin = getMargin(p);
                 const vCount = variantCounts[p.id] || 0;
                 const cols = collectionMap[p.id] || [];
+                const catName = (p.product_categories as any)?.name || p.category || '—';
+                const supName = (p.suppliers as any)?.supplier_name || '—';
+                const buyPrice = p.default_buying_price;
+                const sellPrice = p.default_selling_price ?? p.price;
                 return (
                   <TableRow key={p.id} className="group">
                     <TableCell><Checkbox checked={selected.has(p.id)} onCheckedChange={() => toggleOne(p.id)} /></TableCell>
                     <TableCell>
                       <div className="h-9 w-9 rounded-md bg-muted flex items-center justify-center overflow-hidden">
-                        {p.metadata?.image_url
-                          ? <img src={p.metadata.image_url} alt="" className="h-full w-full object-cover" />
+                        {p.image_url
+                          ? <img src={p.image_url} alt="" className="h-full w-full object-cover" />
                           : <ImageIcon className="h-4 w-4 text-muted-foreground" />
                         }
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Link to={`/products/${p.id}`} className="font-medium text-primary hover:underline">
-                        {p.name}
-                      </Link>
-                      {p.brand && <p className="text-xs text-muted-foreground">{p.brand}</p>}
+                      <Link to={`/products/${p.id}`} className="font-medium text-primary hover:underline">{p.name}</Link>
+                      {cols.length > 0 && (
+                        <div className="flex gap-1 mt-0.5">
+                          {cols.slice(0, 2).map(c => <Badge key={c} variant="outline" className="text-[10px] h-4 px-1">{c}</Badge>)}
+                          {cols.length > 2 && <span className="text-[10px] text-muted-foreground">+{cols.length - 2}</span>}
+                        </div>
+                      )}
                     </TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-xs">{p.sku_base || '—'}</TableCell>
                     <TableCell className="text-muted-foreground font-mono text-xs">{p.sku || '—'}</TableCell>
-                    <TableCell className="text-sm">{p.category || '—'}</TableCell>
-                    <TableCell>
-                      {cols.length > 0
-                        ? cols.slice(0, 2).map(c => <Badge key={c} variant="outline" className="mr-1 text-xs">{c}</Badge>)
-                        : <span className="text-muted-foreground text-xs">—</span>
-                      }
-                      {cols.length > 2 && <span className="text-xs text-muted-foreground">+{cols.length - 2}</span>}
+                    <TableCell className="text-sm">{catName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{p.brand || '—'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{supName}</TableCell>
+                    <TableCell className="font-medium tabular-nums text-sm">
+                      {buyPrice != null ? `${p.currency_code} ${Number(buyPrice).toFixed(2)}` : '—'}
                     </TableCell>
-                    <TableCell className="font-medium tabular-nums">
-                      {p.price != null ? `${p.currency_code} ${Number(p.price).toFixed(2)}` : '—'}
+                    <TableCell className="font-medium tabular-nums text-sm">
+                      {sellPrice != null ? `${p.currency_code} ${Number(sellPrice).toFixed(2)}` : '—'}
                     </TableCell>
                     <TableCell className="tabular-nums">
                       {margin ? <span className={Number(margin) < 10 ? 'text-destructive' : Number(margin) >= 20 ? 'text-primary' : 'text-amber-600'}>{margin}%</span> : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <span className={p.stock_quantity <= 0 ? 'text-destructive font-medium' : p.stock_quantity <= 10 ? 'text-amber-600 font-medium' : 'tabular-nums'}>
-                        {p.stock_quantity}
-                      </span>
                     </TableCell>
                     <TableCell>
                       {vCount > 0
@@ -321,9 +346,7 @@ export default function ProductList() {
                       }
                     </TableCell>
                     <TableCell>
-                      <Badge variant={p.status === 'published' ? 'default' : p.status === 'archived' ? 'outline' : 'secondary'}>
-                        {p.status}
-                      </Badge>
+                      <Badge variant={p.status === 'published' ? 'default' : p.status === 'archived' ? 'outline' : 'secondary'}>{p.status}</Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
                       {p.updated_at ? new Date(p.updated_at).toLocaleDateString() : '—'}
@@ -336,19 +359,11 @@ export default function ProductList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate(`/products/${p.id}`)}>
-                            <Eye className="mr-2 h-4 w-4" />View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate(`/products/${p.id}/edit`)}>
-                            <Pencil className="mr-2 h-4 w-4" />Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicate(p)}>
-                            <Copy className="mr-2 h-4 w-4" />Duplicate
-                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/products/${p.id}`)}><Eye className="mr-2 h-4 w-4" />View</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/products/${p.id}/edit`)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicate(p)}><Copy className="mr-2 h-4 w-4" />Duplicate</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleArchive(p.id)} className="text-destructive">
-                            <Archive className="mr-2 h-4 w-4" />Archive
-                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleArchive(p.id)} className="text-destructive"><Archive className="mr-2 h-4 w-4" />Archive</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -358,7 +373,7 @@ export default function ProductList() {
               {paged.length === 0 && !loading && (
                 <EmptyState
                   message={queryStatus === 'empty' ? 'No products yet — add your first product to get started' : 'No products match your current filters'}
-                  colSpan={13}
+                  colSpan={15}
                 />
               )}
             </TableBody>
@@ -366,20 +381,23 @@ export default function ProductList() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-muted-foreground">
-              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length} products
+              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
             </p>
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="icon" className="h-8 w-8" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              {totalPages <= 7 && Array.from({ length: totalPages }, (_, i) => (
-                <Button key={i} variant={page === i ? 'default' : 'outline'} size="sm" className="w-9" onClick={() => setPage(i)}>
-                  {i + 1}
-                </Button>
-              ))}
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                const pageNum = totalPages <= 7 ? i : page <= 3 ? i : page >= totalPages - 4 ? totalPages - 7 + i : page - 3 + i;
+                return (
+                  <Button key={pageNum} variant={pageNum === page ? 'default' : 'outline'} size="icon" className="h-8 w-8 text-xs" onClick={() => setPage(pageNum)}>
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+              <Button variant="outline" size="icon" className="h-8 w-8" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

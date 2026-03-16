@@ -1,3 +1,24 @@
 import { AdminListPage } from '@/components/AdminListPage';
 import { Badge } from '@/components/ui/badge';
-export default function PackSizeList() { return <AdminListPage title="Pack Sizes" tableName="product_pack_sizes" selectQuery="*, products(name)" searchPlaceholder="Search..." searchFields={['pack_label','pack_code']} columns={[{label:'Label',key:'pack_label',sortable:true,render:r=><span className="font-medium">{r.pack_label}</span>},{label:'Code',key:'pack_code',render:r=><span className="font-mono text-xs text-muted-foreground">{r.pack_code}</span>},{label:'Product',key:'product_id',render:r=>(r.products as any)?.name||'—'},{label:'Type',key:'pack_type',render:r=><Badge variant="secondary" className="capitalize">{r.pack_type}</Badge>},{label:'Status',key:'is_active',render:r=><Badge variant={r.is_active?'default':'secondary'}>{r.is_active?'Active':'Inactive'}</Badge>}]} />; }
+
+export default function PackSizeList() {
+  return (
+    <AdminListPage
+      title="Pack Sizes"
+      tableName="product_pack_sizes"
+      searchPlaceholder="Search pack sizes..."
+      searchFields={['name']}
+      orderBy="sort_order"
+      columns={[
+        { label: 'Order', key: 'sort_order' },
+        { label: 'Name', key: 'name', sortable: true, render: r => <span className="font-medium">{r.name}</span> },
+        { label: 'Type', key: 'pack_type', render: r => <Badge variant={r.pack_type === 'count' ? 'default' : 'secondary'} className="capitalize text-xs">{r.pack_type}</Badge> },
+        { label: 'Qty', key: 'quantity_value', render: r => r.quantity_value != null ? <span className="tabular-nums">{r.quantity_value.toLocaleString()} {r.quantity_unit || ''}</span> : '—' },
+        { label: 'Seeds', key: 'seed_count', render: r => r.seed_count != null ? <span className="tabular-nums">{r.seed_count.toLocaleString()}</span> : '—' },
+        { label: 'Est. Weight', key: 'estimated_weight_kg', render: r => r.estimated_weight_kg != null ? <span className="tabular-nums">{r.estimated_weight_kg} kg</span> : '—' },
+        { label: 'Bulk', key: 'is_bulk', render: r => r.is_bulk ? <Badge variant="outline" className="text-xs">Bulk</Badge> : '' },
+        { label: 'Status', key: 'is_active', render: r => <Badge variant={r.is_active ? 'default' : 'secondary'}>{r.is_active ? 'Active' : 'Inactive'}</Badge> },
+      ]}
+    />
+  );
+}

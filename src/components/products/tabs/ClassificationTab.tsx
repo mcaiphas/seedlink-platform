@@ -12,25 +12,42 @@ interface Props {
   collections: any[];
   selectedCollections: string[];
   setSelectedCollections: React.Dispatch<React.SetStateAction<string[]>>;
+  depots?: any[];
+  organizations?: any[];
 }
 
-export function ClassificationTab({ form, update, categories, subcategories, suppliers, collections, selectedCollections, setSelectedCollections }: Props) {
+export function ClassificationTab({ form, update, categories, subcategories, suppliers, collections, selectedCollections, setSelectedCollections, depots = [], organizations = [] }: Props) {
+  const selectedCat = categories.find(c => c.id === form.category_id);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Product Classification</CardTitle>
-        <CardDescription>Link to categories, collections, and suppliers</CardDescription>
+        <CardDescription>Link to categories, collections, suppliers, and depots</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Category</Label>
-          <Select value={form.category || '__none'} onValueChange={v => update('category', v === '__none' ? '' : v)}>
+          <Select value={form.category_id || '__none'} onValueChange={v => {
+            const catId = v === '__none' ? '' : v;
+            const cat = categories.find(c => c.id === catId);
+            update('category_id', catId);
+            update('category', cat?.name || '');
+          }}>
             <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__none">No category</SelectItem>
-              {categories.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+              {categories.map(c => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.sku_prefix && <span className="font-mono text-xs text-muted-foreground mr-1.5">[{c.sku_prefix}]</span>}
+                  {c.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {selectedCat?.sku_prefix && (
+            <p className="text-xs text-muted-foreground">SKU prefix: <span className="font-mono font-medium text-primary">{selectedCat.sku_prefix}</span></p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Subcategory</Label>
@@ -38,7 +55,7 @@ export function ClassificationTab({ form, update, categories, subcategories, sup
             <SelectTrigger><SelectValue placeholder="Select subcategory" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__none">No subcategory</SelectItem>
-              {subcategories.filter(s => !form.category || s.category_id === categories.find(c => c.name === form.category)?.id).map(s => (
+              {subcategories.filter(s => !form.category_id || s.category_id === form.category_id).map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
             </SelectContent>
@@ -54,6 +71,28 @@ export function ClassificationTab({ form, update, categories, subcategories, sup
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-2">
+          <Label>Depot</Label>
+          <Select value={form.depot_id || '__none'} onValueChange={v => update('depot_id', v === '__none' ? '' : v)}>
+            <SelectTrigger><SelectValue placeholder="Select depot" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none">No depot</SelectItem>
+              {depots.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        {organizations.length > 0 && (
+          <div className="space-y-2">
+            <Label>Organization</Label>
+            <Select value={form.organization_id || '__none'} onValueChange={v => update('organization_id', v === '__none' ? '' : v)}>
+              <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none">No organization</SelectItem>
+                {organizations.map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-2 sm:col-span-2">
           <Label>Collections</Label>
           <p className="text-xs text-muted-foreground mb-2">Click to toggle collection assignment</p>

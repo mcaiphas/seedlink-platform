@@ -12,11 +12,11 @@ interface Props {
 
 export function PricingTab({ form, update }: Props) {
   const margin = useMemo(() => {
-    const buy = parseFloat(form.buying_price);
-    const sell = parseFloat(form.price);
-    if (!isNaN(buy) && !isNaN(sell) && sell > 0) return (((sell - buy) / sell) * 100).toFixed(1);
+    const buy = parseFloat(form.default_buying_price);
+    const sell = parseFloat(form.default_selling_price);
+    if (!isNaN(buy) && !isNaN(sell) && buy > 0) return (((sell - buy) / buy) * 100).toFixed(1);
     return null;
-  }, [form.buying_price, form.price]);
+  }, [form.default_buying_price, form.default_selling_price]);
 
   const marginNum = margin ? Number(margin) : null;
   const MarginIcon = marginNum === null ? Minus : marginNum >= 20 ? TrendingUp : marginNum >= 10 ? Minus : TrendingDown;
@@ -25,17 +25,17 @@ export function PricingTab({ form, update }: Props) {
     <Card>
       <CardHeader>
         <CardTitle>Pricing</CardTitle>
-        <CardDescription>Set buying price, selling price, and margin. Margin auto-calculates.</CardDescription>
+        <CardDescription>Set buying price, selling price, and margin. Margin auto-calculates from cost markup.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-6 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label>Buying Price ({form.currency_code})</Label>
-            <Input type="number" step="0.01" min="0" value={form.buying_price} onChange={e => update('buying_price', e.target.value)} placeholder="0.00" />
+            <Label>Default Buying Price ({form.currency_code})</Label>
+            <Input type="number" step="0.01" min="0" value={form.default_buying_price} onChange={e => update('default_buying_price', e.target.value)} placeholder="0.00" />
           </div>
           <div className="space-y-2">
-            <Label>Selling Price ({form.currency_code}) <span className="text-destructive">*</span></Label>
-            <Input type="number" step="0.01" min="0" value={form.price} onChange={e => update('price', e.target.value)} placeholder="0.00" />
+            <Label>Default Selling Price ({form.currency_code})</Label>
+            <Input type="number" step="0.01" min="0" value={form.default_selling_price} onChange={e => update('default_selling_price', e.target.value)} placeholder="0.00" />
           </div>
           <div className="space-y-2">
             <Label>Margin %</Label>
