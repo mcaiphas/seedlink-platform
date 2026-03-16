@@ -66,6 +66,7 @@ const sections: NavSection[] = [
   {
     label: 'Commerce',
     items: [
+      { title: 'Customers', url: '/customers', icon: Users, permission: 'orders:view' },
       { title: 'Orders', url: '/orders', icon: ShoppingCart, permission: 'orders:view' },
       { title: 'Customer Invoices', url: '/customer-invoices', icon: FileText, permission: 'orders:view' },
       { title: 'Payments', url: '/payments', icon: CreditCard, permission: 'payments:view' },

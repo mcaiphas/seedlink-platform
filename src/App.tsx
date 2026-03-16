@@ -154,6 +154,10 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
 
+              {/* Customers */}
+              <Route path="customers" element={<CustomerList />} />
+              <Route path="customers/:id" element={<CustomerDetail />} />
+
               {/* Commerce */}
               <Route path="products" element={<ProductList />} />
               <Route path="products/new" element={<ProductForm />} />
