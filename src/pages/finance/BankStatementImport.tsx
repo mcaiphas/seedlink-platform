@@ -137,9 +137,9 @@ export default function BankStatementImport() {
             {accounts.map((a: any) => <SelectItem key={a.id} value={a.id}>{a.bank_name} - {a.account_name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+        <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFile} />
         <Button onClick={() => fileRef.current?.click()} disabled={!accountId}>
-          <Upload className="h-4 w-4 mr-1" /> Upload CSV
+          <Upload className="h-4 w-4 mr-1" /> Upload CSV / Excel
         </Button>
       </div>
 
