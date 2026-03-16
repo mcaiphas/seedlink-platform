@@ -3312,6 +3312,7 @@ export type Database = {
       }
       goods_receipt_items: {
         Row: {
+          accepted_quantity: number | null
           batch_number: string | null
           created_at: string
           expiry_date: string | null
@@ -3328,6 +3329,7 @@ export type Database = {
           weight_equivalent_kg: number | null
         }
         Insert: {
+          accepted_quantity?: number | null
           batch_number?: string | null
           created_at?: string
           expiry_date?: string | null
@@ -3344,6 +3346,7 @@ export type Database = {
           weight_equivalent_kg?: number | null
         }
         Update: {
+          accepted_quantity?: number | null
           batch_number?: string | null
           created_at?: string
           expiry_date?: string | null
@@ -7225,41 +7228,70 @@ export type Database = {
           expected_date: string | null
           id: string
           line_total: number
+          pack_size_id: string | null
           product_description: string
+          product_id: string | null
           purchase_order_id: string
           quantity: number
+          quantity_received: number | null
           quantity_uom: string
+          supplier_product_code: string | null
           unit_price: number
           updated_at: string
           variant_id: string | null
+          weight_equivalent_kg: number | null
         }
         Insert: {
           created_at?: string
           expected_date?: string | null
           id?: string
           line_total?: number
+          pack_size_id?: string | null
           product_description: string
+          product_id?: string | null
           purchase_order_id: string
           quantity: number
+          quantity_received?: number | null
           quantity_uom?: string
+          supplier_product_code?: string | null
           unit_price?: number
           updated_at?: string
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Update: {
           created_at?: string
           expected_date?: string | null
           id?: string
           line_total?: number
+          pack_size_id?: string | null
           product_description?: string
+          product_id?: string | null
           purchase_order_id?: string
           quantity?: number
+          quantity_received?: number | null
           quantity_uom?: string
+          supplier_product_code?: string | null
           unit_price?: number
           updated_at?: string
           variant_id?: string | null
+          weight_equivalent_kg?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchase_order_items_purchase_order_id_fkey"
             columns: ["purchase_order_id"]
@@ -7271,6 +7303,7 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          approved_at: string | null
           approved_by: string | null
           created_at: string
           currency_code: string
@@ -7281,7 +7314,9 @@ export type Database = {
           notes: string | null
           order_date: string
           ordered_by: string | null
+          payment_terms: string | null
           po_number: string
+          sent_at: string | null
           status: string
           subtotal_amount: number
           supplier_id: string
@@ -7290,6 +7325,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
           approved_by?: string | null
           created_at?: string
           currency_code?: string
@@ -7300,7 +7336,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           ordered_by?: string | null
+          payment_terms?: string | null
           po_number: string
+          sent_at?: string | null
           status?: string
           subtotal_amount?: number
           supplier_id: string
@@ -7309,6 +7347,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
           approved_by?: string | null
           created_at?: string
           currency_code?: string
@@ -7319,7 +7358,9 @@ export type Database = {
           notes?: string | null
           order_date?: string
           ordered_by?: string | null
+          payment_terms?: string | null
           po_number?: string
+          sent_at?: string | null
           status?: string
           subtotal_amount?: number
           supplier_id?: string
@@ -8567,6 +8608,56 @@ export type Database = {
           },
         ]
       }
+      supplier_contacts: {
+        Row: {
+          contact_name: string
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          mobile: string | null
+          notes: string | null
+          phone: string | null
+          role_title: string | null
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          mobile?: string | null
+          notes?: string | null
+          phone?: string | null
+          role_title?: string | null
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          mobile?: string | null
+          notes?: string | null
+          phone?: string | null
+          role_title?: string | null
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_contacts_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_invoice_items: {
         Row: {
           created_at: string
@@ -8720,54 +8811,156 @@ export type Database = {
           },
         ]
       }
+      supplier_products: {
+        Row: {
+          contract_price: number | null
+          created_at: string
+          id: string
+          is_preferred: boolean | null
+          last_purchase_price: number | null
+          lead_time_days: number | null
+          minimum_order_qty: number | null
+          notes: string | null
+          product_id: string
+          standard_cost: number | null
+          supplier_id: string
+          supplier_product_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          contract_price?: number | null
+          created_at?: string
+          id?: string
+          is_preferred?: boolean | null
+          last_purchase_price?: number | null
+          lead_time_days?: number | null
+          minimum_order_qty?: number | null
+          notes?: string | null
+          product_id: string
+          standard_cost?: number | null
+          supplier_id: string
+          supplier_product_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contract_price?: number | null
+          created_at?: string
+          id?: string
+          is_preferred?: boolean | null
+          last_purchase_price?: number | null
+          lead_time_days?: number | null
+          minimum_order_qty?: number | null
+          notes?: string | null
+          product_id?: string
+          standard_cost?: number | null
+          supplier_id?: string
+          supplier_product_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
+          city: string | null
+          company_registration: string | null
           contact_name: string | null
+          contract_status: string | null
+          country: string | null
           created_at: string
           currency_code: string
           email: string | null
           id: string
           is_active: boolean
+          is_preferred: boolean | null
+          lead_time_days: number | null
           metadata: Json
+          notes: string | null
           organization_id: string | null
           payment_terms: string | null
           phone: string | null
+          physical_address: string | null
+          postal_address: string | null
+          province: string | null
+          supplier_category: string | null
           supplier_code: string
           supplier_name: string
+          supplier_type: string | null
           tax_number: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
+          city?: string | null
+          company_registration?: string | null
           contact_name?: string | null
+          contract_status?: string | null
+          country?: string | null
           created_at?: string
           currency_code?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_preferred?: boolean | null
+          lead_time_days?: number | null
           metadata?: Json
+          notes?: string | null
           organization_id?: string | null
           payment_terms?: string | null
           phone?: string | null
+          physical_address?: string | null
+          postal_address?: string | null
+          province?: string | null
+          supplier_category?: string | null
           supplier_code: string
           supplier_name: string
+          supplier_type?: string | null
           tax_number?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
+          city?: string | null
+          company_registration?: string | null
           contact_name?: string | null
+          contract_status?: string | null
+          country?: string | null
           created_at?: string
           currency_code?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_preferred?: boolean | null
+          lead_time_days?: number | null
           metadata?: Json
+          notes?: string | null
           organization_id?: string | null
           payment_terms?: string | null
           phone?: string | null
+          physical_address?: string | null
+          postal_address?: string | null
+          province?: string | null
+          supplier_category?: string | null
           supplier_code?: string
           supplier_name?: string
+          supplier_type?: string | null
           tax_number?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: [
           {
