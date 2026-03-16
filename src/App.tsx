@@ -167,7 +167,8 @@ import PortalStatements from "@/pages/portal/PortalStatements";
 import CreditControlDashboard from "@/pages/finance/CreditControlDashboard";
 import RefundList from "@/pages/finance/RefundList";
 import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
-import ReminderTemplates from "@/pages/finance/ReminderTemplates";
+import NotificationTemplates from "@/pages/finance/NotificationTemplates";
+import TransactionReview from "@/pages/finance/TransactionReview";
 
 // Banking
 import BankAccountList from "@/pages/finance/BankAccountList";
@@ -342,13 +343,14 @@ const App = () => (
               <Route path="credit-control" element={<CreditControlDashboard />} />
               <Route path="refunds" element={<RefundList />} />
               <Route path="communication-logs" element={<CustomerCommunicationLog />} />
-              <Route path="reminder-templates" element={<ReminderTemplates />} />
+              <Route path="notification-templates" element={<NotificationTemplates />} />
 
               {/* Banking */}
               <Route path="bank-accounts" element={<BankAccountList />} />
               <Route path="bank-transactions" element={<BankTransactionList />} />
               <Route path="bank-statement-import" element={<BankStatementImport />} />
               <Route path="bank-reconciliation" element={<BankReconciliationDashboard />} />
+              <Route path="transaction-review" element={<TransactionReview />} />
 
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />

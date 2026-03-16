@@ -139,7 +139,7 @@ const sections: NavSection[] = [
       { title: 'Customer Statements', url: '/customer-statements', icon: BookOpen },
       { title: 'Supplier Statements', url: '/supplier-statements', icon: BookOpen },
       { title: 'Communication Logs', url: '/communication-logs', icon: MessageSquare },
-      { title: 'Reminder Templates', url: '/reminder-templates', icon: Bell },
+      { title: 'Notification Templates', url: '/notification-templates', icon: Bell },
       { title: 'Operations Finance', url: '/reports/operations-finance', icon: Activity },
       { title: 'Inventory Valuation', url: '/reports/valuation', icon: DollarSign },
       { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
@@ -167,6 +167,7 @@ const sections: NavSection[] = [
     adminOnly: true,
     items: [
       { title: 'Reconciliation', url: '/bank-reconciliation', icon: CheckCircle },
+      { title: 'Transaction Review', url: '/transaction-review', icon: ClipboardList },
       { title: 'Bank Accounts', url: '/bank-accounts', icon: Landmark },
       { title: 'Transactions', url: '/bank-transactions', icon: ArrowDownUp },
       { title: 'Statement Import', url: '/bank-statement-import', icon: Upload },

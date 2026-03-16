@@ -1857,6 +1857,92 @@ export type Database = {
           },
         ]
       }
+      bank_transaction_reviews: {
+        Row: {
+          bank_transaction_id: string
+          branch: string | null
+          business_line: string | null
+          classification: string
+          created_at: string
+          depot_id: string | null
+          expense_category: string | null
+          gl_account_id: string | null
+          id: string
+          income_category: string | null
+          notes: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          segment: string | null
+          updated_at: string
+        }
+        Insert: {
+          bank_transaction_id: string
+          branch?: string | null
+          business_line?: string | null
+          classification?: string
+          created_at?: string
+          depot_id?: string | null
+          expense_category?: string | null
+          gl_account_id?: string | null
+          id?: string
+          income_category?: string | null
+          notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          segment?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bank_transaction_id?: string
+          branch?: string | null
+          business_line?: string | null
+          classification?: string
+          created_at?: string
+          depot_id?: string | null
+          expense_category?: string | null
+          gl_account_id?: string | null
+          id?: string
+          income_category?: string | null
+          notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          segment?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transaction_reviews_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_reviews_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_reviews_gl_account_id_fkey"
+            columns: ["gl_account_id"]
+            isOneToOne: false
+            referencedRelation: "gl_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_reviews_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_transactions: {
         Row: {
           bank_account_id: string
@@ -2892,6 +2978,7 @@ export type Database = {
           id: string
           line_total: number
           order_item_id: string | null
+          product_id: string | null
           quantity: number
           quantity_uom: string
           unit_price: number
@@ -2905,6 +2992,7 @@ export type Database = {
           id?: string
           line_total?: number
           order_item_id?: string | null
+          product_id?: string | null
           quantity: number
           quantity_uom?: string
           unit_price?: number
@@ -2918,6 +3006,7 @@ export type Database = {
           id?: string
           line_total?: number
           order_item_id?: string | null
+          product_id?: string | null
           quantity?: number
           quantity_uom?: string
           unit_price?: number
@@ -2937,6 +3026,13 @@ export type Database = {
             columns: ["order_item_id"]
             isOneToOne: false
             referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -6218,10 +6314,16 @@ export type Database = {
           channel: string
           code: string
           created_at: string
+          created_by: string | null
+          description: string | null
           id: string
           is_active: boolean
+          recipient_config: Json | null
+          recipient_type: string
+          sort_order: number
           subject: string | null
           title: string | null
+          trigger_event: string
           updated_at: string
         }
         Insert: {
@@ -6229,10 +6331,16 @@ export type Database = {
           channel: string
           code: string
           created_at?: string
+          created_by?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean
+          recipient_config?: Json | null
+          recipient_type?: string
+          sort_order?: number
           subject?: string | null
           title?: string | null
+          trigger_event?: string
           updated_at?: string
         }
         Update: {
@@ -6240,13 +6348,27 @@ export type Database = {
           channel?: string
           code?: string
           created_at?: string
+          created_by?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean
+          recipient_config?: Json | null
+          recipient_type?: string
+          sort_order?: number
           subject?: string | null
           title?: string | null
+          trigger_event?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -8238,6 +8360,7 @@ export type Database = {
           quantity: number
           sort_order: number | null
           unit_price: number
+          variant_id: string | null
           weight_kg: number | null
         }
         Insert: {
@@ -8252,6 +8375,7 @@ export type Database = {
           quantity?: number
           sort_order?: number | null
           unit_price?: number
+          variant_id?: string | null
           weight_kg?: number | null
         }
         Update: {
@@ -8266,6 +8390,7 @@ export type Database = {
           quantity?: number
           sort_order?: number | null
           unit_price?: number
+          variant_id?: string | null
           weight_kg?: number | null
         }
         Relationships: [

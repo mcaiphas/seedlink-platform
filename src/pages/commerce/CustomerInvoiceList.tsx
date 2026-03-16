@@ -16,9 +16,10 @@ import { toast } from '@/hooks/use-toast';
 import { generateDocNumber } from '@/lib/document-numbers';
 import { logAudit } from '@/lib/audit';
 import { FileText, Plus, Trash2, DollarSign } from 'lucide-react';
+import { ProductLineItemSelect, ProductOption } from '@/components/commerce/ProductLineItemSelect';
 
 interface LineItem {
-  description: string; quantity: number; unit_price: number; weight_kg: number; line_total: number;
+  product_id?: string; description: string; quantity: number; unit_price: number; weight_kg: number; line_total: number;
 }
 
 export default function CustomerInvoiceList() {
@@ -78,6 +79,21 @@ export default function CustomerInvoiceList() {
     });
   }
 
+  function handleProductSelect(idx: number, product: ProductOption | null) {
+    if (!product) return;
+    setLineItems(prev => {
+      const next = [...prev];
+      next[idx] = {
+        ...next[idx],
+        product_id: product.id,
+        description: product.name + (product.sku ? ` (${product.sku})` : ''),
+        unit_price: product.default_selling_price || next[idx].unit_price,
+        line_total: next[idx].quantity * (product.default_selling_price || next[idx].unit_price),
+      };
+      return next;
+    });
+  }
+
   async function handleCreateInvoice() {
     if (!formData.customer_id) { toast({ title: 'Select a customer', variant: 'destructive' }); return; }
     setSaving(true);
@@ -99,6 +115,7 @@ export default function CustomerInvoiceList() {
       if (newInv) {
         await supabase.from('customer_invoice_items').insert(lineItems.map(i => ({
           customer_invoice_id: newInv.id, description: i.description,
+          product_id: i.product_id || null,
           quantity: i.quantity, unit_price: i.unit_price, line_total: i.line_total,
         })));
         setInvoices(prev => [newInv, ...prev]);
@@ -308,7 +325,8 @@ export default function CustomerInvoiceList() {
               </div>
               {lineItems.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-end mb-2">
-                  <div className="col-span-5">{idx === 0 && <Label className="text-xs">Description</Label>}<Input value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value)} className="bg-card" /></div>
+                  <div className="col-span-3">{idx === 0 && <Label className="text-xs">Product</Label>}<ProductLineItemSelect value={item.product_id || null} onSelect={p => handleProductSelect(idx, p)} /></div>
+                  <div className="col-span-2">{idx === 0 && <Label className="text-xs">Description</Label>}<Input value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value)} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Qty</Label>}<Input type="number" value={item.quantity} onChange={e => updateLineItem(idx, 'quantity', Number(e.target.value))} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Unit Price</Label>}<Input type="number" value={item.unit_price} onChange={e => updateLineItem(idx, 'unit_price', Number(e.target.value))} className="bg-card" /></div>
                   <div className="col-span-2">{idx === 0 && <Label className="text-xs">Total</Label>}<div className="h-10 flex items-center px-3 rounded-md border bg-muted text-sm font-medium"><CurrencyDisplay amount={item.line_total} /></div></div>
