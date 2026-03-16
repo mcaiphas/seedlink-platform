@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { KpiCard } from '@/components/commerce/PageShell';
-import { StatusBadge, CurrencyDisplay, DateDisplay } from '@/components/commerce/StatusBadge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -10,10 +8,62 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import {
   ShoppingCart, FileText, CreditCard, AlertTriangle, Package,
-  DollarSign, Clock, ArrowRight, Receipt, TrendingUp, TrendingDown,
-  Wallet, Send,
+  Clock, ArrowRight, TrendingUp, TrendingDown, Zap,
+  Plus, BarChart3,
 } from 'lucide-react';
+import { StatusBadge, CurrencyDisplay, DateDisplay } from '@/components/commerce/StatusBadge';
 
+/* ------------------------------------------------------------------ */
+/*  KPI Card                                                           */
+/* ------------------------------------------------------------------ */
+function KpiCard({ label, value, icon: Icon, trend, onClick }: {
+  label: string;
+  value: string | number;
+  icon: any;
+  trend?: { value: string; positive: boolean };
+  onClick?: () => void;
+}) {
+  return (
+    <Card
+      className={`border shadow-sm hover:shadow-md transition-shadow ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
+            <p className="text-2xl font-bold tracking-tight">{value}</p>
+            {trend && (
+              <div className={`flex items-center gap-1 text-xs font-medium ${trend.positive ? 'text-primary' : 'text-destructive'}`}>
+                {trend.positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {trend.value}
+              </div>
+            )}
+          </div>
+          <div className="h-10 w-10 rounded-xl bg-primary/8 flex items-center justify-center">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Quick Action Button                                                */
+/* ------------------------------------------------------------------ */
+function QuickAction({ label, icon: Icon, onClick }: { label: string; icon: any; onClick: () => void }) {
+  return (
+    <Button variant="outline" size="sm" className="gap-2 h-9 text-xs" onClick={onClick}>
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </Button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Dashboard Data                                                     */
+/* ------------------------------------------------------------------ */
 interface DashboardData {
   openOrders: number;
   pendingApprovals: number;
@@ -29,6 +79,9 @@ interface DashboardData {
   recentDeliveryLogs: any[];
 }
 
+/* ------------------------------------------------------------------ */
+/*  Dashboard Component                                                */
+/* ------------------------------------------------------------------ */
 export default function Dashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -62,7 +115,7 @@ export default function Dashboard() {
         supabase.from('stock_movements').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('customer_invoices').select('total_amount').in('status', ['posted', 'sent']),
         supabase.from('supplier_invoices').select('total_amount').in('status', ['posted', 'approved']),
-        supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(6),
+        supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('customer_invoices').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('document_delivery_logs').select('*').order('created_at', { ascending: false }).limit(5),
       ]);
@@ -93,55 +146,70 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Commerce Operations</h1>
-          <p className="text-sm text-muted-foreground mt-1">Seedlink Operations Dashboard</p>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Commerce operations overview</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[104px] rounded-xl" />)}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Skeleton className="h-80 rounded-xl" />
+          <Skeleton className="h-80 rounded-xl" />
         </div>
       </div>
     );
   }
 
+  const d = data!;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Commerce Operations</h1>
-        <p className="text-sm text-muted-foreground mt-1">Real-time operational overview</p>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Real-time commerce operations overview
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <QuickAction label="New Order" icon={Plus} onClick={() => navigate('/orders')} />
+          <QuickAction label="New Product" icon={Plus} onClick={() => navigate('/products/new')} />
+          <QuickAction label="New PO" icon={Plus} onClick={() => navigate('/purchase-orders/new')} />
+        </div>
       </div>
 
       {/* Primary KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Open Orders" value={data!.openOrders} icon={ShoppingCart} />
-        <KpiCard label="Pending Approvals" value={data!.pendingApprovals} icon={Clock} />
-        <KpiCard label="Pending Payments" value={data!.pendingPayments} icon={CreditCard} />
-        <KpiCard label="Invoices Today" value={data!.invoicesToday} icon={FileText} />
+        <KpiCard label="Open Orders" value={d.openOrders} icon={ShoppingCart} onClick={() => navigate('/orders')} />
+        <KpiCard label="Pending Approvals" value={d.pendingApprovals} icon={Clock} onClick={() => navigate('/orders')} />
+        <KpiCard label="Pending Payments" value={d.pendingPayments} icon={CreditCard} onClick={() => navigate('/payments')} />
+        <KpiCard label="Invoices Today" value={d.invoicesToday} icon={FileText} onClick={() => navigate('/customer-invoices')} />
       </div>
 
-      {/* Secondary KPIs — Finance */}
+      {/* Financial KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Accounts Receivable"
-          value={`R ${data!.receivablesTotal.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}`}
+          label="Receivables"
+          value={`R ${d.receivablesTotal.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}`}
           icon={TrendingUp}
         />
         <KpiCard
-          label="Accounts Payable"
-          value={`R ${data!.payablesTotal.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}`}
+          label="Payables"
+          value={`R ${d.payablesTotal.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}`}
           icon={TrendingDown}
         />
-        <KpiCard label="Abandoned Carts" value={data!.abandonedCarts} icon={AlertTriangle} />
-        <KpiCard label="Stock Movements (7d)" value={data!.stockMovements7d} icon={Package} />
+        <KpiCard label="Abandoned Carts" value={d.abandonedCarts} icon={AlertTriangle} onClick={() => navigate('/abandoned-carts')} />
+        <KpiCard label="Stock Moves (7d)" value={d.stockMovements7d} icon={Package} onClick={() => navigate('/stock-movements')} />
       </div>
 
       {/* Activity Panels */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Orders */}
-        <Card className="shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-semibold">Recent Orders</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/orders')} className="text-xs gap-1">
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b">
+            <CardTitle className="text-sm font-semibold">Recent Orders</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/orders')} className="text-xs gap-1 h-7 text-muted-foreground hover:text-foreground">
               View all <ArrowRight className="h-3 w-3" />
             </Button>
           </CardHeader>
@@ -149,21 +217,21 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">Order</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead className="text-right pr-6">Total</TableHead>
+                  <TableHead className="pl-5 text-xs">Order</TableHead>
+                  <TableHead className="text-xs">Source</TableHead>
+                  <TableHead className="text-xs">Payment</TableHead>
+                  <TableHead className="text-right pr-5 text-xs">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data!.recentOrders.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No orders yet</TableCell></TableRow>
-                ) : data!.recentOrders.map((o) => (
+                {d.recentOrders.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-10 text-sm">No orders yet</TableCell></TableRow>
+                ) : d.recentOrders.map((o) => (
                   <TableRow key={o.id} className="cursor-pointer" onClick={() => navigate(`/orders/${o.id}`)}>
-                    <TableCell className="pl-6 font-medium text-sm">{o.order_number || o.id.slice(0, 8)}</TableCell>
+                    <TableCell className="pl-5 font-medium text-sm">{o.order_number || o.id.slice(0, 8)}</TableCell>
                     <TableCell><StatusBadge type="order_source" value={o.order_source} /></TableCell>
                     <TableCell><StatusBadge type="payment" value={o.payment_status} /></TableCell>
-                    <TableCell className="text-right pr-6"><CurrencyDisplay amount={o.total_amount} currency={o.currency_code} /></TableCell>
+                    <TableCell className="text-right pr-5"><CurrencyDisplay amount={o.total_amount} currency={o.currency_code} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -172,10 +240,10 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Invoices */}
-        <Card className="shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-semibold">Recent Customer Invoices</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/customer-invoices')} className="text-xs gap-1">
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b">
+            <CardTitle className="text-sm font-semibold">Recent Invoices</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/customer-invoices')} className="text-xs gap-1 h-7 text-muted-foreground hover:text-foreground">
               View all <ArrowRight className="h-3 w-3" />
             </Button>
           </CardHeader>
@@ -183,21 +251,21 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">Invoice #</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right pr-6">Total</TableHead>
+                  <TableHead className="pl-5 text-xs">Invoice</TableHead>
+                  <TableHead className="text-xs">Status</TableHead>
+                  <TableHead className="text-xs">Date</TableHead>
+                  <TableHead className="text-right pr-5 text-xs">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data!.recentInvoices.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No invoices yet</TableCell></TableRow>
-                ) : data!.recentInvoices.map((inv) => (
+                {d.recentInvoices.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-10 text-sm">No invoices yet</TableCell></TableRow>
+                ) : d.recentInvoices.map((inv) => (
                   <TableRow key={inv.id}>
-                    <TableCell className="pl-6 font-medium text-sm">{inv.invoice_number}</TableCell>
+                    <TableCell className="pl-5 font-medium text-sm">{inv.invoice_number}</TableCell>
                     <TableCell><StatusBadge type="document" value={inv.status} /></TableCell>
-                    <TableCell><DateDisplay date={inv.invoice_date} /></TableCell>
-                    <TableCell className="text-right pr-6"><CurrencyDisplay amount={inv.total_amount} currency={inv.currency_code} /></TableCell>
+                    <TableCell className="text-sm text-muted-foreground"><DateDisplay date={inv.invoice_date} /></TableCell>
+                    <TableCell className="text-right pr-5"><CurrencyDisplay amount={inv.total_amount} currency={inv.currency_code} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -207,10 +275,10 @@ export default function Dashboard() {
       </div>
 
       {/* Delivery Logs */}
-      <Card className="shadow-sm border">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-base font-semibold">Document Delivery Logs</CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/document-delivery-logs')} className="text-xs gap-1">
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 border-b">
+          <CardTitle className="text-sm font-semibold">Document Delivery Logs</CardTitle>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/document-delivery-logs')} className="text-xs gap-1 h-7 text-muted-foreground hover:text-foreground">
             View all <ArrowRight className="h-3 w-3" />
           </Button>
         </CardHeader>
@@ -218,23 +286,23 @@ export default function Dashboard() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">Document</TableHead>
-                <TableHead>Channel</TableHead>
-                <TableHead>Recipient</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="pr-6">Sent</TableHead>
+                <TableHead className="pl-5 text-xs">Document</TableHead>
+                <TableHead className="text-xs">Channel</TableHead>
+                <TableHead className="text-xs">Recipient</TableHead>
+                <TableHead className="text-xs">Status</TableHead>
+                <TableHead className="pr-5 text-xs">Sent</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data!.recentDeliveryLogs.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No delivery logs yet</TableCell></TableRow>
-              ) : data!.recentDeliveryLogs.map((log) => (
+              {d.recentDeliveryLogs.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-10 text-sm">No delivery logs yet</TableCell></TableRow>
+              ) : d.recentDeliveryLogs.map((log) => (
                 <TableRow key={log.id}>
-                  <TableCell className="pl-6 font-medium capitalize text-sm">{log.document_type?.replace(/_/g, ' ')}</TableCell>
+                  <TableCell className="pl-5 font-medium capitalize text-sm">{log.document_type?.replace(/_/g, ' ')}</TableCell>
                   <TableCell><Badge variant="outline" className="capitalize text-xs">{log.delivery_channel}</Badge></TableCell>
-                  <TableCell className="text-sm">{log.recipient_email || log.recipient_phone || '—'}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{log.recipient_email || log.recipient_phone || '—'}</TableCell>
                   <TableCell><StatusBadge type="delivery" value={log.delivery_status} /></TableCell>
-                  <TableCell className="pr-6"><DateDisplay date={log.sent_at} showTime /></TableCell>
+                  <TableCell className="pr-5 text-sm text-muted-foreground"><DateDisplay date={log.sent_at} showTime /></TableCell>
                 </TableRow>
               ))}
             </TableBody>
