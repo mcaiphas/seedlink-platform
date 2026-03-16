@@ -338,10 +338,10 @@ export default function CropPlanDetail() {
               <Label>Product (optional)</Label>
               <Select value={actForm.product_id} onValueChange={v => {
                 const prod = products.find((p: any) => p.id === v);
-                setActForm(f => ({ ...f, product_id: v, unit_price: prod?.selling_price?.toString() || f.unit_price, activity_description: f.activity_description || prod?.product_name || '' }));
+                setActForm(f => ({ ...f, product_id: v, unit_price: prod?.default_selling_price?.toString() || f.unit_price, activity_description: f.activity_description || prod?.name || '' }));
               }}>
                 <SelectTrigger><SelectValue placeholder="Link to product" /></SelectTrigger>
-                <SelectContent>{products.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.product_name}</SelectItem>)}</SelectContent>
+                <SelectContent>{products.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
