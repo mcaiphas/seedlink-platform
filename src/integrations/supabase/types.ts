@@ -2583,6 +2583,86 @@ export type Database = {
           },
         ]
       }
+      depot_inventory: {
+        Row: {
+          created_at: string
+          depot_id: string
+          id: string
+          last_movement_at: string | null
+          pack_size_id: string | null
+          product_id: string
+          quantity_available: number | null
+          quantity_on_hand: number
+          quantity_reserved: number
+          reorder_level: number | null
+          sku: string | null
+          updated_at: string
+          variant_id: string | null
+          weight_equivalent_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          depot_id: string
+          id?: string
+          last_movement_at?: string | null
+          pack_size_id?: string | null
+          product_id: string
+          quantity_available?: number | null
+          quantity_on_hand?: number
+          quantity_reserved?: number
+          reorder_level?: number | null
+          sku?: string | null
+          updated_at?: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          depot_id?: string
+          id?: string
+          last_movement_at?: string | null
+          pack_size_id?: string | null
+          product_id?: string
+          quantity_available?: number | null
+          quantity_on_hand?: number
+          quantity_reserved?: number
+          reorder_level?: number | null
+          sku?: string | null
+          updated_at?: string
+          variant_id?: string | null
+          weight_equivalent_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "depot_inventory_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depot_inventory_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depot_inventory_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depot_inventory_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       depot_zones: {
         Row: {
           created_at: string
@@ -2627,38 +2707,74 @@ export type Database = {
       depots: {
         Row: {
           address_id: string | null
+          city: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          country: string | null
           created_at: string
           depot_code: string
           depot_type: string
+          gps_lat: number | null
+          gps_lng: number | null
           id: string
           is_active: boolean
+          is_default: boolean | null
           metadata: Json
           name: string
+          notes: string | null
           organization_id: string | null
+          physical_address: string | null
+          province: string | null
+          storage_category: string | null
           updated_at: string
         }
         Insert: {
           address_id?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
           created_at?: string
           depot_code: string
           depot_type?: string
+          gps_lat?: number | null
+          gps_lng?: number | null
           id?: string
           is_active?: boolean
+          is_default?: boolean | null
           metadata?: Json
           name: string
+          notes?: string | null
           organization_id?: string | null
+          physical_address?: string | null
+          province?: string | null
+          storage_category?: string | null
           updated_at?: string
         }
         Update: {
           address_id?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
           created_at?: string
           depot_code?: string
           depot_type?: string
+          gps_lat?: number | null
+          gps_lng?: number | null
           id?: string
           is_active?: boolean
+          is_default?: boolean | null
           metadata?: Json
           name?: string
+          notes?: string | null
           organization_id?: string | null
+          physical_address?: string | null
+          province?: string | null
+          storage_category?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -6563,44 +6679,62 @@ export type Database = {
       }
       product_pack_sizes: {
         Row: {
+          conversion_factor_kg: number | null
           created_at: string
+          crop_type: string | null
+          description: string | null
+          display_label: string | null
           estimated_weight_kg: number | null
           id: string
           is_active: boolean
           is_bulk: boolean
           name: string
           pack_type: string
+          packaging_type: string | null
           quantity_unit: string | null
           quantity_value: number | null
           seed_count: number | null
+          seed_count_label: string | null
           sort_order: number
           updated_at: string
         }
         Insert: {
+          conversion_factor_kg?: number | null
           created_at?: string
+          crop_type?: string | null
+          description?: string | null
+          display_label?: string | null
           estimated_weight_kg?: number | null
           id?: string
           is_active?: boolean
           is_bulk?: boolean
           name: string
           pack_type: string
+          packaging_type?: string | null
           quantity_unit?: string | null
           quantity_value?: number | null
           seed_count?: number | null
+          seed_count_label?: string | null
           sort_order?: number
           updated_at?: string
         }
         Update: {
+          conversion_factor_kg?: number | null
           created_at?: string
+          crop_type?: string | null
+          description?: string | null
+          display_label?: string | null
           estimated_weight_kg?: number | null
           id?: string
           is_active?: boolean
           is_bulk?: boolean
           name?: string
           pack_type?: string
+          packaging_type?: string | null
           quantity_unit?: string | null
           quantity_value?: number | null
           seed_count?: number | null
+          seed_count_label?: string | null
           sort_order?: number
           updated_at?: string
         }

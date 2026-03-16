@@ -51,6 +51,8 @@ import JournalEntryList from "@/pages/finance/JournalEntryList";
 // Warehouse
 import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
+import DepotDetail from "@/pages/warehouse/DepotDetail";
+import StockOverview from "@/pages/warehouse/StockOverview";
 import DepotZoneList from "@/pages/warehouse/DepotZoneList";
 import StorageBinList from "@/pages/warehouse/StorageBinList";
 import InventoryBatchList from "@/pages/warehouse/InventoryBatchList";
@@ -171,7 +173,9 @@ const App = () => (
               <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
+              <Route path="stock-overview" element={<StockOverview />} />
               <Route path="depots" element={<DepotList />} />
+              <Route path="depots/:id" element={<DepotDetail />} />
               <Route path="depot-zones" element={<DepotZoneList />} />
               <Route path="storage-bins" element={<StorageBinList />} />
               <Route path="inventory-batches" element={<InventoryBatchList />} />

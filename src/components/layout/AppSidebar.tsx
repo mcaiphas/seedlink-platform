@@ -84,7 +84,6 @@ const sections: NavSection[] = [
       { title: 'Collections', url: '/collections', icon: FolderOpen, permission: 'collections:view' },
       { title: 'Attributes', url: '/attributes', icon: SlidersHorizontal },
       { title: 'Variants', url: '/variants', icon: Layers },
-      { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler },
     ],
   },
   {
@@ -99,10 +98,12 @@ const sections: NavSection[] = [
   {
     label: 'Inventory',
     items: [
+      { title: 'Stock Overview', url: '/stock-overview', icon: Boxes, permission: 'inventory:view' },
+      { title: 'Depots', url: '/depots', icon: Warehouse, permission: 'inventory:view' },
+      { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler, permission: 'inventory:view' },
       { title: 'Stock Movements', url: '/stock-movements', icon: MoveHorizontal, permission: 'inventory:view' },
       { title: 'Stock Adjustments', url: '/stock-adjustments', icon: ClipboardList, permission: 'inventory:view' },
       { title: 'Stock Transfers', url: '/stock-transfers', icon: ArrowLeftRight, permission: 'inventory:view' },
-      { title: 'Depots', url: '/depots', icon: Warehouse },
       { title: 'Inventory Batches', url: '/inventory-batches', icon: Boxes },
     ],
   },
