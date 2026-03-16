@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { generateDocNumber } from '@/lib/document-numbers';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,10 @@ export default function PurchaseOrderForm() {
   }, []);
 
   useEffect(() => {
-    if (!id) { setPoNumber(`PO-${Date.now().toString(36).toUpperCase()}`); return; }
+    if (!id) {
+      generateDocNumber('po').then(setPoNumber);
+      return;
+    }
     setLoading(true);
     Promise.all([
       supabase.from('purchase_orders').select('*').eq('id', id).single(),

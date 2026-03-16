@@ -8219,6 +8219,10 @@ export type Database = {
         Returns: number
       }
       current_profile_id: { Args: never; Returns: string }
+      generate_ci_number: { Args: never; Returns: string }
+      generate_gr_number: { Args: never; Returns: string }
+      generate_po_number: { Args: never; Returns: string }
+      generate_si_number: { Args: never; Returns: string }
       has_role: { Args: { role_name: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_enrolled_in_course: {

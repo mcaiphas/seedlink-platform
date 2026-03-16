@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { generateDocNumber } from '@/lib/document-numbers';
 import { AdminPage } from '@/components/AdminPage';
 import { DataPageShell, EmptyState } from '@/components/DataPageShell';
 import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
@@ -26,6 +27,7 @@ export default function GoodsReceiptList() {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [depots, setDepots] = useState<any[]>([]);
   const [pos, setPos] = useState<any[]>([]);
+  const [poItems, setPoItems] = useState<any[]>([]);
   const [form, setForm] = useState({ receipt_number: '', supplier_id: '', depot_id: '', purchase_order_id: '', receipt_date: new Date().toISOString().split('T')[0], notes: '', status: 'received' });
 
   const load = async () => {
@@ -43,10 +45,21 @@ export default function GoodsReceiptList() {
   };
   useEffect(() => { load(); }, []);
 
+  // When a PO is selected, load its items for stock movement creation
+  useEffect(() => {
+    if (!form.purchase_order_id) { setPoItems([]); return; }
+    supabase.from('purchase_order_items').select('*, product_variants(id, variant_name, sku)')
+      .eq('purchase_order_id', form.purchase_order_id).then(({ data }) => setPoItems(data || []));
+    // Auto-fill supplier from PO
+    const po = pos.find(p => p.id === form.purchase_order_id);
+    if (po?.supplier_id) setForm(f => ({ ...f, supplier_id: po.supplier_id }));
+  }, [form.purchase_order_id, pos]);
+
   const filtered = data.filter(r => !search || r.receipt_number?.toLowerCase().includes(search.toLowerCase()));
 
-  const openNew = () => {
-    setForm({ receipt_number: `GR-${Date.now().toString(36).toUpperCase()}`, supplier_id: '', depot_id: '', purchase_order_id: '', receipt_date: new Date().toISOString().split('T')[0], notes: '', status: 'received' });
+  const openNew = async () => {
+    const num = await generateDocNumber('gr');
+    setForm({ receipt_number: num, supplier_id: '', depot_id: '', purchase_order_id: '', receipt_date: new Date().toISOString().split('T')[0], notes: '', status: 'received' });
     setDialogOpen(true);
   };
 
@@ -54,8 +67,31 @@ export default function GoodsReceiptList() {
     if (!form.receipt_number) { toast({ title: 'Receipt number required', variant: 'destructive' }); return; }
     setSaving(true);
     const payload: any = { receipt_number: form.receipt_number, supplier_id: form.supplier_id || null, depot_id: form.depot_id || null, purchase_order_id: form.purchase_order_id || null, receipt_date: form.receipt_date, notes: form.notes || null, status: form.status };
-    const { error } = await supabase.from('goods_receipts').insert(payload);
+    const { data: grData, error } = await supabase.from('goods_receipts').insert(payload).select('id').single();
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); setSaving(false); return; }
+
+    // Auto-create stock movements for PO items with variants
+    if (grData && poItems.length > 0) {
+      const movements = poItems
+        .filter(item => item.variant_id)
+        .map(item => ({
+          variant_id: item.variant_id,
+          depot_id: form.depot_id || null,
+          movement_type: 'goods_receipt',
+          quantity: Number(item.quantity),
+          quantity_uom: item.quantity_uom || 'unit',
+          unit_cost: Number(item.unit_price) || null,
+          reference_type: 'goods_receipt',
+          reference_id: grData.id,
+          notes: `GR ${form.receipt_number} from PO`,
+        }));
+      if (movements.length > 0) {
+        const { error: mvErr } = await supabase.from('stock_movements').insert(movements as any);
+        if (mvErr) toast({ title: 'Stock movement warning', description: mvErr.message, variant: 'destructive' });
+        else toast({ title: `${movements.length} stock movements created` });
+      }
+    }
+
     toast({ title: 'Goods receipt created' }); setSaving(false); setDialogOpen(false); load();
   };
 
@@ -87,7 +123,7 @@ export default function GoodsReceiptList() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>New Goods Receipt</DialogTitle><DialogDescription>Receive goods against a purchase order or ad-hoc.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>New Goods Receipt</DialogTitle><DialogDescription>Receive goods against a purchase order or ad-hoc. Stock movements are created automatically for linked PO items.</DialogDescription></DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2"><Label>Receipt Number</Label><Input value={form.receipt_number} onChange={e => setForm(f => ({ ...f, receipt_number: e.target.value }))} className="font-mono" /></div>
@@ -117,6 +153,17 @@ export default function GoodsReceiptList() {
                 </Select>
               </div>
             </div>
+            {poItems.length > 0 && (
+              <div className="rounded-lg border p-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">PO Line Items (stock will be auto-received)</p>
+                {poItems.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span>{item.product_description}</span>
+                    <span className="tabular-nums text-muted-foreground">{item.quantity} {item.quantity_uom}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-2"><Label>Notes</Label><Input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} /></div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Create Receipt'}</Button></DialogFooter>

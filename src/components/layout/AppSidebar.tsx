@@ -4,7 +4,7 @@ import {
   Sprout, Wheat, FlaskConical, Lightbulb, Truck, Bell, Settings, Leaf,
   MessageSquare, Database, MessagesSquare, Shield, Warehouse, Box,
   ArrowLeftRight, ClipboardList, PackageCheck, Layers, Grid3X3,
-  Building2, Receipt, FileSpreadsheet, Award, CreditCard,
+  Building2, Receipt, FileSpreadsheet, Award, CreditCard, DollarSign,
   Boxes, MoveHorizontal, ListChecks, PackageSearch,
   Beaker, Calculator, Bug, Calendar, TrendingUp, Droplets,
   Wrench, Brain, Library, Ruler, SlidersHorizontal,
@@ -55,6 +55,14 @@ const navGroups: NavGroup[] = [
       { title: 'Purchase Orders', url: '/purchase-orders', icon: FileSpreadsheet },
       { title: 'Goods Receipts', url: '/goods-receipts', icon: PackageCheck },
       { title: 'Supplier Invoices', url: '/supplier-invoices', icon: Receipt },
+      { title: 'Import Jobs', url: '/import-jobs', icon: FileSpreadsheet },
+    ],
+  },
+  {
+    label: 'Finance',
+    adminOnly: true,
+    items: [
+      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: DollarSign },
     ],
   },
   {
