@@ -439,56 +439,72 @@ function UserListInner() {
 
       {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editUser ? 'Edit User' : 'Add User'}</DialogTitle>
             <DialogDescription>
-              {editUser ? 'Update user details and role assignment.' : 'New user accounts are created through Supabase Auth. Use this form to update profile details.'}
+              {editUser ? 'Update user details, role assignment, and direct permissions.' : 'New user accounts are created through Supabase Auth. Use this form to update profile details.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Full Name</Label>
-                <Input className="h-8 text-sm" value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} />
+          <Tabs defaultValue="details">
+            <TabsList>
+              <TabsTrigger value="details">Details & Role</TabsTrigger>
+              {editUser && <TabsTrigger value="permissions"><KeyRound className="h-3.5 w-3.5 mr-1" />Direct Permissions</TabsTrigger>}
+            </TabsList>
+            <TabsContent value="details">
+              <div className="grid gap-4 py-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Full Name</Label>
+                    <Input className="h-8 text-sm" value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Email</Label>
+                    <Input className="h-8 text-sm" value={formData.email} disabled={!!editUser} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Phone</Label>
+                    <Input className="h-8 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Job Title</Label>
+                    <Input className="h-8 text-sm" value={formData.job_title} onChange={(e) => setFormData({ ...formData, job_title: e.target.value })} />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Assigned Role</Label>
+                  <Select value={assignedRoleId} onValueChange={setAssignedRoleId}>
+                    <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select a role…" /></SelectTrigger>
+                    <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-xs">Active</Label>
+                    <p className="text-xs text-muted-foreground">User can access the platform</p>
+                  </div>
+                  <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Email</Label>
-                <Input className="h-8 text-sm" value={formData.email} disabled={!!editUser} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Phone</Label>
-                <Input className="h-8 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Job Title</Label>
-                <Input className="h-8 text-sm" value={formData.job_title} onChange={(e) => setFormData({ ...formData, job_title: e.target.value })} />
-              </div>
-            </div>
-            <Separator />
-            <div className="space-y-1.5">
-              <Label className="text-xs">Assigned Role</Label>
-              <Select value={assignedRoleId} onValueChange={setAssignedRoleId}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select a role…" /></SelectTrigger>
-                <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-xs">Active</Label>
-                <p className="text-xs text-muted-foreground">User can access the platform</p>
-              </div>
-              <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleSave} disabled={saving || !editUser}>
-              {saving ? 'Saving…' : 'Save Changes'}
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="mt-4">
+                <Button variant="outline" size="sm" onClick={() => setEditOpen(false)}>Cancel</Button>
+                <Button size="sm" onClick={handleSave} disabled={saving || !editUser}>
+                  {saving ? 'Saving…' : 'Save Changes'}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+            {editUser && (
+              <TabsContent value="permissions" className="mt-4">
+                <UserPermissionOverrides
+                  userId={editUser.id}
+                  userRoleIds={(roleMap[editUser.id] || []).map(r => r.roleId)}
+                />
+              </TabsContent>
+            )}
+          </Tabs>
         </DialogContent>
       </Dialog>
 
