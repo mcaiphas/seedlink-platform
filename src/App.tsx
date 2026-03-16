@@ -38,8 +38,10 @@ import PurchaseOrderForm from "@/pages/procurement/PurchaseOrderForm";
 import SupplierInvoiceList from "@/pages/procurement/SupplierInvoiceList";
 import GoodsReceiptList from "@/pages/procurement/GoodsReceiptList";
 
-// Commerce
+// Commerce / Finance
 import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
+import GLAccountList from "@/pages/finance/GLAccountList";
+import JournalEntryList from "@/pages/finance/JournalEntryList";
 
 // Warehouse
 import DepotList from "@/pages/warehouse/DepotList";
