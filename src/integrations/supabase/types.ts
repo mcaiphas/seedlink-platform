@@ -5866,6 +5866,7 @@ export type Database = {
           description: string | null
           id: string
           module: string
+          name: string | null
           updated_at: string
         }
         Insert: {
@@ -5874,6 +5875,7 @@ export type Database = {
           description?: string | null
           id?: string
           module: string
+          name?: string | null
           updated_at?: string
         }
         Update: {
@@ -5882,6 +5884,7 @@ export type Database = {
           description?: string | null
           id?: string
           module?: string
+          name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -8409,6 +8412,38 @@ export type Database = {
           },
         ]
       }
+      user_permission_overrides: {
+        Row: {
+          created_at: string
+          id: string
+          is_allowed: boolean
+          permission_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          permission_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          permission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permission_overrides_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_role_assignments: {
         Row: {
           assigned_by: string | null
@@ -8851,7 +8886,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_effective_permissions: {
+        Row: {
+          module: string | null
+          permission_code: string | null
+          permission_name: string | null
+          role_name: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_role_assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_journal_line: {
@@ -8919,6 +8971,15 @@ export type Database = {
         Returns: string
       }
       current_profile_id: { Args: never; Returns: string }
+      current_user_has_any_role: {
+        Args: { p_role_names: string[] }
+        Returns: boolean
+      }
+      current_user_has_permission: {
+        Args: { p_permission_code: string }
+        Returns: boolean
+      }
+      current_user_has_role: { Args: { p_role_name: string }; Returns: boolean }
       generate_ci_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }
       generate_je_number: { Args: never; Returns: string }
@@ -8959,6 +9020,18 @@ export type Database = {
       recalculate_credit_available: {
         Args: { p_credit_account_id: string }
         Returns: undefined
+      }
+      user_has_any_role: {
+        Args: { p_role_names: string[]; p_user_id: string }
+        Returns: boolean
+      }
+      user_has_permission: {
+        Args: { p_permission_code: string; p_user_id: string }
+        Returns: boolean
+      }
+      user_has_role: {
+        Args: { p_role_name: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
