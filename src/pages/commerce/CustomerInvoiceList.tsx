@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { generateDocNumber } from '@/lib/document-numbers';
 import { AdminPage } from '@/components/AdminPage';
 import { DataPageShell, EmptyState } from '@/components/DataPageShell';
 import { classifyError, QueryStatus } from '@/lib/supabase-helpers';
@@ -40,8 +41,9 @@ export default function CustomerInvoiceList() {
 
   const filtered = data.filter(r => !search || r.invoice_number?.toLowerCase().includes(search.toLowerCase()));
 
-  const openNew = () => {
-    setForm({ invoice_number: `INV-${Date.now().toString(36).toUpperCase()}`, customer_id: '', order_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', total_amount: '0', currency_code: 'ZAR', status: 'draft', notes: '' });
+  const openNew = async () => {
+    const num = await generateDocNumber('ci');
+    setForm({ invoice_number: num, customer_id: '', order_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', total_amount: '0', currency_code: 'ZAR', status: 'draft', notes: '' });
     setDialogOpen(true);
   };
 

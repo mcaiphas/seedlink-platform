@@ -55,6 +55,14 @@ const navGroups: NavGroup[] = [
       { title: 'Purchase Orders', url: '/purchase-orders', icon: FileSpreadsheet },
       { title: 'Goods Receipts', url: '/goods-receipts', icon: PackageCheck },
       { title: 'Supplier Invoices', url: '/supplier-invoices', icon: Receipt },
+      { title: 'Import Jobs', url: '/import-jobs', icon: FileSpreadsheet },
+    ],
+  },
+  {
+    label: 'Finance',
+    adminOnly: true,
+    items: [
+      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: DollarSign },
     ],
   },
   {
