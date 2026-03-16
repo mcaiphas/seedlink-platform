@@ -230,6 +230,10 @@ export default function CustomerDetail() {
             )}
           </TabsContent>
 
+          <TabsContent value="communication" className="mt-4">
+            <CustomerCommunicationTab customerId={id!} />
+          </TabsContent>
+
           <TabsContent value="orders" className="mt-4">
             <div className="text-center py-12 text-muted-foreground">Order history will be displayed here once orders are linked to this customer.</div>
           </TabsContent>
