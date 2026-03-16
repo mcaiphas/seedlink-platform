@@ -183,13 +183,14 @@ export default function CropPlanDetail() {
       <PageHeader
         title={`${plan.crop}${plan.variety ? ` – ${plan.variety}` : ''}`}
         description={`${(plan.farms as any)?.farm_name || ''} · ${(plan.fields as any)?.field_name || 'All fields'} · ${(plan.farm_seasons as any)?.season_name || ''} · ${area} ha`}
-      >
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" />Export CSV</Button>
-          <Button variant="outline" onClick={() => toast.info('Convert to quote coming soon')}><FileText className="h-4 w-4 mr-2" />Convert to Quote</Button>
-          <Button variant="outline" onClick={() => toast.info('Add to cart coming soon')}><ShoppingCart className="h-4 w-4 mr-2" />Add to Cart</Button>
-        </div>
-      </PageHeader>
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" />Export CSV</Button>
+            <Button variant="outline" onClick={() => toast.info('Convert to quote coming soon')}><FileText className="h-4 w-4 mr-2" />Convert to Quote</Button>
+            <Button variant="outline" onClick={() => toast.info('Add to cart coming soon')}><ShoppingCart className="h-4 w-4 mr-2" />Add to Cart</Button>
+          </div>
+        }
+      />
 
       {/* Budget Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
