@@ -123,6 +123,11 @@ import OrganizationList from "@/pages/system/OrganizationList";
 import SalesAnalytics from "@/pages/reports/SalesAnalytics";
 import InventorySnapshot from "@/pages/reports/InventorySnapshot";
 import FinanceSummary from "@/pages/reports/FinanceSummary";
+import InventoryValuation from "@/pages/reports/InventoryValuation";
+import OperationsFinance from "@/pages/reports/OperationsFinance";
+import ManagementDashboard from "@/pages/reports/ManagementDashboard";
+import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
+import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
