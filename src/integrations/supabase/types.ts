@@ -5947,6 +5947,345 @@ export type Database = {
           },
         ]
       }
+      logistics_delivery_items: {
+        Row: {
+          created_at: string
+          delivery_request_id: string
+          description: string | null
+          id: string
+          pack_size_id: string | null
+          product_id: string | null
+          quantity: number
+          total_weight_kg: number | null
+          variant_id: string | null
+          weight_per_unit_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          delivery_request_id: string
+          description?: string | null
+          id?: string
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          total_weight_kg?: number | null
+          variant_id?: string | null
+          weight_per_unit_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          delivery_request_id?: string
+          description?: string | null
+          id?: string
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          total_weight_kg?: number | null
+          variant_id?: string | null
+          weight_per_unit_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_delivery_items_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_delivery_requests: {
+        Row: {
+          actual_cost: number | null
+          assigned_vehicle_reg: string | null
+          cargo_description: string | null
+          created_at: string
+          created_by: string | null
+          crop_plan_id: string | null
+          customer_id: string | null
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_lat: number | null
+          delivery_lng: number | null
+          driver_name: string | null
+          driver_phone: string | null
+          drovvi_request_id: string | null
+          estimated_cost: number | null
+          estimated_distance_km: number | null
+          farm_id: string | null
+          id: string
+          order_id: string | null
+          origin_depot_id: string | null
+          pickup_address: string | null
+          pickup_lat: number | null
+          pickup_lng: number | null
+          pod_file_path: string | null
+          pod_notes: string | null
+          pod_type: string | null
+          preferred_date: string | null
+          preferred_window: string | null
+          priority: string
+          request_number: string | null
+          special_requirements: string | null
+          status: string
+          total_volume_m3: number | null
+          total_weight_kg: number | null
+          updated_at: string
+          vehicle_type_id: string | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          assigned_vehicle_reg?: string | null
+          cargo_description?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_plan_id?: string | null
+          customer_id?: string | null
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_lat?: number | null
+          delivery_lng?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          drovvi_request_id?: string | null
+          estimated_cost?: number | null
+          estimated_distance_km?: number | null
+          farm_id?: string | null
+          id?: string
+          order_id?: string | null
+          origin_depot_id?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          pod_file_path?: string | null
+          pod_notes?: string | null
+          pod_type?: string | null
+          preferred_date?: string | null
+          preferred_window?: string | null
+          priority?: string
+          request_number?: string | null
+          special_requirements?: string | null
+          status?: string
+          total_volume_m3?: number | null
+          total_weight_kg?: number | null
+          updated_at?: string
+          vehicle_type_id?: string | null
+        }
+        Update: {
+          actual_cost?: number | null
+          assigned_vehicle_reg?: string | null
+          cargo_description?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_plan_id?: string | null
+          customer_id?: string | null
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_lat?: number | null
+          delivery_lng?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          drovvi_request_id?: string | null
+          estimated_cost?: number | null
+          estimated_distance_km?: number | null
+          farm_id?: string | null
+          id?: string
+          order_id?: string | null
+          origin_depot_id?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          pod_file_path?: string | null
+          pod_notes?: string | null
+          pod_type?: string | null
+          preferred_date?: string | null
+          preferred_window?: string | null
+          priority?: string
+          request_number?: string | null
+          special_requirements?: string | null
+          status?: string
+          total_volume_m3?: number | null
+          total_weight_kg?: number | null
+          updated_at?: string
+          vehicle_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_delivery_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_crop_plan_id_fkey"
+            columns: ["crop_plan_id"]
+            isOneToOne: false
+            referencedRelation: "crop_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_origin_depot_id_fkey"
+            columns: ["origin_depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_delivery_requests_vehicle_type_id_fkey"
+            columns: ["vehicle_type_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_rate_cards: {
+        Row: {
+          base_rate: number
+          created_at: string
+          handling_fee: number | null
+          id: string
+          is_active: boolean
+          max_distance_km: number | null
+          min_distance_km: number | null
+          per_km_rate: number
+          per_ton_rate: number | null
+          route_type: string
+          updated_at: string
+          vehicle_type_id: string
+          waiting_fee_per_hour: number | null
+        }
+        Insert: {
+          base_rate?: number
+          created_at?: string
+          handling_fee?: number | null
+          id?: string
+          is_active?: boolean
+          max_distance_km?: number | null
+          min_distance_km?: number | null
+          per_km_rate?: number
+          per_ton_rate?: number | null
+          route_type?: string
+          updated_at?: string
+          vehicle_type_id: string
+          waiting_fee_per_hour?: number | null
+        }
+        Update: {
+          base_rate?: number
+          created_at?: string
+          handling_fee?: number | null
+          id?: string
+          is_active?: boolean
+          max_distance_km?: number | null
+          min_distance_km?: number | null
+          per_km_rate?: number
+          per_ton_rate?: number | null
+          route_type?: string
+          updated_at?: string
+          vehicle_type_id?: string
+          waiting_fee_per_hour?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_rate_cards_vehicle_type_id_fkey"
+            columns: ["vehicle_type_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_status_log: {
+        Row: {
+          created_at: string
+          delivery_request_id: string
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          notes: string | null
+          recorded_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_request_id: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          notes?: string | null
+          recorded_by?: string | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          delivery_request_id?: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          notes?: string | null
+          recorded_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_status_log_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logistics_status_log_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_buyer_requests: {
         Row: {
           buyer_organization_id: string | null
@@ -11922,6 +12261,48 @@ export type Database = {
           },
         ]
       }
+      vehicle_types: {
+        Row: {
+          base_rate: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          max_volume_m3: number | null
+          max_weight_kg: number
+          notes: string | null
+          per_km_rate: number | null
+          updated_at: string
+          vehicle_code: string
+          vehicle_name: string
+        }
+        Insert: {
+          base_rate?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_volume_m3?: number | null
+          max_weight_kg?: number
+          notes?: string | null
+          per_km_rate?: number | null
+          updated_at?: string
+          vehicle_code: string
+          vehicle_name: string
+        }
+        Update: {
+          base_rate?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_volume_m3?: number | null
+          max_weight_kg?: number
+          notes?: string | null
+          per_km_rate?: number | null
+          updated_at?: string
+          vehicle_code?: string
+          vehicle_name?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -12399,6 +12780,7 @@ export type Database = {
       generate_agro_rec_number: { Args: never; Returns: string }
       generate_ccn_number: { Args: never; Returns: string }
       generate_ci_number: { Args: never; Returns: string }
+      generate_delivery_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }
       generate_je_number: { Args: never; Returns: string }
       generate_pi_number: { Args: never; Returns: string }
