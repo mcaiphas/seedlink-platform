@@ -20,7 +20,7 @@ import {
   LogOut, Truck, Wallet, SlidersHorizontal,
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
-  ShoppingBag, PieChart,
+  ShoppingBag, PieChart, CheckCircle, Activity,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
