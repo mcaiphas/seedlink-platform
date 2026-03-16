@@ -21,6 +21,7 @@ import {
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
+  BookOpen, FileDown, Banknote,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
