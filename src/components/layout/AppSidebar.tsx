@@ -84,7 +84,6 @@ const sections: NavSection[] = [
       { title: 'Collections', url: '/collections', icon: FolderOpen, permission: 'collections:view' },
       { title: 'Attributes', url: '/attributes', icon: SlidersHorizontal },
       { title: 'Variants', url: '/variants', icon: Layers },
-      { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler },
     ],
   },
   {
