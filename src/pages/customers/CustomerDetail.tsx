@@ -17,8 +17,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft, Edit2, DollarSign, CreditCard, Phone, Mail,
-  FileText, Plus, Trash2, Users,
+  FileText, Plus, Trash2, Users, MessageSquare,
 } from 'lucide-react';
+import { CustomerCommunicationTab } from '@/components/commerce/CustomerCommunicationTab';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -155,6 +156,7 @@ export default function CustomerDetail() {
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
+            <TabsTrigger value="communication">Communication</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="invoices">Invoices</TabsTrigger>
           </TabsList>
@@ -226,6 +228,10 @@ export default function CustomerDetail() {
                 </Table>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="communication" className="mt-4">
+            <CustomerCommunicationTab customerId={id!} />
           </TabsContent>
 
           <TabsContent value="orders" className="mt-4">

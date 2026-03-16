@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Bell, Plus, Pencil } from 'lucide-react';
+import { Bell, Plus, Pencil, Copy } from 'lucide-react';
 
 const CHANNELS = [
   { value: 'email', label: 'Email' },
@@ -24,11 +24,12 @@ const CHANNELS = [
 ];
 
 const TRIGGER_EVENTS = [
-  'quote_sent', 'order_confirmed', 'order_shipped', 'invoice_issued',
-  'invoice_due', 'invoice_overdue', 'payment_received', 'payment_request_sent',
-  'statement_generated', 'po_approved', 'goods_received', 'supplier_invoice_due',
+  'quote_created', 'quote_emailed', 'quote_sent', 'order_created', 'order_confirmed', 'order_shipped',
+  'invoice_issued', 'invoice_due', 'invoice_overdue',
+  'payment_received', 'payment_request_sent', 'statement_generated',
+  'po_approved', 'goods_received', 'supplier_invoice_due',
   'welcome', 'password_reset', 'low_stock', 'approval_required',
-  'delivery_status_change', 'manual',
+  'delivery_status_change', 'credit_note_issued', 'manual',
 ];
 
 const RECIPIENT_TYPES = [
@@ -122,6 +123,18 @@ export default function NotificationTemplates() {
     setShowForm(true);
   }
 
+  function duplicateTemplate(t: Template) {
+    setEditing(null);
+    setForm({
+      code: t.code + '_copy', title: t.title + ' (Copy)', channel: t.channel,
+      subject: t.subject || '', body: t.body || '',
+      trigger_event: t.trigger_event || 'manual',
+      recipient_type: t.recipient_type || 'customer',
+      description: t.description || '', is_active: false,
+    });
+    setShowForm(true);
+  }
+
   const channelBadge = (ch: string) => {
     const colors: Record<string, string> = {
       email: 'bg-blue-500/10 text-blue-700 border-blue-200',
@@ -185,9 +198,14 @@ export default function NotificationTemplates() {
                     <Switch checked={t.is_active} onCheckedChange={v => toggleMutation.mutate({ id: t.id, active: v })} />
                   </TableCell>
                   <TableCell className="pr-6 text-right">
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(t)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => duplicateTemplate(t)} title="Duplicate">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEdit(t)} title="Edit">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -230,6 +248,10 @@ export default function NotificationTemplates() {
             <div><Label>Description</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
             <div><Label>Subject Template</Label><Input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="e.g. Invoice {{invoice_number}} is due" /></div>
             <div><Label>Body Template</Label><Textarea value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} rows={6} placeholder="Template body with {{placeholders}}" /></div>
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground mb-1">Available Variables</p>
+              <p className="text-[11px] text-muted-foreground font-mono">{'{{customer_name}} {{document_number}} {{amount}} {{due_date}} {{company_name}} {{sender_name}} {{link}}'}</p>
+            </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.is_active} onCheckedChange={v => setForm(f => ({ ...f, is_active: v }))} />
               <Label>Active</Label>
