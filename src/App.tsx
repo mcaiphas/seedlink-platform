@@ -144,6 +144,19 @@ import OperationsFinance from "@/pages/reports/OperationsFinance";
 import ManagementDashboard from "@/pages/reports/ManagementDashboard";
 import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
 import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
+
+// Customer Portal
+import CustomerPortalDashboard from "@/pages/portal/CustomerPortalDashboard";
+import PortalInvoices from "@/pages/portal/PortalInvoices";
+import PortalQuotes from "@/pages/portal/PortalQuotes";
+import PortalStatements from "@/pages/portal/PortalStatements";
+
+// Finance extras
+import CreditControlDashboard from "@/pages/finance/CreditControlDashboard";
+import RefundList from "@/pages/finance/RefundList";
+import CustomerCommunicationLog from "@/pages/finance/CustomerCommunicationLog";
+import ReminderTemplates from "@/pages/finance/ReminderTemplates";
+
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
