@@ -8,7 +8,8 @@ import {
   Boxes, MoveHorizontal, ListChecks, PackageSearch,
   Beaker, Calculator, Bug, Calendar, TrendingUp, Droplets,
   Wrench, Brain, Library, Ruler, SlidersHorizontal,
-  FolderTree, Scale, Notebook, BarChart3,
+  FolderTree, Scale, Notebook, BarChart3, Wallet, Mail,
+  ShoppingBag, AlertTriangle, Send,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
