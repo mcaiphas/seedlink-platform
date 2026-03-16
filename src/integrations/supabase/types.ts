@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_cart_followups: {
+        Row: {
+          cart_id: string
+          contact_target: string | null
+          created_at: string
+          followup_channel: string
+          followup_status: string
+          id: string
+          notes: string | null
+          performed_at: string | null
+          performed_by: string | null
+        }
+        Insert: {
+          cart_id: string
+          contact_target?: string | null
+          created_at?: string
+          followup_channel: string
+          followup_status?: string
+          id?: string
+          notes?: string | null
+          performed_at?: string | null
+          performed_by?: string | null
+        }
+        Update: {
+          cart_id?: string
+          contact_target?: string | null
+          created_at?: string
+          followup_channel?: string
+          followup_status?: string
+          id?: string
+          notes?: string | null
+          performed_at?: string | null
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abandoned_cart_followups_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
           address_type: string
@@ -1625,11 +1669,19 @@ export type Database = {
       }
       carts: {
         Row: {
+          abandoned_at: string | null
+          cart_status: string | null
+          converted_order_id: string | null
           created_at: string
           currency_code: string
+          customer_email: string | null
+          customer_phone: string | null
           discount_amount: number
           expires_at: string | null
           id: string
+          last_activity_at: string | null
+          recovered_by: string | null
+          recovery_notes: string | null
           status: string
           subtotal_amount: number
           tax_amount: number
@@ -1638,11 +1690,19 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          abandoned_at?: string | null
+          cart_status?: string | null
+          converted_order_id?: string | null
           created_at?: string
           currency_code?: string
+          customer_email?: string | null
+          customer_phone?: string | null
           discount_amount?: number
           expires_at?: string | null
           id?: string
+          last_activity_at?: string | null
+          recovered_by?: string | null
+          recovery_notes?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
@@ -1651,11 +1711,19 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          abandoned_at?: string | null
+          cart_status?: string | null
+          converted_order_id?: string | null
           created_at?: string
           currency_code?: string
+          customer_email?: string | null
+          customer_phone?: string | null
           discount_amount?: number
           expires_at?: string | null
           id?: string
+          last_activity_at?: string | null
+          recovered_by?: string | null
+          recovery_notes?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
@@ -1664,6 +1732,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "carts_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "carts_user_id_fkey"
             columns: ["user_id"]
@@ -2179,6 +2254,95 @@ export type Database = {
           },
         ]
       }
+      customer_credit_accounts: {
+        Row: {
+          account_number: string | null
+          account_status: string
+          created_at: string
+          credit_available: number
+          credit_limit: number
+          credit_used: number
+          customer_id: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          payment_terms_days: number
+          updated_at: string
+        }
+        Insert: {
+          account_number?: string | null
+          account_status?: string
+          created_at?: string
+          credit_available?: number
+          credit_limit?: number
+          credit_used?: number
+          customer_id: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          payment_terms_days?: number
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string | null
+          account_status?: string
+          created_at?: string
+          credit_available?: number
+          credit_limit?: number
+          credit_used?: number
+          customer_id?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          payment_terms_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_credit_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          credit_account_id: string
+          id: string
+          notes: string | null
+          reference_id: string | null
+          reference_type: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          credit_account_id: string
+          id?: string
+          notes?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          credit_account_id?: string
+          id?: string
+          notes?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_credit_ledger_credit_account_id_fkey"
+            columns: ["credit_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_credit_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_invoice_items: {
         Row: {
           created_at: string
@@ -2513,6 +2677,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      document_delivery_logs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delivered_at: string | null
+          delivery_channel: string
+          delivery_status: string
+          document_id: string
+          document_type: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          provider_message_id: string | null
+          recipient_email: string | null
+          recipient_phone: string | null
+          sent_at: string | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          delivery_channel: string
+          delivery_status?: string
+          document_id: string
+          document_type: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider_message_id?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          sent_at?: string | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          delivery_channel?: string
+          delivery_status?: string
+          document_id?: string
+          document_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider_message_id?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          sent_at?: string | null
+          subject?: string | null
+        }
+        Relationships: []
       }
       enrollments: {
         Row: {
@@ -5215,14 +5433,20 @@ export type Database = {
       }
       orders: {
         Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          cart_id: string | null
           created_at: string | null
           currency_code: string
           discount_amount: number
           fulfillment_status: string
           id: string
+          invoice_generated: boolean
           metadata: Json
           notes: string | null
           order_number: string | null
+          order_source: string | null
           payment_status: string
           status: string | null
           subtotal_amount: number
@@ -5232,14 +5456,20 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          cart_id?: string | null
           created_at?: string | null
           currency_code?: string
           discount_amount?: number
           fulfillment_status?: string
           id?: string
+          invoice_generated?: boolean
           metadata?: Json
           notes?: string | null
           order_number?: string | null
+          order_source?: string | null
           payment_status?: string
           status?: string | null
           subtotal_amount?: number
@@ -5249,14 +5479,20 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          cart_id?: string | null
           created_at?: string | null
           currency_code?: string
           discount_amount?: number
           fulfillment_status?: string
           id?: string
+          invoice_generated?: boolean
           metadata?: Json
           notes?: string | null
           order_number?: string | null
+          order_source?: string | null
           payment_status?: string
           status?: string | null
           subtotal_amount?: number
@@ -5266,6 +5502,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
@@ -5360,6 +5603,45 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_allocations: {
+        Row: {
+          allocated_amount: number
+          created_at: string
+          customer_invoice_id: string
+          id: string
+          payment_id: string
+        }
+        Insert: {
+          allocated_amount: number
+          created_at?: string
+          customer_invoice_id: string
+          id?: string
+          payment_id: string
+        }
+        Update: {
+          allocated_amount?: number
+          created_at?: string
+          customer_invoice_id?: string
+          id?: string
+          payment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_allocations_customer_invoice_id_fkey"
+            columns: ["customer_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "customer_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
             referencedColumns: ["id"]
           },
         ]
@@ -5476,6 +5758,84 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          customer_id: string | null
+          customer_invoice_id: string | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          order_id: string | null
+          paid_at: string | null
+          payment_method: string
+          payment_number: string
+          payment_provider: string | null
+          payment_reference: string | null
+          payment_status: string
+          provider_transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          customer_invoice_id?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method: string
+          payment_number: string
+          payment_provider?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          provider_transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          customer_invoice_id?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method?: string
+          payment_number?: string
+          payment_provider?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          provider_transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_customer_invoice_id_fkey"
+            columns: ["customer_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "customer_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -8475,10 +8835,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_journal_line: {
+        Args: {
+          p_account_code: string
+          p_credit: number
+          p_debit: number
+          p_depot_id: string
+          p_journal_entry_id: string
+          p_line_description: string
+          p_variant_id: string
+        }
+        Returns: undefined
+      }
       belongs_to_organization: { Args: { org_id: string }; Returns: boolean }
       calculate_margin_percent: {
         Args: { buying_price: number; selling_price: number }
         Returns: number
+      }
+      create_journal_entry: {
+        Args: {
+          p_created_by: string
+          p_description: string
+          p_entry_date: string
+          p_reference_id: string
+          p_reference_type: string
+        }
+        Returns: string
       }
       current_profile_id: { Args: never; Returns: string }
       generate_ci_number: { Args: never; Returns: string }
@@ -8491,6 +8873,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_enrolled_in_course: {
         Args: { target_course_id: string }
+        Returns: boolean
+      }
+      journal_already_exists: {
+        Args: { p_reference_id: string; p_reference_type: string }
         Returns: boolean
       }
       match_knowledge_chunks: {
@@ -8507,6 +8893,10 @@ export type Database = {
           document_title: string
           similarity: number
         }[]
+      }
+      recalculate_credit_available: {
+        Args: { p_credit_account_id: string }
+        Returns: undefined
       }
     }
     Enums: {
