@@ -5,7 +5,6 @@ import {
   MessageSquare, Database, MessagesSquare, Shield, Warehouse, Box,
   ArrowLeftRight, ClipboardList, PackageCheck, Layers, Grid3X3,
   Building2, Receipt, FileSpreadsheet, Award, CreditCard, DollarSign,
-  Building2, Receipt, FileSpreadsheet, Award, CreditCard,
   Boxes, MoveHorizontal, ListChecks, PackageSearch,
   Beaker, Calculator, Bug, Calendar, TrendingUp, Droplets,
   Wrench, Brain, Library, Ruler, SlidersHorizontal,
