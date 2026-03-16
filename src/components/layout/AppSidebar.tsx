@@ -8,7 +8,8 @@ import {
   Boxes, MoveHorizontal, ListChecks, PackageSearch,
   Beaker, Calculator, Bug, Calendar, TrendingUp, Droplets,
   Wrench, Brain, Library, Ruler, SlidersHorizontal,
-  FolderTree, Scale, Notebook, BarChart3,
+  FolderTree, Scale, Notebook, BarChart3, Wallet, Mail,
+  ShoppingBag, AlertTriangle, Send,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
@@ -50,7 +51,12 @@ const navGroups: NavGroup[] = [
       { title: 'Variants', url: '/variants', icon: Layers },
       { title: 'Pack Sizes', url: '/pack-sizes', icon: Ruler },
       { title: 'Orders', url: '/orders', icon: ShoppingCart },
+      { title: 'Carts', url: '/carts', icon: ShoppingBag },
+      { title: 'Abandoned Carts', url: '/abandoned-carts', icon: AlertTriangle },
+      { title: 'Payments', url: '/payments', icon: CreditCard },
+      { title: 'Credit Accounts', url: '/credit-accounts', icon: Wallet },
       { title: 'Customer Invoices', url: '/customer-invoices', icon: Receipt },
+      { title: 'Delivery Logs', url: '/document-delivery-logs', icon: Send },
       { title: 'Suppliers', url: '/suppliers', icon: Building2 },
       { title: 'Purchase Orders', url: '/purchase-orders', icon: FileSpreadsheet },
       { title: 'Goods Receipts', url: '/goods-receipts', icon: PackageCheck },

@@ -29,6 +29,11 @@ import PackSizeList from "@/pages/products/PackSizeList";
 import ImportJobList from "@/pages/products/ImportJobList";
 import OrderList from "@/pages/orders/OrderList";
 import OrderDetail from "@/pages/orders/OrderDetail";
+import CartList from "@/pages/orders/CartList";
+import AbandonedCartList from "@/pages/orders/AbandonedCartList";
+import PaymentList from "@/pages/orders/PaymentList";
+import CreditAccountList from "@/pages/orders/CreditAccountList";
+import DocumentDeliveryLogList from "@/pages/orders/DocumentDeliveryLogList";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
 
 // Procurement
@@ -144,9 +149,12 @@ const App = () => (
               <Route path="import-jobs" element={<ImportJobList />} />
               <Route path="orders" element={<OrderList />} />
               <Route path="orders/:id" element={<OrderDetail />} />
+              <Route path="carts" element={<CartList />} />
+              <Route path="abandoned-carts" element={<AbandonedCartList />} />
+              <Route path="payments" element={<PaymentList />} />
+              <Route path="credit-accounts" element={<CreditAccountList />} />
+              <Route path="document-delivery-logs" element={<DocumentDeliveryLogList />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />
-
-              {/* Procurement */}
               <Route path="suppliers" element={<SupplierList />} />
               <Route path="purchase-orders" element={<PurchaseOrderList />} />
               <Route path="purchase-orders/new" element={<PurchaseOrderForm />} />
