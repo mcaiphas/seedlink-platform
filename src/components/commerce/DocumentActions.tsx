@@ -64,8 +64,11 @@ export function DocumentActions({
       if (error) throw error;
 
       // Log communication for customers
-      await logAudit('document_dispatch', documentType.toLowerCase(), documentId, null, {
-        channel: 'email', recipient: emailForm.to, subject: emailForm.subject, document_number: documentNumber,
+      await logAudit({
+        action: 'document_dispatch',
+        entity_type: documentType.toLowerCase(),
+        entity_id: documentId,
+        new_values: { channel: 'email', recipient: emailForm.to, subject: emailForm.subject, document_number: documentNumber },
       });
 
       toast.success(`${documentType} queued for email delivery`);

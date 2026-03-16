@@ -17,8 +17,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft, Edit2, DollarSign, CreditCard, Phone, Mail,
-  FileText, Plus, Trash2, Users,
+  FileText, Plus, Trash2, Users, MessageSquare,
 } from 'lucide-react';
+import { CustomerCommunicationTab } from '@/components/commerce/CustomerCommunicationTab';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
