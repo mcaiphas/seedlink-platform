@@ -58,6 +58,53 @@ export type Database = {
           },
         ]
       }
+      accounting_periods: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          end_date: string
+          financial_year: string
+          id: string
+          period_name: string
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          end_date: string
+          financial_year: string
+          id?: string
+          period_name: string
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          end_date?: string
+          financial_year?: string
+          id?: string
+          period_name?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_periods_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
           address_type: string
@@ -3965,26 +4012,43 @@ export type Database = {
           account_name: string
           account_type: string
           created_at: string
+          description: string | null
           id: string
           is_active: boolean
+          parent_account_id: string | null
+          posting_allowed: boolean
         }
         Insert: {
           account_code: string
           account_name: string
           account_type: string
           created_at?: string
+          description?: string | null
           id?: string
           is_active?: boolean
+          parent_account_id?: string | null
+          posting_allowed?: boolean
         }
         Update: {
           account_code?: string
           account_name?: string
           account_type?: string
           created_at?: string
+          description?: string | null
           id?: string
           is_active?: boolean
+          parent_account_id?: string | null
+          posting_allowed?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gl_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "gl_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       goods_receipt_items: {
         Row: {
@@ -4433,75 +4497,121 @@ export type Database = {
       }
       journal_entries: {
         Row: {
+          approved_by: string | null
           created_at: string
           created_by: string | null
           description: string | null
           entry_date: string
           id: string
+          is_reversed: boolean
           journal_number: string
+          journal_type: string
+          period_id: string | null
           reference_id: string | null
           reference_type: string | null
+          reversed_by_id: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           entry_date?: string
           id?: string
+          is_reversed?: boolean
           journal_number: string
+          journal_type?: string
+          period_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          reversed_by_id?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          approved_by?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           entry_date?: string
           id?: string
+          is_reversed?: boolean
           journal_number?: string
+          journal_type?: string
+          period_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          reversed_by_id?: string | null
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "journal_entries_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entries_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "accounting_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entries_reversed_by_id_fkey"
+            columns: ["reversed_by_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       journal_entry_lines: {
         Row: {
           created_at: string
           credit_amount: number
+          customer_id: string | null
           debit_amount: number
           depot_id: string | null
           gl_account_id: string
           id: string
           journal_entry_id: string
           line_description: string | null
+          notes: string | null
+          supplier_id: string | null
           variant_id: string | null
         }
         Insert: {
           created_at?: string
           credit_amount?: number
+          customer_id?: string | null
           debit_amount?: number
           depot_id?: string | null
           gl_account_id: string
           id?: string
           journal_entry_id: string
           line_description?: string | null
+          notes?: string | null
+          supplier_id?: string | null
           variant_id?: string | null
         }
         Update: {
           created_at?: string
           credit_amount?: number
+          customer_id?: string | null
           debit_amount?: number
           depot_id?: string | null
           gl_account_id?: string
           id?: string
           journal_entry_id?: string
           line_description?: string | null
+          notes?: string | null
+          supplier_id?: string | null
           variant_id?: string | null
         }
         Relationships: [
@@ -7123,6 +7233,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      posting_rules: {
+        Row: {
+          created_at: string
+          credit_account_code: string
+          debit_account_code: string
+          description: string | null
+          id: string
+          is_active: boolean
+          rule_name: string
+          sort_order: number
+          source_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credit_account_code: string
+          debit_account_code: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          rule_name: string
+          sort_order?: number
+          source_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credit_account_code?: string
+          debit_account_code?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          rule_name?: string
+          sort_order?: number
+          source_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       product_attribute_assignments: {
         Row: {
