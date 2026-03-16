@@ -34,8 +34,12 @@ import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
 // Procurement
 import SupplierList from "@/pages/procurement/SupplierList";
 import PurchaseOrderList from "@/pages/procurement/PurchaseOrderList";
+import PurchaseOrderForm from "@/pages/procurement/PurchaseOrderForm";
 import SupplierInvoiceList from "@/pages/procurement/SupplierInvoiceList";
 import GoodsReceiptList from "@/pages/procurement/GoodsReceiptList";
+
+// Commerce
+import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
 
 // Warehouse
 import DepotList from "@/pages/warehouse/DepotList";
