@@ -39,6 +39,9 @@ import PaymentList from "@/pages/orders/PaymentList";
 import CreditAccountList from "@/pages/orders/CreditAccountList";
 import DocumentDeliveryLogList from "@/pages/orders/DocumentDeliveryLogList";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
+import QuoteList from "@/pages/commerce/QuoteList";
+import ProformaInvoiceList from "@/pages/commerce/ProformaInvoiceList";
+import PaymentRequestList from "@/pages/commerce/PaymentRequestList";
 
 // Procurement
 import SupplierList from "@/pages/procurement/SupplierList";
@@ -178,6 +181,9 @@ const App = () => (
               <Route path="credit-accounts" element={<CreditAccountList />} />
               <Route path="document-delivery-logs" element={<DocumentDeliveryLogList />} />
               <Route path="customer-invoices" element={<CustomerInvoiceList />} />
+              <Route path="quotes" element={<QuoteList />} />
+              <Route path="proforma-invoices" element={<ProformaInvoiceList />} />
+              <Route path="payment-requests" element={<PaymentRequestList />} />
               <Route path="procurement" element={<ProcurementDashboard />} />
               <Route path="suppliers" element={<SupplierList />} />
               <Route path="suppliers/:id" element={<SupplierDetail />} />

@@ -2521,9 +2521,13 @@ export type Database = {
           invoice_number: string
           notes: string | null
           order_id: string | null
+          paid_amount: number
+          payment_terms: string | null
+          sales_rep_id: string | null
           status: string
           subtotal_amount: number
           tax_amount: number
+          tax_rate: number | null
           total_amount: number
           updated_at: string
         }
@@ -2537,9 +2541,13 @@ export type Database = {
           invoice_number: string
           notes?: string | null
           order_id?: string | null
+          paid_amount?: number
+          payment_terms?: string | null
+          sales_rep_id?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
+          tax_rate?: number | null
           total_amount?: number
           updated_at?: string
         }
@@ -2553,9 +2561,13 @@ export type Database = {
           invoice_number?: string
           notes?: string | null
           order_id?: string | null
+          paid_amount?: number
+          payment_terms?: string | null
+          sales_rep_id?: string | null
           status?: string
           subtotal_amount?: number
           tax_amount?: number
+          tax_rate?: number | null
           total_amount?: number
           updated_at?: string
         }
@@ -2572,6 +2584,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_invoices_sales_rep_id_fkey"
+            columns: ["sales_rep_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -5800,15 +5819,22 @@ export type Database = {
           cart_id: string | null
           created_at: string | null
           currency_code: string
+          customer_id: string | null
+          delivery_terms: string | null
+          depot_id: string | null
           discount_amount: number
           fulfillment_status: string
           id: string
           invoice_generated: boolean
           metadata: Json
           notes: string | null
+          order_date: string | null
           order_number: string | null
           order_source: string | null
           payment_status: string
+          payment_terms: string | null
+          quote_id: string | null
+          sales_rep_id: string | null
           status: string | null
           subtotal_amount: number
           tax_amount: number
@@ -5823,15 +5849,22 @@ export type Database = {
           cart_id?: string | null
           created_at?: string | null
           currency_code?: string
+          customer_id?: string | null
+          delivery_terms?: string | null
+          depot_id?: string | null
           discount_amount?: number
           fulfillment_status?: string
           id?: string
           invoice_generated?: boolean
           metadata?: Json
           notes?: string | null
+          order_date?: string | null
           order_number?: string | null
           order_source?: string | null
           payment_status?: string
+          payment_terms?: string | null
+          quote_id?: string | null
+          sales_rep_id?: string | null
           status?: string | null
           subtotal_amount?: number
           tax_amount?: number
@@ -5846,15 +5879,22 @@ export type Database = {
           cart_id?: string | null
           created_at?: string | null
           currency_code?: string
+          customer_id?: string | null
+          delivery_terms?: string | null
+          depot_id?: string | null
           discount_amount?: number
           fulfillment_status?: string
           id?: string
           invoice_generated?: boolean
           metadata?: Json
           notes?: string | null
+          order_date?: string | null
           order_number?: string | null
           order_source?: string | null
           payment_status?: string
+          payment_terms?: string | null
+          quote_id?: string | null
+          sales_rep_id?: string | null
           status?: string | null
           subtotal_amount?: number
           tax_amount?: number
@@ -5868,6 +5908,34 @@ export type Database = {
             columns: ["cart_id"]
             isOneToOne: false
             referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_depot_id_fkey"
+            columns: ["depot_id"]
+            isOneToOne: false
+            referencedRelation: "depots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_sales_rep_id_fkey"
+            columns: ["sales_rep_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -6043,6 +6111,75 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          customer_id: string | null
+          due_date: string | null
+          gateway_code: string | null
+          id: string
+          notes: string | null
+          payment_link: string | null
+          reference_id: string
+          reference_type: string
+          request_number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          due_date?: string | null
+          gateway_code?: string | null
+          id?: string
+          notes?: string | null
+          payment_link?: string | null
+          reference_id: string
+          reference_type: string
+          request_number: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          due_date?: string | null
+          gateway_code?: string | null
+          id?: string
+          notes?: string | null
+          payment_link?: string | null
+          reference_id?: string
+          reference_type?: string
+          request_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_transactions: {
         Row: {
           amount: number
@@ -6125,6 +6262,7 @@ export type Database = {
       }
       payments: {
         Row: {
+          allocated_amount: number | null
           amount: number
           created_at: string
           created_by: string | null
@@ -6145,6 +6283,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allocated_amount?: number | null
           amount: number
           created_at?: string
           created_by?: string | null
@@ -6165,6 +6304,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allocated_amount?: number | null
           amount?: number
           created_at?: string
           created_by?: string | null
@@ -7419,6 +7559,175 @@ export type Database = {
           },
         ]
       }
+      proforma_invoice_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          id: string
+          line_total: number
+          pack_size_id: string | null
+          product_id: string | null
+          proforma_invoice_id: string
+          quantity: number
+          sort_order: number | null
+          unit_price: number
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          pack_size_id?: string | null
+          product_id?: string | null
+          proforma_invoice_id: string
+          quantity?: number
+          sort_order?: number | null
+          unit_price?: number
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          pack_size_id?: string | null
+          product_id?: string | null
+          proforma_invoice_id?: string
+          quantity?: number
+          sort_order?: number | null
+          unit_price?: number
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proforma_invoice_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoice_items_proforma_invoice_id_fkey"
+            columns: ["proforma_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proforma_invoices: {
+        Row: {
+          converted_order_id: string | null
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          customer_id: string | null
+          due_date: string | null
+          id: string
+          issue_date: string
+          notes: string | null
+          payment_terms: string | null
+          proforma_number: string
+          quote_id: string | null
+          sales_rep_id: string | null
+          status: string
+          subtotal_amount: number
+          tax_amount: number
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          converted_order_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          payment_terms?: string | null
+          proforma_number: string
+          quote_id?: string | null
+          sales_rep_id?: string | null
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          converted_order_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          payment_terms?: string | null
+          proforma_number?: string
+          quote_id?: string | null
+          sales_rep_id?: string | null
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proforma_invoices_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_invoices_sales_rep_id_fkey"
+            columns: ["sales_rep_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchase_order_items: {
         Row: {
           created_at: string
@@ -7592,6 +7901,158 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          id: string
+          line_total: number
+          pack_size_id: string | null
+          product_id: string | null
+          quantity: number
+          quote_id: string
+          sort_order: number | null
+          unit_price: number
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          quote_id: string
+          sort_order?: number | null
+          unit_price?: number
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          pack_size_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          quote_id?: string
+          sort_order?: number | null
+          unit_price?: number
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_pack_size_id_fkey"
+            columns: ["pack_size_id"]
+            isOneToOne: false
+            referencedRelation: "product_pack_sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          customer_id: string | null
+          delivery_terms: string | null
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          payment_terms: string | null
+          quote_date: string
+          quote_number: string
+          sales_rep_id: string | null
+          status: string
+          subtotal_amount: number
+          tax_amount: number
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          delivery_terms?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_terms?: string | null
+          quote_date?: string
+          quote_number: string
+          sales_rep_id?: string | null
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          customer_id?: string | null
+          delivery_terms?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_terms?: string | null
+          quote_date?: string
+          quote_number?: string
+          sales_rep_id?: string | null
+          status?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_sales_rep_id_fkey"
+            columns: ["sales_rep_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -9861,7 +10322,10 @@ export type Database = {
       generate_ci_number: { Args: never; Returns: string }
       generate_gr_number: { Args: never; Returns: string }
       generate_je_number: { Args: never; Returns: string }
+      generate_pi_number: { Args: never; Returns: string }
       generate_po_number: { Args: never; Returns: string }
+      generate_pr_number: { Args: never; Returns: string }
+      generate_qt_number: { Args: never; Returns: string }
       generate_sa_number: { Args: never; Returns: string }
       generate_sc_number: { Args: never; Returns: string }
       generate_si_number: { Args: never; Returns: string }

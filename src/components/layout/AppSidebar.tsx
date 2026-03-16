@@ -20,7 +20,7 @@ import {
   LogOut, Truck, Wallet, SlidersHorizontal,
   Layers, Ruler, Tags, FolderTree, FolderOpen, DollarSign,
   ChevronRight, Lock, Send, TrendingUp, TrendingDown,
-  ShoppingBag, PieChart, CheckCircle, Activity,
+  ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -67,12 +67,15 @@ const sections: NavSection[] = [
     label: 'Commerce',
     items: [
       { title: 'Customers', url: '/customers', icon: Users, permission: 'orders:view' },
+      { title: 'Quotes', url: '/quotes', icon: FilePlus2, permission: 'orders:view' },
+      { title: 'Proforma Invoices', url: '/proforma-invoices', icon: FileText, permission: 'orders:view' },
       { title: 'Orders', url: '/orders', icon: ShoppingCart, permission: 'orders:view' },
-      { title: 'Customer Invoices', url: '/customer-invoices', icon: FileText, permission: 'orders:view' },
+      { title: 'Customer Invoices', url: '/customer-invoices', icon: Receipt, permission: 'orders:view' },
       { title: 'Payments', url: '/payments', icon: CreditCard, permission: 'payments:view' },
+      { title: 'Payment Requests', url: '/payment-requests', icon: Link2, permission: 'payments:view' },
+      { title: 'Credit Accounts', url: '/credit-accounts', icon: Wallet, permission: 'payments:view' },
       { title: 'Abandoned Carts', url: '/abandoned-carts', icon: AlertTriangle },
       { title: 'Carts', url: '/carts', icon: ShoppingBag },
-      { title: 'Credit Accounts', url: '/credit-accounts', icon: Wallet, permission: 'payments:view' },
       { title: 'Delivery Logs', url: '/document-delivery-logs', icon: Send },
     ],
   },
