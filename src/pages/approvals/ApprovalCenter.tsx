@@ -187,7 +187,7 @@ export default function ApprovalCenter() {
                   <TableRow key={r.id}>
                     <TableCell>
                       <Badge variant="outline" className={`${color} text-xs gap-1`}>
-                        <Icon className="h-3 w-3" />{typeInfo.label}
+                        <Icon className="h-3 w-3" />{label}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-mono text-xs">

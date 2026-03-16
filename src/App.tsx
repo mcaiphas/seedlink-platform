@@ -254,10 +254,17 @@ const App = () => (
               <Route path="permissions" element={<PermissionList />} />
               <Route path="organizations" element={<OrganizationList />} />
 
+              {/* Approvals */}
+              <Route path="approvals" element={<ApprovalCenter />} />
+
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />
               <Route path="reports/inventory" element={<InventorySnapshot />} />
               <Route path="reports/finance" element={<FinanceSummary />} />
+              <Route path="reports/valuation" element={<InventoryValuation />} />
+              <Route path="reports/operations-finance" element={<OperationsFinance />} />
+              <Route path="reports/executive" element={<ManagementDashboard />} />
+              <Route path="reports/slow-moving" element={<SlowMovingInventory />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
