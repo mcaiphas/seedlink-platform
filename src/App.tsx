@@ -38,10 +38,13 @@ import PurchaseOrderForm from "@/pages/procurement/PurchaseOrderForm";
 import SupplierInvoiceList from "@/pages/procurement/SupplierInvoiceList";
 import GoodsReceiptList from "@/pages/procurement/GoodsReceiptList";
 
-// Commerce
+// Commerce / Finance
 import CommerceAccounting from "@/pages/commerce/CommerceAccounting";
+import GLAccountList from "@/pages/finance/GLAccountList";
+import JournalEntryList from "@/pages/finance/JournalEntryList";
 
 // Warehouse
+import StockAdjustmentList from "@/pages/warehouse/StockAdjustmentList";
 import DepotList from "@/pages/warehouse/DepotList";
 import DepotZoneList from "@/pages/warehouse/DepotZoneList";
 import StorageBinList from "@/pages/warehouse/StorageBinList";
@@ -151,6 +154,9 @@ const App = () => (
               <Route path="supplier-invoices" element={<SupplierInvoiceList />} />
               <Route path="goods-receipts" element={<GoodsReceiptList />} />
               <Route path="commerce-accounting" element={<CommerceAccounting />} />
+              <Route path="gl-accounts" element={<GLAccountList />} />
+              <Route path="journal-entries" element={<JournalEntryList />} />
+              <Route path="stock-adjustments" element={<StockAdjustmentList />} />
 
               {/* Warehouse */}
               <Route path="depots" element={<DepotList />} />

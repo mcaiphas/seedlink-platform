@@ -8,7 +8,7 @@ import {
   Boxes, MoveHorizontal, ListChecks, PackageSearch,
   Beaker, Calculator, Bug, Calendar, TrendingUp, Droplets,
   Wrench, Brain, Library, Ruler, SlidersHorizontal,
-  FolderTree,
+  FolderTree, Scale, Notebook, BarChart3,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
@@ -62,7 +62,9 @@ const navGroups: NavGroup[] = [
     label: 'Finance',
     adminOnly: true,
     items: [
-      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: DollarSign },
+      { title: 'GL Accounts', url: '/gl-accounts', icon: Notebook },
+      { title: 'Journal Entries', url: '/journal-entries', icon: Scale },
+      { title: 'Commerce Accounting', url: '/commerce-accounting', icon: BarChart3 },
     ],
   },
   {
@@ -74,6 +76,7 @@ const navGroups: NavGroup[] = [
       { title: 'Storage Bins', url: '/storage-bins', icon: Box },
       { title: 'Inventory Batches', url: '/inventory-batches', icon: Boxes },
       { title: 'Stock Movements', url: '/stock-movements', icon: MoveHorizontal },
+      { title: 'Stock Adjustments', url: '/stock-adjustments', icon: ClipboardList },
       { title: 'Stock Transfers', url: '/stock-transfers', icon: ArrowLeftRight },
       { title: 'Pick Waves', url: '/pick-waves', icon: ListChecks },
       { title: 'Pick Tasks', url: '/pick-tasks', icon: ClipboardList },
