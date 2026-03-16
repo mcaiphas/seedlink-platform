@@ -124,6 +124,24 @@ const sections: NavSection[] = [
     ],
   },
   {
+    label: 'Agronomy Intelligence',
+    items: [
+      { title: 'Agronomy Dashboard', url: '/agronomy', icon: Sprout },
+      { title: 'Recommendation Engine', url: '/agronomy/recommend', icon: Zap },
+      {
+        title: 'Intelligence', icon: Beaker,
+        children: [
+          { title: 'Region Profiles', url: '/agronomy/regions', icon: MapPin },
+          { title: 'Soil Profiles', url: '/agronomy/soils', icon: Mountain },
+          { title: 'Farming Systems', url: '/agronomy/farming-systems', icon: Tractor },
+          { title: 'Advisory Rules', url: '/agronomy/advisory-rules', icon: BookOpen },
+          { title: 'Solution Bundles', url: '/agronomy/bundles', icon: Package },
+          { title: 'History', url: '/agronomy/history', icon: History },
+        ],
+      },
+    ],
+  },
+  {
     label: 'Finance',
     adminOnly: true,
     items: [
