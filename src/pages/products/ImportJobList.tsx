@@ -13,7 +13,6 @@ export default function ImportJobList() {
       searchPlaceholder="Search by file name..."
       searchFields={['file_name']}
       orderBy="created_at"
-      orderAscending={false}
       columns={[
         { label: 'File', key: 'file_name', sortable: true, render: r => (
           <div>

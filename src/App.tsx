@@ -26,6 +26,7 @@ import CollectionList from "@/pages/products/CollectionList";
 import AttributeList from "@/pages/products/AttributeList";
 import VariantList from "@/pages/products/VariantList";
 import PackSizeList from "@/pages/products/PackSizeList";
+import ImportJobList from "@/pages/products/ImportJobList";
 import OrderList from "@/pages/orders/OrderList";
 import OrderDetail from "@/pages/orders/OrderDetail";
 import CustomerInvoiceList from "@/pages/commerce/CustomerInvoiceList";
