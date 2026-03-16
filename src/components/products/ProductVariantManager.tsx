@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Layers, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Layers, Package, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface Props {
   productId: string;
@@ -141,10 +141,10 @@ export function ProductVariantManager({ productId, currencyCode, packSizes = [],
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-start justify-between">
           <div>
-            <CardTitle>Product Variants</CardTitle>
-            <CardDescription>Manage pack size, treatment, colour, and other variants</CardDescription>
+            <CardTitle className="flex items-center gap-2"><Layers className="h-5 w-5 text-primary" />Product Variants</CardTitle>
+            <CardDescription>Manage pack size, treatment, colour, and other variants. {variants.length > 0 && <Badge variant="secondary" className="ml-1 text-xs">{variants.length}</Badge>}</CardDescription>
           </div>
           <Button size="sm" onClick={openNew}><Plus className="mr-2 h-4 w-4" />Add Variant</Button>
         </CardHeader>
@@ -152,46 +152,58 @@ export function ProductVariantManager({ productId, currencyCode, packSizes = [],
           {loading ? (
             <div className="space-y-2">{[1, 2].map(i => <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />)}</div>
           ) : variants.length === 0 ? (
-            <div className="rounded-lg border border-dashed p-8 text-center">
-              <Layers className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No variants yet. Create variants for different pack sizes, treatments, or formulations.</p>
+            <div className="rounded-lg border border-dashed p-10 text-center">
+              <Layers className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">No variants yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Create variants for different pack sizes, treatments, or formulations.</p>
+              <Button variant="outline" size="sm" className="mt-4" onClick={openNew}>
+                <Plus className="mr-2 h-4 w-4" />Create First Variant
+              </Button>
             </div>
           ) : (
             <div className="space-y-2">
               {variants.map(v => {
                 const m = v.margin_percent != null ? Number(v.margin_percent).toFixed(1) : null;
+                const mNum = m ? Number(m) : null;
                 const psName = (v.product_pack_sizes as any)?.name;
                 return (
-                  <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card group hover:bg-muted/30 transition-colors">
-                    <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <div className="flex-1 grid grid-cols-2 sm:grid-cols-7 gap-x-4 gap-y-1 text-sm">
+                  <div key={v.id} className="flex items-center gap-3 p-3.5 rounded-lg border bg-card group hover:bg-muted/20 transition-colors">
+                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${v.is_active ? 'bg-primary/10' : 'bg-muted'}`}>
+                      <Package className={`h-4 w-4 ${v.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 sm:grid-cols-6 gap-x-4 gap-y-1 text-sm min-w-0">
                       <div className="sm:col-span-2">
-                        <span className="font-medium">{v.variant_name}</span>
-                        <span className="block text-xs text-muted-foreground font-mono">{v.sku}</span>
+                        <span className="font-medium line-clamp-1">{v.variant_name}</span>
+                        <code className="block text-[11px] text-muted-foreground font-mono">{v.sku}</code>
                       </div>
                       <div>
-                        <span className="text-xs text-muted-foreground block">Pack</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Pack</span>
                         <span className="text-xs">{psName || '—'}</span>
                       </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">Buying</span>
-                        <span className="tabular-nums">{v.buying_price != null ? `${currencyCode} ${Number(v.buying_price).toFixed(2)}` : '—'}</span>
+                      <div className="tabular-nums">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Buy / Sell</span>
+                        <span className="text-xs">
+                          {v.buying_price != null ? Number(v.buying_price).toFixed(2) : '—'}
+                          <span className="text-muted-foreground/50 mx-0.5">/</span>
+                          {v.selling_price != null ? Number(v.selling_price).toFixed(2) : '—'}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-xs text-muted-foreground block">Selling</span>
-                        <span className="tabular-nums">{v.selling_price != null ? `${currencyCode} ${Number(v.selling_price).toFixed(2)}` : '—'}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Margin</span>
+                        {mNum !== null ? (
+                          <span className={`text-xs font-medium flex items-center gap-0.5 ${mNum < 10 ? 'text-destructive' : mNum >= 20 ? 'text-primary' : 'text-accent-foreground'}`}>
+                            {mNum >= 20 ? <TrendingUp className="h-3 w-3" /> : mNum < 10 ? <TrendingDown className="h-3 w-3" /> : null}
+                            {m}%
+                          </span>
+                        ) : <span className="text-xs text-muted-foreground/40">—</span>}
                       </div>
                       <div>
-                        <span className="text-xs text-muted-foreground block">Margin</span>
-                        {m ? <span className={Number(m) < 10 ? 'text-destructive' : 'text-primary'}>{m}%</span> : '—'}
-                      </div>
-                      <div>
-                        <Badge variant={v.is_active ? 'default' : 'secondary'} className="text-xs capitalize">{v.variant_status}</Badge>
+                        <Badge variant={v.is_active ? 'default' : 'secondary'} className="text-[10px] capitalize">{v.variant_status}</Badge>
                       </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(v)}><Pencil className="h-3.5 w-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(v.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(v)}><Pencil className="h-3.5 w-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(v.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
                   </div>
                 );
@@ -203,98 +215,117 @@ export function ProductVariantManager({ productId, currencyCode, packSizes = [],
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editId ? 'Edit Variant' : 'Add Variant'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Variant Name *</Label>
-                <Input value={form.variant_name} onChange={e => setForm(f => ({ ...f, variant_name: e.target.value }))} placeholder="e.g. 25kg Treated" />
-              </div>
-              <div className="space-y-2">
-                <Label>SKU *</Label>
-                <Input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} placeholder="e.g. SD-MZ-001-25KG" className="font-mono" />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Barcode</Label>
-                <Input value={form.barcode} onChange={e => setForm(f => ({ ...f, barcode: e.target.value }))} placeholder="EAN / UPC" />
-              </div>
-              <div className="space-y-2">
-                <Label>Pack Size</Label>
-                <Select value={form.pack_size_id || '__none'} onValueChange={v => setForm(f => ({ ...f, pack_size_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select pack size" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none">No pack size</SelectItem>
-                    {packSizes.map(ps => <SelectItem key={ps.id} value={ps.id}>{ps.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2">
-                <Label>Buying Price ({currencyCode})</Label>
-                <Input type="number" step="0.01" value={form.buying_price} onChange={e => setForm(f => ({ ...f, buying_price: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Selling Price ({currencyCode})</Label>
-                <Input type="number" step="0.01" value={form.selling_price} onChange={e => setForm(f => ({ ...f, selling_price: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Margin %</Label>
-                <div className="flex items-center h-10 px-3 rounded-md border bg-muted/50 font-medium tabular-nums text-sm">
-                  {autoMargin ? <span className={Number(autoMargin) < 10 ? 'text-destructive' : 'text-primary'}>{autoMargin}%</span> : <span className="text-muted-foreground">—</span>}
+          <DialogHeader>
+            <DialogTitle>{editId ? 'Edit Variant' : 'Add Variant'}</DialogTitle>
+            <DialogDescription>Configure variant details, pricing, and logistics</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-2">
+            {/* Identity */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Identity</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Variant Name <span className="text-destructive">*</span></Label>
+                  <Input value={form.variant_name} onChange={e => setForm(f => ({ ...f, variant_name: e.target.value }))} placeholder="e.g. 25kg Treated" />
+                </div>
+                <div className="space-y-2">
+                  <Label>SKU <span className="text-destructive">*</span></Label>
+                  <Input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} placeholder="e.g. SD-MZ-001-25KG" className="font-mono" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Barcode</Label>
+                  <Input value={form.barcode} onChange={e => setForm(f => ({ ...f, barcode: e.target.value }))} placeholder="EAN / UPC" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Pack Size</Label>
+                  <Select value={form.pack_size_id || '__none'} onValueChange={v => setForm(f => ({ ...f, pack_size_id: v === '__none' ? '' : v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select pack size" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none">No pack size</SelectItem>
+                      {packSizes.map(ps => <SelectItem key={ps.id} value={ps.id}>{ps.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Depot</Label>
-                <Select value={form.depot_id || '__none'} onValueChange={v => setForm(f => ({ ...f, depot_id: v === '__none' ? '' : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select depot" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none">No depot</SelectItem>
-                    {depots.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={form.variant_status} onValueChange={v => setForm(f => ({ ...f, variant_status: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="discontinued">Discontinued</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-4">
-              <div className="space-y-2">
-                <Label>Weight (kg)</Label>
-                <Input type="number" step="0.01" value={form.weight_kg} onChange={e => setForm(f => ({ ...f, weight_kg: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Length (cm)</Label>
-                <Input type="number" step="0.1" value={form.length_cm} onChange={e => setForm(f => ({ ...f, length_cm: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Width (cm)</Label>
-                <Input type="number" step="0.1" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Height (cm)</Label>
-                <Input type="number" step="0.1" value={form.height_cm} onChange={e => setForm(f => ({ ...f, height_cm: e.target.value }))} />
+
+            {/* Pricing */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Pricing</p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Buying Price ({currencyCode})</Label>
+                  <Input type="number" step="0.01" value={form.buying_price} onChange={e => setForm(f => ({ ...f, buying_price: e.target.value }))} className="tabular-nums" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Selling Price ({currencyCode})</Label>
+                  <Input type="number" step="0.01" value={form.selling_price} onChange={e => setForm(f => ({ ...f, selling_price: e.target.value }))} className="tabular-nums" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Margin %</Label>
+                  <div className={`flex items-center h-10 px-3 rounded-md border font-medium tabular-nums text-sm ${autoMargin && Number(autoMargin) < 10 ? 'border-destructive/30 bg-destructive/5' : 'bg-muted/50'}`}>
+                    {autoMargin ? (
+                      <span className={Number(autoMargin) < 10 ? 'text-destructive' : Number(autoMargin) >= 20 ? 'text-primary' : 'text-accent-foreground'}>{autoMargin}%</span>
+                    ) : <span className="text-muted-foreground">—</span>}
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                <Label>Active</Label>
+
+            {/* Logistics */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Logistics</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Depot</Label>
+                  <Select value={form.depot_id || '__none'} onValueChange={v => setForm(f => ({ ...f, depot_id: v === '__none' ? '' : v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select depot" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none">No depot</SelectItem>
+                      {depots.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={form.variant_status} onValueChange={v => setForm(f => ({ ...f, variant_status: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="discontinued">Discontinued</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-4 mt-4">
+                <div className="space-y-2">
+                  <Label>Weight (kg)</Label>
+                  <Input type="number" step="0.01" value={form.weight_kg} onChange={e => setForm(f => ({ ...f, weight_kg: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Length (cm)</Label>
+                  <Input type="number" step="0.1" value={form.length_cm} onChange={e => setForm(f => ({ ...f, length_cm: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Width (cm)</Label>
+                  <Input type="number" step="0.1" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Height (cm)</Label>
+                  <Input type="number" step="0.1" value={form.height_cm} onChange={e => setForm(f => ({ ...f, height_cm: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+
+            {/* Toggles */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+                <Label className="text-sm">Active</Label>
                 <Switch checked={form.is_active} onCheckedChange={v => setForm(f => ({ ...f, is_active: v }))} />
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                <Label>Bulk Item</Label>
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+                <Label className="text-sm">Bulk Item</Label>
                 <Switch checked={form.is_bulk} onCheckedChange={v => setForm(f => ({ ...f, is_bulk: v }))} />
               </div>
             </div>
