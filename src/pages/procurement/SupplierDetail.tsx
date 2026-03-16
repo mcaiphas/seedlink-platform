@@ -29,15 +29,19 @@ const SUPPLIER_CATEGORIES = [
   'packaging_supplier', 'equipment_supplier', 'service_provider', 'logistics_supplier', 'general',
 ];
 
+const DOC_TYPES = ['contract', 'agreement', 'compliance_certificate', 'tax_certificate', 'bank_confirmation', 'general'];
+
 export default function SupplierDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [supplier, setSupplier] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [contacts, setContacts] = useState<any[]>([]);
   const [supplierProducts, setSupplierProducts] = useState<any[]>([]);
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [receipts, setReceipts] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
 
   // Edit dialog
   const [editOpen, setEditOpen] = useState(false);
