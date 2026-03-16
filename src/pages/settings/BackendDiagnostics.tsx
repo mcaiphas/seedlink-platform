@@ -140,8 +140,8 @@ export default function BackendDiagnostics() {
   useEffect(() => { runDiagnostics(); }, []);
 
   const statusIcon = (s: DiagnosticItem['status']) => {
-    if (s === 'ok') return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-    if (s === 'warning') return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+    if (s === 'ok') return <CheckCircle2 className="h-4 w-4 text-primary" />;
+    if (s === 'warning') return <AlertTriangle className="h-4 w-4 text-accent-foreground" />;
     if (s === 'error') return <XCircle className="h-4 w-4 text-destructive" />;
     return <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
   };
