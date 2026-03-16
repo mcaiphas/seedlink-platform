@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { exportToCsv as exportToCSV } from '@/lib/csv-export';
+import { exportObjectsToCsv } from '@/lib/csv-export';
 import { Download, FileText, Users } from 'lucide-react';
 
 export default function CustomerStatements() {
