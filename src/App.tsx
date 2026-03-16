@@ -151,6 +151,7 @@ import NotificationList from "@/pages/notifications/NotificationList";
 import NotificationPreferences from "@/pages/notifications/NotificationPreferences";
 import SystemSettings from "@/pages/settings/SystemSettings";
 import PaymentGateways from "@/pages/settings/PaymentGateways";
+import BackendDiagnostics from "@/pages/settings/BackendDiagnostics";
 import ProfileSettings from "@/pages/settings/ProfileSettings";
 import UserList from "@/pages/system/UserList";
 import RoleList from "@/pages/system/RoleList";
@@ -340,6 +341,7 @@ const App = () => (
               <Route path="notifications/preferences" element={<NotificationPreferences />} />
               <Route path="settings" element={<SystemSettings />} />
               <Route path="settings/payment-gateways" element={<PaymentGateways />} />
+              <Route path="settings/diagnostics" element={<BackendDiagnostics />} />
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserList />} />
               <Route path="roles" element={<RoleList />} />

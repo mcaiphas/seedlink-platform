@@ -228,6 +228,7 @@ const sections: NavSection[] = [
       { title: 'Organizations', url: '/organizations', icon: Building2 },
       { title: 'Settings', url: '/settings', icon: Settings, permission: 'settings:view' },
       { title: 'Payment Gateways', url: '/settings/payment-gateways', icon: DollarSign },
+      { title: 'Backend Diagnostics', url: '/settings/diagnostics', icon: Settings, permission: 'settings:view' },
     ],
   },
 ];
