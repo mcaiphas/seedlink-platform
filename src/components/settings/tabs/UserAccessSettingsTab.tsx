@@ -10,10 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 export function UserAccessSettingsTab() {
   const { settings: s, loading, saving, dirty, update, save, discard } = useSystemSettings('user_access');
-  const [roles, setRoles] = useState<{ id: string; name: string; display_name: string }[]>([]);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
-    supabase.from('roles').select('id, name, display_name').eq('is_active', true).order('display_name').then(({ data }) => setRoles(data || []));
+    supabase.from('roles').select('id, name').order('name').then(({ data }) => setRoles((data as any) || []));
   }, []);
 
   if (loading) return <div className="space-y-4">{[1,2].map(i => <Skeleton key={i} className="h-32 w-full" />)}</div>;
