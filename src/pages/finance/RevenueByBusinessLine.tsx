@@ -21,10 +21,10 @@ export default function RevenueByBusinessLine() {
 
   async function loadData() {
     setLoading(true);
-    // Pull classified transactions from bank_transaction_reviews
+    // Pull classified income transactions with correct column names
     const { data: reviews } = await supabase
       .from('bank_transaction_reviews')
-      .select('classification,category,business_line,amount')
+      .select('classification,income_category,business_line,amount,transaction_date')
       .eq('classification', 'income')
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate);
