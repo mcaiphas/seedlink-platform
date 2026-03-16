@@ -158,6 +158,14 @@ import PlanningDashboard from "@/pages/planning/PlanningDashboard";
 // Logistics
 import DeliveryRequestList from "@/pages/orders/DeliveryRequestList";
 import DeliveryStatusList from "@/pages/logistics/DeliveryStatusList";
+import LogisticsDashboard from "@/pages/logistics/LogisticsDashboard";
+import LogisticsDeliveryList from "@/pages/logistics/LogisticsDeliveryList";
+import VehicleMatchingPage from "@/pages/logistics/VehicleMatchingPage";
+import DispatchBoard from "@/pages/logistics/DispatchBoard";
+import DeliveriesInProgress from "@/pages/logistics/DeliveriesInProgress";
+import CompletedDeliveries from "@/pages/logistics/CompletedDeliveries";
+import DeliveryPlanningPage from "@/pages/logistics/DeliveryPlanningPage";
+import LogisticsReportsPage from "@/pages/logistics/LogisticsReportsPage";
 
 // System
 import NotificationList from "@/pages/notifications/NotificationList";
