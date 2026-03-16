@@ -63,20 +63,23 @@ export default function SupplierDetail() {
   // Banking edit dialog
   const [bankOpen, setBankOpen] = useState(false);
   const [bankForm, setBankForm] = useState({ bank_name: '', bank_account_name: '', bank_account_number: '', bank_branch_code: '', bank_swift_code: '', bank_country: '' });
+  const fetchAll = async () => {
     if (!id) return;
     setLoading(true);
-    const [supRes, conRes, spRes, poRes, grRes] = await Promise.all([
+    const [supRes, conRes, spRes, poRes, grRes, docRes] = await Promise.all([
       supabase.from('suppliers').select('*').eq('id', id).single(),
       supabase.from('supplier_contacts').select('*').eq('supplier_id', id).order('is_primary', { ascending: false }),
       supabase.from('supplier_products').select('*, products(name, sku)').eq('supplier_id', id).order('created_at', { ascending: false }),
       supabase.from('purchase_orders').select('*').eq('supplier_id', id).order('created_at', { ascending: false }).limit(50),
       supabase.from('goods_receipts').select('*, depots(name)').eq('supplier_id', id).order('created_at', { ascending: false }).limit(50),
+      supabase.from('supplier_documents').select('*').eq('supplier_id', id).order('created_at', { ascending: false }),
     ]);
     setSupplier(supRes.data);
     setContacts(conRes.data || []);
     setSupplierProducts(spRes.data || []);
     setPurchaseOrders(poRes.data || []);
     setReceipts(grRes.data || []);
+    setDocuments(docRes.data || []);
     setLoading(false);
   };
 
