@@ -167,6 +167,7 @@ const sections: NavSection[] = [
     adminOnly: true,
     items: [
       { title: 'Reconciliation', url: '/bank-reconciliation', icon: CheckCircle },
+      { title: 'Transaction Review', url: '/transaction-review', icon: ClipboardList },
       { title: 'Bank Accounts', url: '/bank-accounts', icon: Landmark },
       { title: 'Transactions', url: '/bank-transactions', icon: ArrowDownUp },
       { title: 'Statement Import', url: '/bank-statement-import', icon: Upload },

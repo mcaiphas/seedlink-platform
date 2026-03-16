@@ -350,6 +350,7 @@ const App = () => (
               <Route path="bank-transactions" element={<BankTransactionList />} />
               <Route path="bank-statement-import" element={<BankStatementImport />} />
               <Route path="bank-reconciliation" element={<BankReconciliationDashboard />} />
+              <Route path="transaction-review" element={<TransactionReview />} />
 
               {/* Reports */}
               <Route path="reports/sales" element={<SalesAnalytics />} />
