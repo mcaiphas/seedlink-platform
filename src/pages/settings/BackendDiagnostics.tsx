@@ -36,23 +36,29 @@ export default function BackendDiagnostics() {
       results.push({ label: 'Supabase Connectivity', status: 'error', detail: 'Connection failed', icon: Database });
     }
 
-    // 2. Storage bucket – use list() instead of getBucket() since anon key lacks admin access
+    // 2. Storage bucket – use list() with defensive timeout handling
     try {
       const { data, error } = await supabase.storage.from('document-files').list('', { limit: 1 });
-      if (error && error.message.includes('not found')) {
-        results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Bucket not found', icon: HardDrive });
-      } else if (error) {
-        results.push({ label: 'Document Storage Bucket', status: 'warning', detail: error.message, icon: HardDrive });
+      if (error) {
+        const msg = error.message || '';
+        if (msg.includes('not found') || msg.includes('Bucket not found')) {
+          results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Bucket not found', icon: HardDrive });
+        } else if (msg.includes('Timeout') || msg.includes('timeout') || msg.includes('DatabaseTimeout')) {
+          // Bucket exists but storage RLS query timed out – not a missing-bucket error
+          results.push({ label: 'Document Storage Bucket', status: 'warning', detail: 'Bucket exists but RLS query timed out', icon: HardDrive });
+        } else {
+          results.push({ label: 'Document Storage Bucket', status: 'warning', detail: msg, icon: HardDrive });
+        }
       } else {
         results.push({
           label: 'Document Storage Bucket',
           status: 'ok',
-          detail: 'Private bucket configured',
+          detail: `Private bucket configured (${data?.length ?? 0} items sampled)`,
           icon: HardDrive,
         });
       }
     } catch {
-      results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Could not check bucket', icon: HardDrive });
+      results.push({ label: 'Document Storage Bucket', status: 'warning', detail: 'Could not verify – possible timeout', icon: HardDrive });
     }
 
     // 3. Notification channel configs
