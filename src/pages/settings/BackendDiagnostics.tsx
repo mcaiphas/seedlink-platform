@@ -68,11 +68,18 @@ export default function BackendDiagnostics() {
         results.push({ label: 'Notification Channels', status: 'warning', detail: error.message, icon: Mail });
       } else {
         const active = (data || []).filter((c: any) => c.is_active);
-        const verified = active.filter((c: any) => c.auth_status === 'verified');
+        const activeInApp = active.some((c: any) => c.channel === 'in_app');
+        const externalReady = active.filter(
+          (c: any) => c.channel !== 'in_app' && ['configured', 'verified'].includes(c.auth_status)
+        );
+        const hasHealthyChannel = activeInApp || externalReady.length > 0;
+
         results.push({
           label: 'Notification Channels',
-          status: verified.length > 0 ? 'ok' : active.length > 0 ? 'warning' : 'error',
-          detail: `${active.length} active, ${verified.length} verified`,
+          status: hasHealthyChannel ? 'ok' : active.length > 0 ? 'warning' : 'error',
+          detail: activeInApp
+            ? `${active.length} active, in-app enabled${externalReady.length > 0 ? `, ${externalReady.length} external ready` : ''}`
+            : `${active.length} active, ${externalReady.length} external ready`,
           icon: Mail,
         });
       }
