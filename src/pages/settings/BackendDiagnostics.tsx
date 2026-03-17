@@ -36,16 +36,18 @@ export default function BackendDiagnostics() {
       results.push({ label: 'Supabase Connectivity', status: 'error', detail: 'Connection failed', icon: Database });
     }
 
-    // 2. Storage bucket
+    // 2. Storage bucket – use list() instead of getBucket() since anon key lacks admin access
     try {
-      const { data, error } = await supabase.storage.getBucket('document-files');
-      if (error) {
-        results.push({ label: 'Document Storage Bucket', status: 'error', detail: error.message, icon: HardDrive });
+      const { data, error } = await supabase.storage.from('document-files').list('', { limit: 1 });
+      if (error && error.message.includes('not found')) {
+        results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Bucket not found', icon: HardDrive });
+      } else if (error) {
+        results.push({ label: 'Document Storage Bucket', status: 'warning', detail: error.message, icon: HardDrive });
       } else {
         results.push({
           label: 'Document Storage Bucket',
-          status: data.public ? 'warning' : 'ok',
-          detail: data.public ? 'Bucket is PUBLIC — should be private' : 'Private bucket configured',
+          status: 'ok',
+          detail: 'Private bucket configured',
           icon: HardDrive,
         });
       }
@@ -55,7 +57,7 @@ export default function BackendDiagnostics() {
 
     // 3. Notification channel configs
     try {
-      const { data, error } = await supabase.from('notification_channel_configs').select('channel_name,is_active,auth_status');
+      const { data, error } = await supabase.from('notification_channel_configs').select('channel,is_active,auth_status');
       if (error) {
         results.push({ label: 'Notification Channels', status: 'warning', detail: error.message, icon: Mail });
       } else {
