@@ -28,10 +28,10 @@ export default function ProductPerformance() {
         map.set(n, cur);
       });
       setTopProducts([...map.entries()].sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 10).map(([name, d]) => ({ name, ...d })));
-      setLowStock((invRes.data || []).map((i) => ({
-        name: (i.product_variants as any)?.products?.name || (i.product_variants as any)?.sku || "—",
-        sku: (i.product_variants as any)?.sku || "—",
-        qty: i.quantity,
+      setLowStock((invRes.data || []).map((i: any) => ({
+        name: i.product_id || "—",
+        sku: i.variant_id || "—",
+        qty: i.quantity_on_hand,
       })));
       setLoading(false);
     }

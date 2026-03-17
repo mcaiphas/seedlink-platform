@@ -38,7 +38,7 @@ export default function ManagementCockpit() {
       const monthRevenue = (invoicesRes.data || []).reduce((s, i) => s + (i.total_amount || 0), 0);
       const prevRevenue = (prevInvoicesRes.data || []).reduce((s, i) => s + (i.total_amount || 0), 0);
       const revenueChange = prevRevenue > 0 ? (((monthRevenue - prevRevenue) / prevRevenue) * 100).toFixed(1) : "—";
-      const inventoryValue = (inventoryRes.data || []).reduce((s, i) => s + (i.quantity || 0) * (i.unit_cost || 0), 0);
+      const inventoryValue = (inventoryRes.data || []).reduce((s: number, i: any) => s + (i.quantity_on_hand || 0) * (i.unit_cost || 0), 0);
 
       setKpis([
         { label: "Revenue This Month", value: `R ${(monthRevenue / 1000).toFixed(0)}K`, change: `${revenueChange}%`, trend: monthRevenue >= prevRevenue ? "up" : "down", icon: DollarSign },
