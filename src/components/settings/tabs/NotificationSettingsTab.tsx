@@ -50,15 +50,15 @@ export function NotificationSettingsTab() {
   const { data: channels = [], isLoading } = useQuery({
     queryKey: ['notification-channel-configs'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('notification_channel_configs' as any).select('*').order('channel');
+      const { data, error } = await supabase.from('notification_channel_configs').select('*').order('channel');
       if (error) throw error;
-      return (data || []) as unknown as ChannelConfig[];
+      return (data || []) as ChannelConfig[];
     },
   });
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from('notification_channel_configs' as any).update({ is_active: active, updated_at: new Date().toISOString() } as any).eq('id', id);
+      const { error } = await supabase.from('notification_channel_configs').update({ is_active: active, updated_at: new Date().toISOString() }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notification-channel-configs'] }),
@@ -67,7 +67,7 @@ export function NotificationSettingsTab() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!editChannel) return;
-      const { error } = await supabase.from('notification_channel_configs' as any).update({
+      const { error } = await supabase.from('notification_channel_configs').update({
         provider_name: editForm.provider_name || null,
         sender_identity: editForm.sender_identity || null,
         config: editForm.config,
@@ -75,7 +75,7 @@ export function NotificationSettingsTab() {
         retry_enabled: editForm.retry_enabled,
         max_retries: editForm.max_retries,
         updated_at: new Date().toISOString(),
-      } as any).eq('id', editChannel.id);
+      }).eq('id', editChannel.id);
       if (error) throw error;
     },
     onSuccess: () => {
