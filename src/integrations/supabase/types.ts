@@ -1350,6 +1350,145 @@ export type Database = {
           },
         ]
       }
+      advisory_services: {
+        Row: {
+          created_at: string | null
+          currency_code: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          price: number | null
+          pricing_model: string | null
+          service_category: string | null
+          service_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency_code?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          pricing_model?: string | null
+          service_category?: string | null
+          service_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency_code?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          pricing_model?: string | null
+          service_category?: string | null
+          service_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      advisory_sessions: {
+        Row: {
+          advisor_id: string | null
+          created_at: string | null
+          customer_id: string | null
+          duration_minutes: number | null
+          farm_id: string | null
+          id: string
+          linked_crop_plan_id: string | null
+          linked_recommendation_id: string | null
+          notes: string | null
+          recommendations: string | null
+          service_id: string | null
+          session_date: string | null
+          session_number: string | null
+          session_type: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          advisor_id?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          duration_minutes?: number | null
+          farm_id?: string | null
+          id?: string
+          linked_crop_plan_id?: string | null
+          linked_recommendation_id?: string | null
+          notes?: string | null
+          recommendations?: string | null
+          service_id?: string | null
+          session_date?: string | null
+          session_number?: string | null
+          session_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          advisor_id?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          duration_minutes?: number | null
+          farm_id?: string | null
+          id?: string
+          linked_crop_plan_id?: string | null
+          linked_recommendation_id?: string | null
+          notes?: string | null
+          recommendations?: string | null
+          service_id?: string | null
+          session_date?: string | null
+          session_number?: string | null
+          session_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisory_sessions_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisory_sessions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisory_sessions_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisory_sessions_linked_crop_plan_id_fkey"
+            columns: ["linked_crop_plan_id"]
+            isOneToOne: false
+            referencedRelation: "crop_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisory_sessions_linked_recommendation_id_fkey"
+            columns: ["linked_recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "agro_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisory_sessions_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "advisory_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agro_advisory_rules: {
         Row: {
           application_rate_per_ha: number | null
@@ -9814,6 +9953,48 @@ export type Database = {
           },
         ]
       }
+      program_courses: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          program_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          program_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          program_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_courses_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "training_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchase_order_items: {
         Row: {
           created_at: string
@@ -12020,6 +12201,79 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          assigned_advisor_id: string | null
+          category: string | null
+          created_at: string | null
+          customer_id: string | null
+          description: string | null
+          id: string
+          priority: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string | null
+          subject: string
+          ticket_number: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          assigned_advisor_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          description?: string | null
+          id?: string
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject: string
+          ticket_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          assigned_advisor_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          description?: string | null
+          id?: string
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject?: string
+          ticket_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_advisor_id_fkey"
+            columns: ["assigned_advisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_settings: {
         Row: {
           created_at: string
@@ -12070,6 +12324,56 @@ export type Database = {
           {
             foreignKeyName: "teams_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_programs: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          enrollment_type: string | null
+          id: string
+          program_name: string
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          enrollment_type?: string | null
+          id?: string
+          program_name: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          enrollment_type?: string | null
+          id?: string
+          program_name?: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_programs_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
