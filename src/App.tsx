@@ -185,6 +185,16 @@ import InventoryValuation from "@/pages/reports/InventoryValuation";
 import OperationsFinance from "@/pages/reports/OperationsFinance";
 import ManagementDashboard from "@/pages/reports/ManagementDashboard";
 import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
+
+// Executive Intelligence
+import ManagementCockpit from "@/pages/executive/ManagementCockpit";
+import SalesPerformance from "@/pages/executive/SalesPerformance";
+import ProductPerformance from "@/pages/executive/ProductPerformance";
+import CustomerIntelligence from "@/pages/executive/CustomerIntelligence";
+import SupplierIntelligence from "@/pages/executive/SupplierIntelligence";
+import LogisticsIntelligence from "@/pages/executive/LogisticsIntelligence";
+import FinancialPerformance from "@/pages/executive/FinancialPerformance";
+import StrategicReports from "@/pages/executive/StrategicReports";
 import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
 
 // Customer Portal
