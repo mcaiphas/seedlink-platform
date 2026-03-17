@@ -24,6 +24,7 @@ import {
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
   Zap, MapPin, Mountain, Tractor, History, Beaker, Gauge, Brain,
+  GraduationCap, HeadphonesIcon, TicketIcon, Award, Briefcase,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
