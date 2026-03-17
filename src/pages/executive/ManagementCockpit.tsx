@@ -31,7 +31,7 @@ export default function ManagementCockpit() {
         supabase.from("customer_invoices").select("total_amount, invoice_date").gte("invoice_date", startOfMonth) as any,
         supabase.from("orders").select("id, order_status").in("order_status", ["pending", "confirmed", "processing"]),
         supabase.from("logistics_delivery_requests").select("id, status").in("status", ["dispatched", "in_transit"]),
-        supabase.from("depot_inventory").select("quantity, unit_cost"),
+        supabase.from("depot_inventory").select("quantity_on_hand, unit_cost"),
         supabase.from("customer_invoices").select("total_amount").gte("invoice_date", startOfPrevMonth).lte("invoice_date", endOfPrevMonth),
       ]);
 
