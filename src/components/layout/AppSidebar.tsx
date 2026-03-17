@@ -69,6 +69,17 @@ const sections: NavSection[] = [
     ],
   },
   {
+    label: 'AI Assistant',
+    items: [
+      { title: 'Ask Seedlink AI', url: '/ai', icon: Bot },
+      { title: 'Agronomy Assistant', url: '/ai/agronomy', icon: Sprout },
+      { title: 'Operations Assistant', url: '/ai/operations', icon: Truck },
+      { title: 'Finance Assistant', url: '/ai/finance', icon: DollarSign },
+      { title: 'Knowledge Assistant', url: '/ai/knowledge', icon: BookOpen },
+      { title: 'AI Settings', url: '/ai/settings', icon: Settings, adminOnly: true },
+    ],
+  },
+  {
     label: 'Executive Intelligence',
     adminOnly: true,
     items: [
