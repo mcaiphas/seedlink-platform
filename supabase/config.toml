@@ -1,1 +1,4 @@
 project_id = "dmaumcjwqeaprzhhalzu"
+
+[functions.seedlink-chat]
+verify_jwt = false

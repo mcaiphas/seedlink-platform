@@ -141,6 +141,14 @@ import AdvisorProfileList from "@/pages/advisor/AdvisorProfileList";
 import KnowledgeSourceList from "@/pages/advisor/KnowledgeSourceList";
 import KnowledgeDocumentList from "@/pages/advisor/KnowledgeDocumentList";
 
+// AI Assistants
+import AskSeedlinkAI from "@/pages/ai/AskSeedlinkAI";
+import AgronomyAssistant from "@/pages/ai/AgronomyAssistant";
+import OperationsAssistant from "@/pages/ai/OperationsAssistant";
+import FinanceAssistant from "@/pages/ai/FinanceAssistant";
+import KnowledgeAssistant from "@/pages/ai/KnowledgeAssistant";
+import AISettings from "@/pages/ai/AISettings";
+
 // Agronomy
 import AgronomyDashboard from "@/pages/agronomy/AgronomyDashboard";
 import FertiliserPlanner from "@/pages/agronomy/FertiliserPlanner";
@@ -367,6 +375,14 @@ const App = () => (
               <Route path="advisor/profiles" element={<AdvisorProfileList />} />
               <Route path="advisor/sources" element={<KnowledgeSourceList />} />
               <Route path="advisor/documents" element={<KnowledgeDocumentList />} />
+
+              {/* AI Assistants */}
+              <Route path="ai" element={<AskSeedlinkAI />} />
+              <Route path="ai/agronomy" element={<AgronomyAssistant />} />
+              <Route path="ai/operations" element={<OperationsAssistant />} />
+              <Route path="ai/finance" element={<FinanceAssistant />} />
+              <Route path="ai/knowledge" element={<KnowledgeAssistant />} />
+              <Route path="ai/settings" element={<AISettings />} />
 
               {/* Agronomy */}
               <Route path="agronomy" element={<AgronomyDashboard />} />

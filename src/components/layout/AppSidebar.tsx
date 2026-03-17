@@ -25,6 +25,7 @@ import {
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
   Zap, MapPin, Mountain, Tractor, History, Beaker, Gauge, Brain,
   GraduationCap, HeadphonesIcon, TicketIcon, Award, Briefcase,
+  Bot, MessageCircle,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -65,6 +66,17 @@ const sections: NavSection[] = [
     label: 'Seedlink',
     items: [
       { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'AI Assistant',
+    items: [
+      { title: 'Ask Seedlink AI', url: '/ai', icon: Bot },
+      { title: 'Agronomy Assistant', url: '/ai/agronomy', icon: Sprout },
+      { title: 'Operations Assistant', url: '/ai/operations', icon: Truck },
+      { title: 'Finance Assistant', url: '/ai/finance', icon: DollarSign },
+      { title: 'Knowledge Assistant', url: '/ai/knowledge', icon: BookOpen },
+      { title: 'AI Settings', url: '/ai/settings', icon: Settings, adminOnly: true },
     ],
   },
   {
