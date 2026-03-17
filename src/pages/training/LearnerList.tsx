@@ -10,7 +10,7 @@ export default function LearnerList() {
       searchPlaceholder="Search learners..."
       searchFields={['status']}
       orderBy="created_at"
-      orderAscending={false}
+      
       columns={[
         { label: 'Learner', key: 'user_id', render: r => <span className="font-medium">{(r as any).profiles?.full_name || '—'}</span> },
         { label: 'Course', key: 'course_id', render: r => (r as any).courses?.title || '—' },
