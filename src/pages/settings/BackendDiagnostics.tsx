@@ -109,20 +109,26 @@ export default function BackendDiagnostics() {
       results.push({ label: 'Chart of Accounts', status: 'unknown', detail: 'Could not query', icon: Landmark });
     }
 
-    // 6. Bank reconciliation status
+    // 6. Bank statement imports – empty is valid, not an error
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('bank_statement_imports')
         .select('id,created_at,import_status')
         .order('created_at', { ascending: false })
         .limit(1);
-      const latest = data?.[0];
-      results.push({
-        label: 'Bank Statement Imports',
-        status: latest ? 'ok' : 'warning',
-        detail: latest ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.import_status})` : 'No imports found',
-        icon: Activity,
-      });
+      if (error) {
+        results.push({ label: 'Bank Statement Imports', status: 'warning', detail: error.message, icon: Activity });
+      } else {
+        const latest = data?.[0];
+        results.push({
+          label: 'Bank Statement Imports',
+          status: latest ? 'ok' : 'ok',
+          detail: latest
+            ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.import_status})`
+            : 'No imports yet – ready to receive',
+          icon: Activity,
+        });
+      }
     } catch {
       results.push({ label: 'Bank Statement Imports', status: 'unknown', detail: 'Could not query', icon: Activity });
     }
