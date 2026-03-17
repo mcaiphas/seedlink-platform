@@ -163,6 +163,22 @@ const sections: NavSection[] = [
     ],
   },
   {
+    label: 'Training & Advisory',
+    items: [
+      { title: 'Dashboard', url: '/training', icon: GraduationCap, permission: 'training:view' },
+      { title: 'Courses', url: '/courses', icon: BookOpen, permission: 'training:view' },
+      { title: 'Programs', url: '/training-programs', icon: Briefcase, permission: 'training:view' },
+      { title: 'Learners', url: '/learners', icon: Users, permission: 'training:learners' },
+      { title: 'Enrollments', url: '/enrollments', icon: Users, permission: 'training:learners' },
+      { title: 'Certificates', url: '/certificates', icon: Award, permission: 'training:view' },
+      { title: 'Advisory Services', url: '/advisory-services', icon: HeadphonesIcon, permission: 'advisory:view' },
+      { title: 'Advisory Sessions', url: '/advisory-sessions', icon: HeadphonesIcon, permission: 'advisory:view' },
+      { title: 'Support Tickets', url: '/support-tickets', icon: TicketIcon, permission: 'support:view' },
+      { title: 'Knowledge Base', url: '/advisor/knowledge', icon: BookOpen, permission: 'training:view' },
+      { title: 'Subscription Plans', url: '/subscription-plans', icon: CreditCard, permission: 'training:manage' },
+    ],
+  },
+  {
     label: 'Farm Planning',
     items: [
       { title: 'Planning Dashboard', url: '/planning', icon: LayoutDashboard },
