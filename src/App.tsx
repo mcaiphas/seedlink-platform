@@ -141,6 +141,14 @@ import AdvisorProfileList from "@/pages/advisor/AdvisorProfileList";
 import KnowledgeSourceList from "@/pages/advisor/KnowledgeSourceList";
 import KnowledgeDocumentList from "@/pages/advisor/KnowledgeDocumentList";
 
+// AI Assistants
+import AskSeedlinkAI from "@/pages/ai/AskSeedlinkAI";
+import AgronomyAssistant from "@/pages/ai/AgronomyAssistant";
+import OperationsAssistant from "@/pages/ai/OperationsAssistant";
+import FinanceAssistant from "@/pages/ai/FinanceAssistant";
+import KnowledgeAssistant from "@/pages/ai/KnowledgeAssistant";
+import AISettings from "@/pages/ai/AISettings";
+
 // Agronomy
 import AgronomyDashboard from "@/pages/agronomy/AgronomyDashboard";
 import FertiliserPlanner from "@/pages/agronomy/FertiliserPlanner";
