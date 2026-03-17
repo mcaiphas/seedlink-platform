@@ -58,7 +58,7 @@ export function NotificationSettingsTab() {
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from('notification_channel_configs' as any).update({ is_active: active, updated_at: new Date().toISOString() } as any).eq('id', id);
+      const { error } = await supabase.from('notification_channel_configs').update({ is_active: active, updated_at: new Date().toISOString() }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notification-channel-configs'] }),
