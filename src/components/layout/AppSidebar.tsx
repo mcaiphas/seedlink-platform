@@ -23,7 +23,7 @@ import {
   ShoppingBag, PieChart, CheckCircle, Activity, FilePlus2, Link2,
   BookOpen, FileDown, Banknote, ShieldAlert, RotateCcw, MessageSquare, Bell, User,
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
-  Zap, MapPin, Mountain, Tractor, History, Beaker,
+  Zap, MapPin, Mountain, Tractor, History, Beaker, Gauge, Brain,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -64,6 +64,20 @@ const sections: NavSection[] = [
     label: 'Seedlink',
     items: [
       { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Executive Intelligence',
+    adminOnly: true,
+    items: [
+      { title: 'Management Cockpit', url: '/executive', icon: Gauge, permission: 'executive:view' },
+      { title: 'Sales Performance', url: '/executive/sales-performance', icon: TrendingUp, permission: 'executive:view' },
+      { title: 'Product Performance', url: '/executive/product-performance', icon: Package, permission: 'executive:view' },
+      { title: 'Customer Intelligence', url: '/executive/customer-intelligence', icon: Users, permission: 'executive:view' },
+      { title: 'Supplier Intelligence', url: '/executive/supplier-intelligence', icon: Building2, permission: 'executive:view' },
+      { title: 'Logistics Intelligence', url: '/executive/logistics-intelligence', icon: Truck, permission: 'executive:view' },
+      { title: 'Financial Performance', url: '/executive/financial-performance', icon: DollarSign, permission: 'executive:financial' },
+      { title: 'Strategic Reports', url: '/executive/strategic-reports', icon: Brain, permission: 'executive:view' },
     ],
   },
   {

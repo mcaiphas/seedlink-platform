@@ -185,6 +185,16 @@ import InventoryValuation from "@/pages/reports/InventoryValuation";
 import OperationsFinance from "@/pages/reports/OperationsFinance";
 import ManagementDashboard from "@/pages/reports/ManagementDashboard";
 import SlowMovingInventory from "@/pages/reports/SlowMovingInventory";
+
+// Executive Intelligence
+import ManagementCockpit from "@/pages/executive/ManagementCockpit";
+import SalesPerformance from "@/pages/executive/SalesPerformance";
+import ProductPerformance from "@/pages/executive/ProductPerformance";
+import CustomerIntelligence from "@/pages/executive/CustomerIntelligence";
+import SupplierIntelligence from "@/pages/executive/SupplierIntelligence";
+import LogisticsIntelligence from "@/pages/executive/LogisticsIntelligence";
+import FinancialPerformance from "@/pages/executive/FinancialPerformance";
+import StrategicReports from "@/pages/executive/StrategicReports";
 import ApprovalCenter from "@/pages/approvals/ApprovalCenter";
 
 // Customer Portal
@@ -421,6 +431,16 @@ const App = () => (
               <Route path="reports/operations-finance" element={<OperationsFinance />} />
               <Route path="reports/executive" element={<ManagementDashboard />} />
               <Route path="reports/slow-moving" element={<SlowMovingInventory />} />
+
+              {/* Executive Intelligence */}
+              <Route path="executive" element={<ManagementCockpit />} />
+              <Route path="executive/sales-performance" element={<SalesPerformance />} />
+              <Route path="executive/product-performance" element={<ProductPerformance />} />
+              <Route path="executive/customer-intelligence" element={<CustomerIntelligence />} />
+              <Route path="executive/supplier-intelligence" element={<SupplierIntelligence />} />
+              <Route path="executive/logistics-intelligence" element={<LogisticsIntelligence />} />
+              <Route path="executive/financial-performance" element={<FinancialPerformance />} />
+              <Route path="executive/strategic-reports" element={<StrategicReports />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
