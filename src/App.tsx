@@ -376,6 +376,14 @@ const App = () => (
               <Route path="advisor/sources" element={<KnowledgeSourceList />} />
               <Route path="advisor/documents" element={<KnowledgeDocumentList />} />
 
+              {/* AI Assistants */}
+              <Route path="ai" element={<AskSeedlinkAI />} />
+              <Route path="ai/agronomy" element={<AgronomyAssistant />} />
+              <Route path="ai/operations" element={<OperationsAssistant />} />
+              <Route path="ai/finance" element={<FinanceAssistant />} />
+              <Route path="ai/knowledge" element={<KnowledgeAssistant />} />
+              <Route path="ai/settings" element={<AISettings />} />
+
               {/* Agronomy */}
               <Route path="agronomy" element={<AgronomyDashboard />} />
               <Route path="agronomy/fertiliser" element={<FertiliserPlanner />} />
