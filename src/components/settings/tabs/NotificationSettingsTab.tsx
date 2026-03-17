@@ -50,7 +50,7 @@ export function NotificationSettingsTab() {
   const { data: channels = [], isLoading } = useQuery({
     queryKey: ['notification-channel-configs'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('notification_channel_configs' as any).select('*').order('channel');
+      const { data, error } = await supabase.from('notification_channel_configs').select('*').order('channel');
       if (error) throw error;
       return (data || []) as unknown as ChannelConfig[];
     },
