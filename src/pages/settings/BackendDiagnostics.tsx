@@ -57,7 +57,7 @@ export default function BackendDiagnostics() {
 
     // 3. Notification channel configs
     try {
-      const { data, error } = await supabase.from('notification_channel_configs').select('channel_name,is_active,auth_status');
+      const { data, error } = await supabase.from('notification_channel_configs').select('channel,is_active,auth_status');
       if (error) {
         results.push({ label: 'Notification Channels', status: 'warning', detail: error.message, icon: Mail });
       } else {
