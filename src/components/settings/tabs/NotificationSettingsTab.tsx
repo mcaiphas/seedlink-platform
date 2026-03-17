@@ -67,7 +67,7 @@ export function NotificationSettingsTab() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!editChannel) return;
-      const { error } = await supabase.from('notification_channel_configs' as any).update({
+      const { error } = await supabase.from('notification_channel_configs').update({
         provider_name: editForm.provider_name || null,
         sender_identity: editForm.sender_identity || null,
         config: editForm.config,
@@ -75,7 +75,7 @@ export function NotificationSettingsTab() {
         retry_enabled: editForm.retry_enabled,
         max_retries: editForm.max_retries,
         updated_at: new Date().toISOString(),
-      } as any).eq('id', editChannel.id);
+      }).eq('id', editChannel.id);
       if (error) throw error;
     },
     onSuccess: () => {
