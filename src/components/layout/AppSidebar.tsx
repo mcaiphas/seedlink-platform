@@ -25,6 +25,7 @@ import {
   Landmark, ArrowDownUp, Upload, PieChart as PieChartIcon,
   Zap, MapPin, Mountain, Tractor, History, Beaker, Gauge, Brain,
   GraduationCap, HeadphonesIcon, TicketIcon, Award, Briefcase,
+  Bot, MessageCircle,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
