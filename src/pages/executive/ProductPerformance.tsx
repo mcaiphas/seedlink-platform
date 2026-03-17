@@ -15,7 +15,7 @@ export default function ProductPerformance() {
       setLoading(true);
       const [itemsRes, invRes] = await Promise.all([
         supabase.from("order_items").select("product_name, quantity, unit_price, line_total").order("line_total", { ascending: false }).limit(100),
-        supabase.from("depot_inventory").select("quantity, product_variants(sku, products(name))").lt("quantity", 10).limit(10),
+        supabase.from("depot_inventory").select("quantity_on_hand, product_id, variant_id").lt("quantity_on_hand", 10).limit(10),
       ]);
 
       // Aggregate by product
