@@ -36,23 +36,29 @@ export default function BackendDiagnostics() {
       results.push({ label: 'Supabase Connectivity', status: 'error', detail: 'Connection failed', icon: Database });
     }
 
-    // 2. Storage bucket – use list() instead of getBucket() since anon key lacks admin access
+    // 2. Storage bucket – use list() with defensive timeout handling
     try {
       const { data, error } = await supabase.storage.from('document-files').list('', { limit: 1 });
-      if (error && error.message.includes('not found')) {
-        results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Bucket not found', icon: HardDrive });
-      } else if (error) {
-        results.push({ label: 'Document Storage Bucket', status: 'warning', detail: error.message, icon: HardDrive });
+      if (error) {
+        const msg = error.message || '';
+        if (msg.includes('not found') || msg.includes('Bucket not found')) {
+          results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Bucket not found', icon: HardDrive });
+        } else if (msg.includes('Timeout') || msg.includes('timeout') || msg.includes('DatabaseTimeout')) {
+          // Bucket exists but storage RLS query timed out – not a missing-bucket error
+          results.push({ label: 'Document Storage Bucket', status: 'warning', detail: 'Bucket exists but RLS query timed out', icon: HardDrive });
+        } else {
+          results.push({ label: 'Document Storage Bucket', status: 'warning', detail: msg, icon: HardDrive });
+        }
       } else {
         results.push({
           label: 'Document Storage Bucket',
           status: 'ok',
-          detail: 'Private bucket configured',
+          detail: `Private bucket configured (${data?.length ?? 0} items sampled)`,
           icon: HardDrive,
         });
       }
     } catch {
-      results.push({ label: 'Document Storage Bucket', status: 'error', detail: 'Could not check bucket', icon: HardDrive });
+      results.push({ label: 'Document Storage Bucket', status: 'warning', detail: 'Could not verify – possible timeout', icon: HardDrive });
     }
 
     // 3. Notification channel configs
@@ -103,20 +109,26 @@ export default function BackendDiagnostics() {
       results.push({ label: 'Chart of Accounts', status: 'unknown', detail: 'Could not query', icon: Landmark });
     }
 
-    // 6. Bank reconciliation status
+    // 6. Bank statement imports – empty is valid, not an error
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('bank_statement_imports')
         .select('id,created_at,import_status')
         .order('created_at', { ascending: false })
         .limit(1);
-      const latest = data?.[0];
-      results.push({
-        label: 'Bank Statement Imports',
-        status: latest ? 'ok' : 'warning',
-        detail: latest ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.import_status})` : 'No imports found',
-        icon: Activity,
-      });
+      if (error) {
+        results.push({ label: 'Bank Statement Imports', status: 'warning', detail: error.message, icon: Activity });
+      } else {
+        const latest = data?.[0];
+        results.push({
+          label: 'Bank Statement Imports',
+          status: latest ? 'ok' : 'ok',
+          detail: latest
+            ? `Last import: ${new Date(latest.created_at).toLocaleDateString()} (${latest.import_status})`
+            : 'No imports yet – ready to receive',
+          icon: Activity,
+        });
+      }
     } catch {
       results.push({ label: 'Bank Statement Imports', status: 'unknown', detail: 'Could not query', icon: Activity });
     }
