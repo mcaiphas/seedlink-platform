@@ -115,6 +115,14 @@ import EnrollmentList from "@/pages/courses/EnrollmentList";
 import CertificateList from "@/pages/courses/CertificateList";
 import SubscriptionPlanList from "@/pages/courses/SubscriptionPlanList";
 
+// Training & Advisory
+import TrainingDashboard from "@/pages/training/TrainingDashboard";
+import TrainingProgramList from "@/pages/training/TrainingProgramList";
+import LearnerList from "@/pages/training/LearnerList";
+import AdvisoryServiceList from "@/pages/training/AdvisoryServiceList";
+import AdvisorySessionList from "@/pages/training/AdvisorySessionList";
+import SupportTicketList from "@/pages/training/SupportTicketList";
+
 // Farm Management
 import FarmList from "@/pages/farms/FarmList";
 import FarmDetail from "@/pages/farms/FarmDetail";
@@ -323,7 +331,8 @@ const App = () => (
               <Route path="fulfillment-batches" element={<FulfillmentBatchList />} />
               <Route path="shipment-packages" element={<ShipmentPackageList />} />
 
-              {/* Training */}
+              {/* Training & Advisory */}
+              <Route path="training" element={<TrainingDashboard />} />
               <Route path="courses" element={<CourseList />} />
               <Route path="courses/new" element={<CourseForm />} />
               <Route path="courses/:id" element={<CourseDetail />} />
@@ -335,6 +344,11 @@ const App = () => (
               <Route path="enrollments" element={<EnrollmentList />} />
               <Route path="certificates" element={<CertificateList />} />
               <Route path="subscription-plans" element={<SubscriptionPlanList />} />
+              <Route path="training-programs" element={<TrainingProgramList />} />
+              <Route path="learners" element={<LearnerList />} />
+              <Route path="advisory-services" element={<AdvisoryServiceList />} />
+              <Route path="advisory-sessions" element={<AdvisorySessionList />} />
+              <Route path="support-tickets" element={<SupportTicketList />} />
 
               {/* Farm Management */}
               <Route path="farms" element={<FarmList />} />
