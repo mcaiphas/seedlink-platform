@@ -331,7 +331,8 @@ const App = () => (
               <Route path="fulfillment-batches" element={<FulfillmentBatchList />} />
               <Route path="shipment-packages" element={<ShipmentPackageList />} />
 
-              {/* Training */}
+              {/* Training & Advisory */}
+              <Route path="training" element={<TrainingDashboard />} />
               <Route path="courses" element={<CourseList />} />
               <Route path="courses/new" element={<CourseForm />} />
               <Route path="courses/:id" element={<CourseDetail />} />
@@ -343,6 +344,11 @@ const App = () => (
               <Route path="enrollments" element={<EnrollmentList />} />
               <Route path="certificates" element={<CertificateList />} />
               <Route path="subscription-plans" element={<SubscriptionPlanList />} />
+              <Route path="training-programs" element={<TrainingProgramList />} />
+              <Route path="learners" element={<LearnerList />} />
+              <Route path="advisory-services" element={<AdvisoryServiceList />} />
+              <Route path="advisory-sessions" element={<AdvisorySessionList />} />
+              <Route path="support-tickets" element={<SupportTicketList />} />
 
               {/* Farm Management */}
               <Route path="farms" element={<FarmList />} />
