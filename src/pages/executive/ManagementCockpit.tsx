@@ -28,7 +28,7 @@ export default function ManagementCockpit() {
       const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
 
       const [invoicesRes, ordersRes, deliveriesRes, inventoryRes, prevInvoicesRes] = await Promise.all([
-        supabase.from("customer_invoices").select("total_amount, invoice_date").gte("invoice_date", startOfMonth),
+        supabase.from("customer_invoices").select("total_amount, invoice_date").gte("invoice_date", startOfMonth) as any,
         supabase.from("orders").select("id, order_status").in("order_status", ["pending", "confirmed", "processing"]),
         supabase.from("logistics_delivery_requests").select("id, status").in("status", ["dispatched", "in_transit"]),
         supabase.from("depot_inventory").select("quantity, unit_cost"),
