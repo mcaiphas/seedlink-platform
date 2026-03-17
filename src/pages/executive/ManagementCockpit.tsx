@@ -27,16 +27,16 @@ export default function ManagementCockpit() {
       const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
       const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
 
-      const [invoicesRes, ordersRes, deliveriesRes, inventoryRes, prevInvoicesRes] = await Promise.all([
-        supabase.from("customer_invoices").select("total_amount, invoice_date").gte("invoice_date", startOfMonth) as any,
+      const [invoicesRes, ordersRes, deliveriesRes, inventoryRes, prevInvoicesRes]: any[] = await Promise.all([
+        supabase.from("customer_invoices").select("total_amount, invoice_date").gte("invoice_date", startOfMonth),
         supabase.from("orders").select("id, order_status").in("order_status", ["pending", "confirmed", "processing"]),
         supabase.from("logistics_delivery_requests").select("id, status").in("status", ["dispatched", "in_transit"]),
         supabase.from("depot_inventory").select("quantity_on_hand, unit_cost"),
         supabase.from("customer_invoices").select("total_amount").gte("invoice_date", startOfPrevMonth).lte("invoice_date", endOfPrevMonth),
       ]);
 
-      const monthRevenue = (invoicesRes.data || []).reduce((s, i) => s + (i.total_amount || 0), 0);
-      const prevRevenue = (prevInvoicesRes.data || []).reduce((s, i) => s + (i.total_amount || 0), 0);
+      const monthRevenue = (invoicesRes.data || []).reduce((s: number, i: any) => s + (i.total_amount || 0), 0);
+      const prevRevenue = (prevInvoicesRes.data || []).reduce((s: number, i: any) => s + (i.total_amount || 0), 0);
       const revenueChange = prevRevenue > 0 ? (((monthRevenue - prevRevenue) / prevRevenue) * 100).toFixed(1) : "—";
       const inventoryValue = (inventoryRes.data || []).reduce((s: number, i: any) => s + (i.quantity_on_hand || 0) * (i.unit_cost || 0), 0);
 

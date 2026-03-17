@@ -431,6 +431,16 @@ const App = () => (
               <Route path="reports/operations-finance" element={<OperationsFinance />} />
               <Route path="reports/executive" element={<ManagementDashboard />} />
               <Route path="reports/slow-moving" element={<SlowMovingInventory />} />
+
+              {/* Executive Intelligence */}
+              <Route path="executive" element={<ManagementCockpit />} />
+              <Route path="executive/sales-performance" element={<SalesPerformance />} />
+              <Route path="executive/product-performance" element={<ProductPerformance />} />
+              <Route path="executive/customer-intelligence" element={<CustomerIntelligence />} />
+              <Route path="executive/supplier-intelligence" element={<SupplierIntelligence />} />
+              <Route path="executive/logistics-intelligence" element={<LogisticsIntelligence />} />
+              <Route path="executive/financial-performance" element={<FinancialPerformance />} />
+              <Route path="executive/strategic-reports" element={<StrategicReports />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
