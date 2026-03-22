@@ -1,50 +1,106 @@
-import { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { PageShell, EmptyState } from '@/components/commerce/PageShell';
-import { StatusBadge, CurrencyDisplay, DateDisplay } from '@/components/commerce/StatusBadge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { PageShell, EmptyState } from "@/components/commerce/PageShell";
+import {
+  StatusBadge,
+  CurrencyDisplay,
+  DateDisplay,
+} from "@/components/commerce/StatusBadge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingCart } from "lucide-react";
 import {
   createCheckout,
   confirmCheckout,
   formatMoney,
   isPaid,
   type PaymentRow,
-} from '@/services/checkoutService';
+} from "@/services/checkoutService";
 
-export default function OrderList() {
-  const navigate = useNavigate();
-  const [orders, setOrders] = useState<any[]>([]);
+type SalesOrderRow = {
+  id: string;
+  order_number: string;
+  customer_id: string | null;
+  subtotal_amount?: number | string | null;
+  tax_amount?: number | string | null;
+  total_amount: number | string;
+  currency_code?: string | null;
+  order_status?: string | null;
+  payment_status?: string | null;
+  fulfillment_status?: string | null;
+  approval_status?: string | null;
+  created_at: string;
+  approved_at?: string | null;
+  metadata?: Record<string, unknown> | null;
+};
+
+type SalesOrderItemRow = {
+  id: string;
+  sales_order_id?: string | null;
+  order_id?: string | null;
+  product_name?: string | null;
+  description?: string | null;
+  quantity?: number | string | null;
+  quantity_uom?: string | null;
+  unit_price?: number | string | null;
+  line_total?: number | string | null;
+};
+
+export default function SalesOrderList() {
+  const [orders, setOrders] = useState<SalesOrderRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [sourceFilter, setSourceFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
-  const [detailOrder, setDetailOrder] = useState<any>(null);
-  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+
+  const [detailOrder, setDetailOrder] = useState<SalesOrderRow | null>(null);
+  const [orderItems, setOrderItems] = useState<SalesOrderItemRow[]>([]);
   const [orderPayments, setOrderPayments] = useState<any[]>([]);
 
   const [checkoutPayment, setCheckoutPayment] = useState<PaymentRow | null>(null);
-  const [checkoutOrderId, setCheckoutOrderId] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false })
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("sales_orders")
+        .select("*")
+        .order("created_at", { ascending: false })
         .limit(200);
 
-      setOrders(data || []);
+      if (error) {
+        console.error("Failed to load sales orders:", error);
+        setOrders([]);
+      } else {
+        setOrders((data || []) as SalesOrderRow[]);
+      }
+
       setLoading(false);
     }
 
@@ -53,55 +109,62 @@ export default function OrderList() {
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
+      const number = (o.order_number || "").toLowerCase();
+
       if (
         search &&
-        !(o.order_number || '').toLowerCase().includes(search.toLowerCase()) &&
-        !o.id.includes(search)
+        !number.includes(search.toLowerCase()) &&
+        !o.id.toLowerCase().includes(search.toLowerCase())
       ) {
         return false;
       }
-      if (sourceFilter !== 'all' && o.order_source !== sourceFilter) return false;
-      if (paymentFilter !== 'all' && o.payment_status !== paymentFilter) return false;
+
+      if (paymentFilter !== "all" && (o.payment_status || "pending") !== paymentFilter) {
+        return false;
+      }
+
       return true;
     });
-  }, [orders, search, sourceFilter, paymentFilter]);
+  }, [orders, search, paymentFilter]);
 
-  async function openDetail(order: any) {
+  async function openDetail(order: SalesOrderRow) {
     setDetailOrder(order);
     setCheckoutError(null);
     setCheckoutPayment(null);
-    setCheckoutOrderId(null);
 
-    const [{ data: items }, { data: payments }] = await Promise.all([
-      supabase.from('order_items').select('*').eq('order_id', order.id),
-      supabase
-        .from('payments')
-        .select('*')
-        .eq('order_id', order.id)
-        .order('created_at', { ascending: false }),
-    ]);
+    const paymentsPromise = supabase
+      .from("payments")
+      .select("*")
+      .eq("order_id", order.id)
+      .order("created_at", { ascending: false });
+
+    let items: SalesOrderItemRow[] = [];
+
+    const salesOrderItemsRes = await supabase
+      .from("sales_order_items")
+      .select("*")
+      .eq("sales_order_id", order.id);
+
+    if (!salesOrderItemsRes.error && salesOrderItemsRes.data) {
+      items = salesOrderItemsRes.data as SalesOrderItemRow[];
+    } else {
+      const fallbackItemsRes = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", order.id);
+
+      items = (fallbackItemsRes.data || []) as SalesOrderItemRow[];
+    }
+
+    const { data: payments } = await paymentsPromise;
 
     setOrderItems(items || []);
     setOrderPayments(payments || []);
 
     const existingCheckout = (payments || []).find(
-      (p: any) => p.payment_type === 'order_payment'
+      (p: any) => p.payment_type === "order_payment"
     );
     setCheckoutPayment((existingCheckout as PaymentRow) || null);
-
-    let resolvedSalesOrderId: string | null = order.sales_order_id ?? null;
-
-    if (!resolvedSalesOrderId && order.order_number) {
-      const { data: salesOrder } = await supabase
-        .from('sales_orders')
-        .select('id, order_number')
-        .eq('order_number', order.order_number)
-        .maybeSingle();
-
-      resolvedSalesOrderId = salesOrder?.id ?? null;
-    }
-
-    setCheckoutOrderId(resolvedSalesOrderId);
   }
 
   function closeDetail() {
@@ -109,54 +172,48 @@ export default function OrderList() {
     setOrderItems([]);
     setOrderPayments([]);
     setCheckoutPayment(null);
-    setCheckoutOrderId(null);
     setCheckoutError(null);
   }
 
-  async function reloadDialogPayments(orderId: string) {
+  async function reloadPayments(orderId: string) {
     const { data: payments } = await supabase
-      .from('payments')
-      .select('*')
-      .eq('order_id', orderId)
-      .order('created_at', { ascending: false });
+      .from("payments")
+      .select("*")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: false });
 
     setOrderPayments(payments || []);
 
     const latestCheckout = (payments || []).find(
-      (p: any) => p.payment_type === 'order_payment'
+      (p: any) => p.payment_type === "order_payment"
     );
     setCheckoutPayment((latestCheckout as PaymentRow) || null);
   }
 
   async function handleCreateCheckout() {
     try {
-      if (!detailOrder) throw new Error('No order selected.');
-      if (!checkoutOrderId) {
-        throw new Error(
-          'No matching sales order found for this order. Align this UI to sales_orders or add a sales_order_id bridge.'
-        );
-      }
+      if (!detailOrder) throw new Error("No sales order selected.");
 
       setCheckoutLoading(true);
       setCheckoutError(null);
 
       const payment = await createCheckout({
-        checkout_type: 'order',
-        order_id: checkoutOrderId,
-        payment_method: 'card',
-        provider: 'manual',
+        checkout_type: "order",
+        order_id: detailOrder.id,
+        payment_method: "card",
+        provider: "manual",
         metadata: {
-          channel: 'admin_order_dialog',
+          channel: "admin_sales_order_dialog",
           order_number: detailOrder.order_number,
-          source_table: 'orders',
+          source_table: "sales_orders",
         },
       });
 
       setCheckoutPayment(payment);
-      await reloadDialogPayments(checkoutOrderId);
+      await reloadPayments(detailOrder.id);
     } catch (error) {
       setCheckoutError(
-        error instanceof Error ? error.message : 'Failed to create checkout'
+        error instanceof Error ? error.message : "Failed to create checkout"
       );
     } finally {
       setCheckoutLoading(false);
@@ -165,31 +222,26 @@ export default function OrderList() {
 
   async function handleConfirmCheckout() {
     try {
-      if (!detailOrder) throw new Error('No order selected.');
-      if (!checkoutPayment?.id) {
-        throw new Error('Create checkout first.');
-      }
+      if (!detailOrder) throw new Error("No sales order selected.");
+      if (!checkoutPayment?.id) throw new Error("Create checkout first.");
 
       setConfirmLoading(true);
       setCheckoutError(null);
 
       const payment = await confirmCheckout({
         paymentId: checkoutPayment.id,
-        providerTransactionId: `MANUAL-${detailOrder.order_number || detailOrder.id}`,
+        providerTransactionId: `MANUAL-${detailOrder.order_number}`,
         responsePayload: {
-          source: 'admin_order_dialog_manual_confirm',
+          source: "admin_sales_order_dialog_manual_confirm",
           order_number: detailOrder.order_number,
         },
       });
 
       setCheckoutPayment(payment);
-
-      if (checkoutOrderId) {
-        await reloadDialogPayments(checkoutOrderId);
-      }
+      await reloadPayments(detailOrder.id);
     } catch (error) {
       setCheckoutError(
-        error instanceof Error ? error.message : 'Failed to confirm payment'
+        error instanceof Error ? error.message : "Failed to confirm payment"
       );
     } finally {
       setConfirmLoading(false);
@@ -198,30 +250,16 @@ export default function OrderList() {
 
   return (
     <PageShell
-      title="Orders"
-      subtitle="Manage customer orders across all channels"
+      title="Sales Orders"
+      subtitle="Checkout-ready sales orders aligned to the payment engine"
       loading={loading}
       search={search}
       onSearchChange={setSearch}
-      searchPlaceholder="Search by order number..."
+      searchPlaceholder="Search by sales order number..."
       filters={
         <div className="flex gap-2">
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-            <SelectTrigger className="w-[140px] bg-card">
-              <SelectValue placeholder="Source" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="online_store">Online Store</SelectItem>
-              <SelectItem value="customer_service">Customer Service</SelectItem>
-              <SelectItem value="abandoned_cart_recovery">Cart Recovery</SelectItem>
-              <SelectItem value="marketplace">Marketplace</SelectItem>
-              <SelectItem value="manual">Manual</SelectItem>
-            </SelectContent>
-          </Select>
-
           <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-            <SelectTrigger className="w-[140px] bg-card">
+            <SelectTrigger className="w-[160px] bg-card">
               <SelectValue placeholder="Payment" />
             </SelectTrigger>
             <SelectContent>
@@ -237,8 +275,8 @@ export default function OrderList() {
       {filtered.length === 0 ? (
         <EmptyState
           icon={ShoppingCart}
-          title="No orders found"
-          description="Orders will appear here once created."
+          title="No sales orders found"
+          description="Sales orders will appear here once created."
         />
       ) : (
         <Card className="shadow-sm">
@@ -246,12 +284,10 @@ export default function OrderList() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">Order #</TableHead>
-                  <TableHead>Source</TableHead>
+                  <TableHead className="pl-6">Sales Order #</TableHead>
                   <TableHead>Approval</TableHead>
                   <TableHead>Payment</TableHead>
                   <TableHead>Fulfillment</TableHead>
-                  <TableHead>Invoice</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-right pr-6">Date</TableHead>
                 </TableRow>
@@ -267,38 +303,27 @@ export default function OrderList() {
                       {o.order_number || o.id.slice(0, 8)}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge type="order_source" value={o.order_source} />
+                      <StatusBadge
+                        type="approval"
+                        value={o.approval_status || o.order_status || "pending"}
+                      />
                     </TableCell>
                     <TableCell>
-                      <StatusBadge type="approval" value={o.approval_status} />
+                      <StatusBadge
+                        type="payment"
+                        value={o.payment_status || "pending"}
+                      />
                     </TableCell>
                     <TableCell>
-                      <StatusBadge type="payment" value={o.payment_status} />
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge type="fulfillment" value={o.fulfillment_status} />
-                    </TableCell>
-                    <TableCell>
-                      {o.invoice_generated ? (
-                        <Badge
-                          variant="outline"
-                          className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs"
-                        >
-                          Generated
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="text-xs text-muted-foreground"
-                        >
-                          —
-                        </Badge>
-                      )}
+                      <StatusBadge
+                        type="fulfillment"
+                        value={o.fulfillment_status || "pending"}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <CurrencyDisplay
                         amount={o.total_amount}
-                        currency={o.currency_code}
+                        currency={o.currency_code || "ZAR"}
                       />
                     </TableCell>
                     <TableCell className="text-right pr-6">
@@ -316,7 +341,7 @@ export default function OrderList() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg">
-              Order {detailOrder?.order_number || detailOrder?.id?.slice(0, 8)}
+              Sales Order {detailOrder?.order_number || detailOrder?.id?.slice(0, 8)}
             </DialogTitle>
           </DialogHeader>
 
@@ -324,99 +349,76 @@ export default function OrderList() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Source</p>
-                  <StatusBadge type="order_source" value={detailOrder.order_source} />
-                </div>
-                <div>
                   <p className="text-xs text-muted-foreground">Approval</p>
-                  <StatusBadge type="approval" value={detailOrder.approval_status} />
+                  <StatusBadge
+                    type="approval"
+                    value={detailOrder.approval_status || detailOrder.order_status || "pending"}
+                  />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Payment</p>
-                  <StatusBadge type="payment" value={detailOrder.payment_status} />
+                  <StatusBadge
+                    type="payment"
+                    value={detailOrder.payment_status || "pending"}
+                  />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Fulfillment</p>
                   <StatusBadge
                     type="fulfillment"
-                    value={detailOrder.fulfillment_status}
+                    value={detailOrder.fulfillment_status || "pending"}
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Created:</span>{' '}
+                  <p className="text-xs text-muted-foreground">Created</p>
                   <DateDisplay date={detailOrder.created_at} showTime />
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Invoice Generated:</span>{' '}
-                  {detailOrder.invoice_generated ? 'Yes' : 'No'}
-                </div>
-                {detailOrder.approved_at && (
-                  <div>
-                    <span className="text-muted-foreground">Approved:</span>{' '}
-                    <DateDisplay date={detailOrder.approved_at} showTime />
-                  </div>
-                )}
-                {detailOrder.cart_id && (
-                  <div>
-                    <span className="text-muted-foreground">Cart ID:</span>{' '}
-                    {detailOrder.cart_id.slice(0, 8)}...
-                  </div>
-                )}
               </div>
-
-              <Separator />
 
               <div className="rounded-2xl border p-4 bg-white shadow-sm">
                 <div className="mb-3 flex items-start justify-between">
                   <div>
                     <h4 className="text-sm font-semibold">Checkout</h4>
                     <p className="text-sm text-muted-foreground">
-                      {detailOrder.order_number} •{' '}
+                      {detailOrder.order_number} •{" "}
                       {formatMoney(
                         detailOrder.total_amount,
-                        detailOrder.currency_code || 'ZAR'
+                        detailOrder.currency_code || "ZAR"
                       )}
                     </p>
-                    {checkoutOrderId && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Sales Order ID: {checkoutOrderId}
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Sales Order ID: {detailOrder.id}
+                    </p>
                   </div>
 
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                       isPaid(checkoutPayment)
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {checkoutPayment?.payment_status ?? 'not_started'}
+                    {checkoutPayment?.payment_status ?? "not_started"}
                   </span>
                 </div>
 
                 {checkoutPayment && (
                   <div className="grid grid-cols-1 gap-2 text-sm mb-4 md:grid-cols-2">
                     <p>Payment #: {checkoutPayment.payment_number}</p>
-                    <p>Reference: {checkoutPayment.payment_reference || '—'}</p>
+                    <p>Reference: {checkoutPayment.payment_reference || "—"}</p>
                     <p>
-                      Amount:{' '}
+                      Amount:{" "}
                       {formatMoney(
                         checkoutPayment.amount,
-                        checkoutPayment.currency_code || 'ZAR'
+                        checkoutPayment.currency_code || "ZAR"
                       )}
                     </p>
-                    <p>Provider: {checkoutPayment.provider || '—'}</p>
+                    <p>Provider: {checkoutPayment.provider || "—"}</p>
                     <p>
-                      Session:{' '}
-                      {checkoutPayment.provider_checkout_session_id || '—'}
+                      Session:{" "}
+                      {checkoutPayment.provider_checkout_session_id || "—"}
                     </p>
-                    <p>
-                      Txn: {checkoutPayment.provider_transaction_id || '—'}
-                    </p>
+                    <p>Txn: {checkoutPayment.provider_transaction_id || "—"}</p>
                   </div>
                 )}
 
@@ -431,7 +433,7 @@ export default function OrderList() {
                     onClick={handleCreateCheckout}
                     disabled={checkoutLoading || !!checkoutPayment}
                   >
-                    {checkoutLoading ? 'Creating...' : 'Create Checkout'}
+                    {checkoutLoading ? "Creating..." : "Create Checkout"}
                   </Button>
 
                   <Button
@@ -441,10 +443,12 @@ export default function OrderList() {
                     }
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    {confirmLoading ? 'Confirming...' : 'Confirm Payment'}
+                    {confirmLoading ? "Confirming..." : "Confirm Payment"}
                   </Button>
                 </div>
               </div>
+
+              <Separator />
 
               <div>
                 <h4 className="text-sm font-semibold mb-2">Line Items</h4>
@@ -464,16 +468,16 @@ export default function OrderList() {
                       {orderItems.map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">
-                            {item.product_name || item.description || '—'}
+                            {item.product_name || item.description || "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            {item.quantity} {item.quantity_uom}
+                            {item.quantity || 0} {item.quantity_uom || ""}
                           </TableCell>
                           <TableCell className="text-right">
-                            <CurrencyDisplay amount={item.unit_price} />
+                            <CurrencyDisplay amount={item.unit_price || 0} />
                           </TableCell>
                           <TableCell className="text-right">
-                            <CurrencyDisplay amount={item.line_total} />
+                            <CurrencyDisplay amount={item.line_total || 0} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -487,15 +491,15 @@ export default function OrderList() {
                   <div className="flex justify-between gap-8">
                     <span className="text-muted-foreground">Subtotal</span>
                     <CurrencyDisplay
-                      amount={detailOrder.subtotal_amount}
-                      currency={detailOrder.currency_code}
+                      amount={detailOrder.subtotal_amount || 0}
+                      currency={detailOrder.currency_code || "ZAR"}
                     />
                   </div>
                   <div className="flex justify-between gap-8">
                     <span className="text-muted-foreground">Tax</span>
                     <CurrencyDisplay
-                      amount={detailOrder.tax_amount}
-                      currency={detailOrder.currency_code}
+                      amount={detailOrder.tax_amount || 0}
+                      currency={detailOrder.currency_code || "ZAR"}
                     />
                   </div>
                   <Separator className="my-1" />
@@ -503,7 +507,7 @@ export default function OrderList() {
                     <span>Total</span>
                     <CurrencyDisplay
                       amount={detailOrder.total_amount}
-                      currency={detailOrder.currency_code}
+                      currency={detailOrder.currency_code || "ZAR"}
                     />
                   </div>
                 </div>
@@ -527,18 +531,18 @@ export default function OrderList() {
                         {orderPayments.map((p) => (
                           <TableRow key={p.id}>
                             <TableCell className="capitalize">
-                              {p.payment_method?.replace(/_/g, ' ')}
+                              {p.payment_method?.replace(/_/g, " ") || "—"}
                             </TableCell>
                             <TableCell>
                               <StatusBadge type="payment" value={p.payment_status} />
                             </TableCell>
                             <TableCell className="text-sm">
-                              {p.payment_reference || '—'}
+                              {p.payment_reference || "—"}
                             </TableCell>
                             <TableCell className="text-right">
                               <CurrencyDisplay
                                 amount={p.amount}
-                                currency={p.currency_code}
+                                currency={p.currency_code || "ZAR"}
                               />
                             </TableCell>
                           </TableRow>
