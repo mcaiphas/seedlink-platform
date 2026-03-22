@@ -23,13 +23,13 @@ export default function SupportTicketList() {
     <AdminListPage
       title="Support Tickets"
       tableName="support_tickets"
-      selectQuery="*, customers(business_name), profiles!support_tickets_assigned_advisor_id_fkey(full_name)"
+      selectQuery="*, customers(customer_name), profiles!support_tickets_assigned_advisor_id_fkey(full_name)"
       searchPlaceholder="Search tickets..."
       searchFields={['ticket_number', 'subject', 'category']}
       columns={[
         { label: 'Ticket #', key: 'ticket_number', sortable: true, render: r => <span className="font-mono font-medium text-sm">{r.ticket_number || '—'}</span> },
         { label: 'Subject', key: 'subject', sortable: true, render: r => <span className="font-medium">{r.subject}</span> },
-        { label: 'Customer', key: 'customer_id', render: r => (r as any).customers?.business_name || '—' },
+        { label: 'Customer', key: 'customer_id', render: r => (r as any).customers?.customer_name || '—' },
         { label: 'Category', key: 'category', render: r => <Badge variant="secondary" className="capitalize">{r.category}</Badge> },
         { label: 'Priority', key: 'priority', sortable: true, render: r => <Badge variant={priorityVariant(r.priority)} className="capitalize">{r.priority}</Badge> },
         { label: 'Assigned', key: 'assigned_advisor_id', render: r => (r as any).profiles?.full_name || '—' },
