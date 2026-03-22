@@ -33,6 +33,7 @@ import PackSizeList from "@/pages/products/PackSizeList";
 import ImportJobList from "@/pages/products/ImportJobList";
 import OrderList from "@/pages/orders/OrderList";
 import OrderDetail from "@/pages/orders/OrderDetail";
+import SalesOrderList from "@/pages/orders/SalesOrderList";
 import CartList from "@/pages/orders/CartList";
 import AbandonedCartList from "@/pages/orders/AbandonedCartList";
 import PaymentList from "@/pages/orders/PaymentList";
@@ -272,6 +273,7 @@ const App = () => (
               <Route path="import-jobs" element={<ImportJobList />} />
               <Route path="orders" element={<OrderList />} />
               <Route path="orders/:id" element={<OrderDetail />} />
+              <Route path="sales-orders" element={<SalesOrderList />} />
               <Route path="carts" element={<CartList />} />
               <Route path="abandoned-carts" element={<AbandonedCartList />} />
               <Route path="payments" element={<PaymentList />} />
