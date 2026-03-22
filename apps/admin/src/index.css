@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 97%;
+    --foreground: 150 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 25% 10%;
+    --primary: 152 44% 28%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 145 15% 93%;
+    --secondary-foreground: 152 35% 20%;
+    --muted: 150 10% 94%;
+    --muted-foreground: 150 8% 45%;
+    --accent: 40 85% 50%;
+    --accent-foreground: 40 85% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 10% 88%;
+    --input: 150 10% 88%;
+    --ring: 152 44% 28%;
+    --radius: 0.5rem;
+    --sidebar-background: 152 30% 12%;
+    --sidebar-foreground: 150 10% 90%;
+    --sidebar-primary: 40 85% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 152 25% 18%;
+    --sidebar-accent-foreground: 150 10% 90%;
+    --sidebar-border: 152 20% 20%;
+    --sidebar-ring: 40 85% 50%;
+  }
+
+  .dark {
+    --background: 150 15% 8%;
+    --foreground: 150 10% 90%;
+    --card: 150 15% 10%;
+    --card-foreground: 150 10% 90%;
+    --popover: 150 15% 10%;
+    --popover-foreground: 150 10% 90%;
+    --primary: 152 44% 40%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 150 15% 15%;
+    --secondary-foreground: 150 10% 90%;
+    --muted: 150 10% 15%;
+    --muted-foreground: 150 8% 55%;
+    --accent: 40 85% 50%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 10% 18%;
+    --input: 150 10% 18%;
+    --ring: 152 44% 40%;
+    --sidebar-background: 152 30% 8%;
+    --sidebar-foreground: 150 10% 90%;
+    --sidebar-primary: 40 85% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 152 25% 14%;
+    --sidebar-accent-foreground: 150 10% 90%;
+    --sidebar-border: 152 20% 15%;
+    --sidebar-ring: 40 85% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
