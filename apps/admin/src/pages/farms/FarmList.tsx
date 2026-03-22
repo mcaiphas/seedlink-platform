@@ -1,0 +1,3 @@
+import { AdminListPage } from '@/components/AdminListPage';
+import { Badge } from '@/components/ui/badge';
+export default function FarmList() { return <AdminListPage title="Farms" tableName="farms" searchPlaceholder="Search farms..." searchFields={['farm_name','location']} columns={[{label:'Farm Name',key:'farm_name',sortable:true,render:r=><span className="font-medium">{r.farm_name}</span>},{label:'Location',key:'location',render:r=>r.location||'—'},{label:'Hectares',key:'hectares',sortable:true,render:r=>r.hectares??'—'},{label:'Registered',key:'created_at',sortable:true,render:r=>new Date(r.created_at).toLocaleDateString()}]} />; }

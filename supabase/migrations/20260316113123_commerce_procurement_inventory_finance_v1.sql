@@ -36,10 +36,11 @@ create index if not exists idx_suppliers_supplier_name
   on public.suppliers(supplier_name);
 
 drop trigger if exists trg_suppliers_updated_at on public.suppliers;
-create trigger trg_suppliers_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_suppliers_updated_at
+before') then create trigger trg_suppliers_updated_at
 before update on public.suppliers
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 2) PURCHASE ORDERS
@@ -76,10 +77,11 @@ create index if not exists idx_purchase_orders_status
   on public.purchase_orders(status);
 
 drop trigger if exists trg_purchase_orders_updated_at on public.purchase_orders;
-create trigger trg_purchase_orders_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_orders_updated_at
+before') then create trigger trg_purchase_orders_updated_at
 before update on public.purchase_orders
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 3) PURCHASE ORDER ITEMS
@@ -111,10 +113,11 @@ create index if not exists idx_purchase_order_items_variant_id
   on public.purchase_order_items(variant_id);
 
 drop trigger if exists trg_purchase_order_items_updated_at on public.purchase_order_items;
-create trigger trg_purchase_order_items_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_order_items_updated_at
+before') then create trigger trg_purchase_order_items_updated_at
 before update on public.purchase_order_items
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 4) GOODS RECEIPTS
@@ -141,10 +144,11 @@ create index if not exists idx_goods_receipts_po_id
   on public.goods_receipts(purchase_order_id);
 
 drop trigger if exists trg_goods_receipts_updated_at on public.goods_receipts;
-create trigger trg_goods_receipts_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_goods_receipts_updated_at
+before') then create trigger trg_goods_receipts_updated_at
 before update on public.goods_receipts
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 5) GOODS RECEIPT ITEMS
@@ -208,10 +212,11 @@ create index if not exists idx_supplier_invoices_po_id
   on public.supplier_invoices(purchase_order_id);
 
 drop trigger if exists trg_supplier_invoices_updated_at on public.supplier_invoices;
-create trigger trg_supplier_invoices_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_invoices_updated_at
+before') then create trigger trg_supplier_invoices_updated_at
 before update on public.supplier_invoices
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 7) SUPPLIER INVOICE ITEMS
@@ -309,10 +314,11 @@ create index if not exists idx_customer_invoices_status
   on public.customer_invoices(status);
 
 drop trigger if exists trg_customer_invoices_updated_at on public.customer_invoices;
-create trigger trg_customer_invoices_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_invoices_updated_at
+before') then create trigger trg_customer_invoices_updated_at
 before update on public.customer_invoices
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 9) CUSTOMER INVOICE ITEMS
@@ -402,10 +408,11 @@ create table if not exists public.stock_adjustments (
 );
 
 drop trigger if exists trg_stock_adjustments_updated_at on public.stock_adjustments;
-create trigger trg_stock_adjustments_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_stock_adjustments_updated_at
+before') then create trigger trg_stock_adjustments_updated_at
 before update on public.stock_adjustments
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.stock_adjustment_items (
   id uuid primary key default gen_random_uuid(),
@@ -460,10 +467,11 @@ create table if not exists public.journal_entries (
 );
 
 drop trigger if exists trg_journal_entries_updated_at on public.journal_entries;
-create trigger trg_journal_entries_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_journal_entries_updated_at
+before') then create trigger trg_journal_entries_updated_at
 before update on public.journal_entries
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.journal_entry_lines (
   id uuid primary key default gen_random_uuid(),

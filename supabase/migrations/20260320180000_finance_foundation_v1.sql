@@ -117,33 +117,37 @@ begin
     if not exists (
       select 1 from pg_trigger where tgname = 'trg_finance_accounts_updated_at'
     ) then
-      create trigger trg_finance_accounts_updated_at
+      do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_finance_accounts_updated_at
+') then create trigger trg_finance_accounts_updated_at
       before update on public.finance_accounts
-      for each row execute function public.set_updated_at();
+      for each row  execute function public.set_updated_at(); end if; end 8999;
     end if;
 
     if not exists (
       select 1 from pg_trigger where tgname = 'trg_journal_entries_updated_at'
     ) then
-      create trigger trg_journal_entries_updated_at
+      do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_journal_entries_updated_at
+') then create trigger trg_journal_entries_updated_at
       before update on public.journal_entries
-      for each row execute function public.set_updated_at();
+      for each row  execute function public.set_updated_at(); end if; end 8999;
     end if;
 
     if not exists (
       select 1 from pg_trigger where tgname = 'trg_journal_entry_lines_updated_at'
     ) then
-      create trigger trg_journal_entry_lines_updated_at
+      do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_journal_entry_lines_updated_at
+') then create trigger trg_journal_entry_lines_updated_at
       before update on public.journal_entry_lines
-      for each row execute function public.set_updated_at();
+      for each row  execute function public.set_updated_at(); end if; end 8999;
     end if;
 
     if not exists (
       select 1 from pg_trigger where tgname = 'trg_bank_statement_imports_updated_at'
     ) then
-      create trigger trg_bank_statement_imports_updated_at
+      do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_bank_statement_imports_updated_at
+') then create trigger trg_bank_statement_imports_updated_at
       before update on public.bank_statement_imports
-      for each row execute function public.set_updated_at();
+      for each row  execute function public.set_updated_at(); end if; end 8999;
     end if;
   end if;
 end $$;

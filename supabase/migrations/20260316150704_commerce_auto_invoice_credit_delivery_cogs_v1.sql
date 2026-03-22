@@ -552,10 +552,11 @@ end;
 $$;
 
 drop trigger if exists trg_auto_generate_invoice_from_order on public.orders;
-create trigger trg_auto_generate_invoice_from_order
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_order
+after') then create trigger trg_auto_generate_invoice_from_order
 after update on public.orders
 for each row
-execute function public.auto_generate_invoice_from_order();
+ execute function public.auto_generate_invoice_from_order(); end if; end 8999;
 
 -- =========================================================
 -- HELPER: PAYMENT CALLBACK UPDATES ORDER
@@ -589,10 +590,11 @@ end;
 $$;
 
 drop trigger if exists trg_auto_generate_invoice_from_payment on public.payments;
-create trigger trg_auto_generate_invoice_from_payment
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_payment
+after') then create trigger trg_auto_generate_invoice_from_payment
 after update on public.payments
 for each row
-execute function public.auto_generate_invoice_from_payment();
+ execute function public.auto_generate_invoice_from_payment(); end if; end 8999;
 
 -- =========================================================
 -- HELPER: AUTO-POST COGS WHEN CUSTOMER INVOICE BECOMES PAID
@@ -656,7 +658,8 @@ end;
 $$;
 
 drop trigger if exists trg_post_customer_invoice_cogs_journal on public.customer_invoices;
-create trigger trg_post_customer_invoice_cogs_journal
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_customer_invoice_cogs_journal
+after') then create trigger trg_post_customer_invoice_cogs_journal
 after update on public.customer_invoices
 for each row
-execute function public.post_customer_invoice_cogs_journal();
+ execute function public.post_customer_invoice_cogs_journal(); end if; end 8999;

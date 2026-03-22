@@ -175,10 +175,11 @@ end;
 $$;
 
 drop trigger if exists trg_post_goods_receipt_journal on public.goods_receipts;
-create trigger trg_post_goods_receipt_journal
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_goods_receipt_journal
+after') then create trigger trg_post_goods_receipt_journal
 after update on public.goods_receipts
 for each row
-execute function public.post_goods_receipt_journal();
+ execute function public.post_goods_receipt_journal(); end if; end 8999;
 
 -- =========================================================
 -- SUPPLIER INVOICE POSTING
@@ -234,10 +235,11 @@ end;
 $$;
 
 drop trigger if exists trg_post_supplier_invoice_journal on public.supplier_invoices;
-create trigger trg_post_supplier_invoice_journal
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_supplier_invoice_journal
+after') then create trigger trg_post_supplier_invoice_journal
 after update on public.supplier_invoices
 for each row
-execute function public.post_supplier_invoice_journal();
+ execute function public.post_supplier_invoice_journal(); end if; end 8999;
 
 -- =========================================================
 -- CUSTOMER INVOICE POSTING
@@ -293,10 +295,11 @@ end;
 $$;
 
 drop trigger if exists trg_post_customer_invoice_journal on public.customer_invoices;
-create trigger trg_post_customer_invoice_journal
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_customer_invoice_journal
+after') then create trigger trg_post_customer_invoice_journal
 after update on public.customer_invoices
 for each row
-execute function public.post_customer_invoice_journal();
+ execute function public.post_customer_invoice_journal(); end if; end 8999;
 
 -- =========================================================
 -- CUSTOMER INVOICE FULFILLMENT / COGS POSTING
@@ -359,7 +362,8 @@ end;
 $$;
 
 drop trigger if exists trg_post_customer_invoice_cogs_journal on public.customer_invoices;
-create trigger trg_post_customer_invoice_cogs_journal
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_customer_invoice_cogs_journal
+after') then create trigger trg_post_customer_invoice_cogs_journal
 after update on public.customer_invoices
 for each row
-execute function public.post_customer_invoice_cogs_journal();
+ execute function public.post_customer_invoice_cogs_journal(); end if; end 8999;

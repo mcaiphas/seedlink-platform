@@ -80,30 +80,40 @@ begin
 end;
 $$;
 
-create trigger trg_organizations_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_organizations_updated_at
+before') then create trigger trg_organizations_updated_at
 before update on public.organizations
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_organization_members_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_organization_members_updated_at
+before') then create trigger trg_organization_members_updated_at
 before update on public.organization_members
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_roles_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_roles_updated_at
+before') then create trigger trg_roles_updated_at
 before update on public.roles
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_permissions_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_permissions_updated_at
+before') then create trigger trg_permissions_updated_at
 before update on public.permissions
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_user_role_assignments_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_user_role_assignments_updated_at
+before') then create trigger trg_user_role_assignments_updated_at
 before update on public.user_role_assignments
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 insert into public.roles (name, description, is_system_role)
 values

@@ -1,0 +1,3 @@
+import { AdminListPage } from '@/components/AdminListPage';
+import { Badge } from '@/components/ui/badge';
+export default function FieldList() { return <AdminListPage title="Fields" tableName="fields" selectQuery="*, farms(farm_name)" searchPlaceholder="Search fields..." searchFields={['field_name','field_code']} columns={[{label:'Field Name',key:'field_name',sortable:true,render:r=><span className="font-medium">{r.field_name}</span>},{label:'Farm',key:'farm_id',render:r=>(r.farms as any)?.farm_name||'—'},{label:'Area (ha)',key:'area_hectares',sortable:true},{label:'Soil Type',key:'soil_type',render:r=>r.soil_type||'—'},{label:'Status',key:'is_active',render:r=><Badge variant={r.is_active?'default':'secondary'}>{r.is_active?'Active':'Inactive'}</Badge>}]} />; }

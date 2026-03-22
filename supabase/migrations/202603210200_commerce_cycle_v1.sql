@@ -112,9 +112,10 @@ create index if not exists idx_customers_name_trgm on public.customers using gin
 create index if not exists idx_customers_email_trgm on public.customers using gin (email gin_trgm_ops);
 
 drop trigger if exists trg_customers_set_updated_at on public.customers;
-create trigger trg_customers_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customers_set_updated_at
+before') then create trigger trg_customers_set_updated_at
 before update on public.customers
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.addresses (
   id uuid primary key default gen_random_uuid(),
@@ -158,9 +159,10 @@ create index if not exists idx_addresses_customer on public.addresses(customer_i
 create index if not exists idx_addresses_type on public.addresses(address_type);
 
 drop trigger if exists trg_addresses_set_updated_at on public.addresses;
-create trigger trg_addresses_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_addresses_set_updated_at
+before') then create trigger trg_addresses_set_updated_at
 before update on public.addresses
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.discounts (
   id uuid primary key default gen_random_uuid(),
@@ -192,9 +194,10 @@ create index if not exists idx_discounts_code_trgm on public.discounts using gin
 create index if not exists idx_discounts_name_trgm on public.discounts using gin (name gin_trgm_ops);
 
 drop trigger if exists trg_discounts_set_updated_at on public.discounts;
-create trigger trg_discounts_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_discounts_set_updated_at
+before') then create trigger trg_discounts_set_updated_at
 before update on public.discounts
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.carts (
   id uuid primary key default gen_random_uuid(),
@@ -238,9 +241,10 @@ create index if not exists idx_carts_session on public.carts(session_id);
 create index if not exists idx_carts_status on public.carts(status);
 
 drop trigger if exists trg_carts_set_updated_at on public.carts;
-create trigger trg_carts_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_carts_set_updated_at
+before') then create trigger trg_carts_set_updated_at
 before update on public.carts
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.cart_items (
   id uuid primary key default gen_random_uuid(),
@@ -282,9 +286,10 @@ create index if not exists idx_cart_items_cart on public.cart_items(cart_id);
 create index if not exists idx_cart_items_product on public.cart_items(product_id);
 
 drop trigger if exists trg_cart_items_set_updated_at on public.cart_items;
-create trigger trg_cart_items_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_cart_items_set_updated_at
+before') then create trigger trg_cart_items_set_updated_at
 before update on public.cart_items
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.checkout_sessions (
   id uuid primary key default gen_random_uuid(),
@@ -314,9 +319,10 @@ create index if not exists idx_checkout_sessions_customer on public.checkout_ses
 create index if not exists idx_checkout_sessions_status on public.checkout_sessions(checkout_status);
 
 drop trigger if exists trg_checkout_sessions_set_updated_at on public.checkout_sessions;
-create trigger trg_checkout_sessions_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_checkout_sessions_set_updated_at
+before') then create trigger trg_checkout_sessions_set_updated_at
 before update on public.checkout_sessions
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -385,9 +391,10 @@ create index if not exists idx_orders_customer_name_trgm on public.orders using 
 create index if not exists idx_orders_customer_email_trgm on public.orders using gin (customer_email gin_trgm_ops);
 
 drop trigger if exists trg_orders_set_updated_at on public.orders;
-create trigger trg_orders_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_orders_set_updated_at
+before') then create trigger trg_orders_set_updated_at
 before update on public.orders
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
@@ -426,9 +433,10 @@ create index if not exists idx_order_items_order on public.order_items(order_id)
 create index if not exists idx_order_items_product on public.order_items(product_id);
 
 drop trigger if exists trg_order_items_set_updated_at on public.order_items;
-create trigger trg_order_items_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_order_items_set_updated_at
+before') then create trigger trg_order_items_set_updated_at
 before update on public.order_items
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
@@ -473,9 +481,10 @@ create index if not exists idx_payments_checkout_session on public.payments(chec
 create index if not exists idx_payments_status on public.payments(payment_status);
 
 drop trigger if exists trg_payments_set_updated_at on public.payments;
-create trigger trg_payments_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_payments_set_updated_at
+before') then create trigger trg_payments_set_updated_at
 before update on public.payments
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.order_status_history (
   id uuid primary key default gen_random_uuid(),
@@ -510,9 +519,10 @@ create index if not exists idx_inventory_reservations_cart on public.inventory_r
 create index if not exists idx_inventory_reservations_product on public.inventory_reservations(product_id);
 
 drop trigger if exists trg_inventory_reservations_set_updated_at on public.inventory_reservations;
-create trigger trg_inventory_reservations_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_reservations_set_updated_at
+before') then create trigger trg_inventory_reservations_set_updated_at
 before update on public.inventory_reservations
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 create table if not exists public.subscriptions (
   id uuid primary key default gen_random_uuid(),
@@ -554,9 +564,10 @@ create index if not exists idx_subscriptions_customer on public.subscriptions(cu
 create index if not exists idx_subscriptions_status on public.subscriptions(status);
 
 drop trigger if exists trg_subscriptions_set_updated_at on public.subscriptions;
-create trigger trg_subscriptions_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_subscriptions_set_updated_at
+before') then create trigger trg_subscriptions_set_updated_at
 before update on public.subscriptions
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- CALCULATION / WORKFLOW FUNCTIONS

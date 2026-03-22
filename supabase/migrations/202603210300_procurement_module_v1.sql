@@ -131,9 +131,10 @@ create index if not exists idx_suppliers_contact_trgm on public.suppliers using 
 create index if not exists idx_suppliers_email_trgm on public.suppliers using gin (email gin_trgm_ops);
 
 drop trigger if exists trg_suppliers_set_updated_at on public.suppliers;
-create trigger trg_suppliers_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_suppliers_set_updated_at
+before') then create trigger trg_suppliers_set_updated_at
 before update on public.suppliers
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- TABLE: purchase_orders
@@ -192,9 +193,10 @@ create index if not exists idx_purchase_orders_order_date on public.purchase_ord
 create index if not exists idx_purchase_orders_po_number_trgm on public.purchase_orders using gin (po_number gin_trgm_ops);
 
 drop trigger if exists trg_purchase_orders_set_updated_at on public.purchase_orders;
-create trigger trg_purchase_orders_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_orders_set_updated_at
+before') then create trigger trg_purchase_orders_set_updated_at
 before update on public.purchase_orders
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- TABLE: purchase_order_items
@@ -237,9 +239,10 @@ create index if not exists idx_purchase_order_items_po on public.purchase_order_
 create index if not exists idx_purchase_order_items_product on public.purchase_order_items(product_id);
 
 drop trigger if exists trg_purchase_order_items_set_updated_at on public.purchase_order_items;
-create trigger trg_purchase_order_items_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_order_items_set_updated_at
+before') then create trigger trg_purchase_order_items_set_updated_at
 before update on public.purchase_order_items
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- TABLE: supplier_invoices
@@ -304,9 +307,10 @@ create index if not exists idx_supplier_invoices_invoice_number_trgm on public.s
 create index if not exists idx_supplier_invoices_reference_trgm on public.supplier_invoices using gin (reference gin_trgm_ops);
 
 drop trigger if exists trg_supplier_invoices_set_updated_at on public.supplier_invoices;
-create trigger trg_supplier_invoices_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_invoices_set_updated_at
+before') then create trigger trg_supplier_invoices_set_updated_at
 before update on public.supplier_invoices
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- TABLE: supplier_invoice_items
@@ -348,9 +352,10 @@ create index if not exists idx_supplier_invoice_items_po_item on public.supplier
 create index if not exists idx_supplier_invoice_items_product on public.supplier_invoice_items(product_id);
 
 drop trigger if exists trg_supplier_invoice_items_set_updated_at on public.supplier_invoice_items;
-create trigger trg_supplier_invoice_items_set_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_invoice_items_set_updated_at
+before') then create trigger trg_supplier_invoice_items_set_updated_at
 before update on public.supplier_invoice_items
-for each row execute function public.set_updated_at();
+for each row  execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- CALCULATION FUNCTIONS
