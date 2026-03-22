@@ -301,13 +301,13 @@ const sections: NavSection[] = [
     label: 'Administration',
     adminOnly: true,
     items: [
-      { title: 'Users', url: '/users', icon: Users, permission: 'users:view' },
+      { title: 'Users', url: '/users', icon: Users, permission: 'users.manage' },
       { title: 'Roles', url: '/roles', icon: Shield, permission: 'roles:view' },
       { title: 'Permissions', url: '/permissions', icon: Lock, permission: 'permissions:view' },
       { title: 'Organizations', url: '/organizations', icon: Building2 },
-      { title: 'Settings', url: '/settings', icon: Settings, permission: 'settings:view' },
+      { title: 'Settings', url: '/settings', icon: Settings, permission: 'roles.manage' },
       { title: 'Payment Gateways', url: '/settings/payment-gateways', icon: DollarSign },
-      { title: 'Backend Diagnostics', url: '/settings/diagnostics', icon: Settings, permission: 'settings:view' },
+      { title: 'Backend Diagnostics', url: '/settings/diagnostics', icon: Settings, permission: 'roles.manage' },
     ],
   },
 ];
