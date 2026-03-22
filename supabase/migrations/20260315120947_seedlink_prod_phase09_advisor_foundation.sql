@@ -161,25 +161,29 @@ create index idx_advisor_query_logs_user_id on public.advisor_query_logs(user_id
 create index idx_advisor_query_logs_conversation_id on public.advisor_query_logs(conversation_id);
 create index idx_advisor_feedback_message_id on public.advisor_feedback(message_id);
 
-create trigger trg_knowledge_sources_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_knowledge_sources_updated_at
+before') then create trigger trg_knowledge_sources_updated_at
 before update on public.knowledge_sources
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_knowledge_documents_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_knowledge_documents_updated_at
+before') then create trigger trg_knowledge_documents_updated_at
 before update on public.knowledge_documents
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_advisor_profiles_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_profiles_updated_at
+before') then create trigger trg_advisor_profiles_updated_at
 before update on public.advisor_profiles
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_advisor_conversations_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_conversations_updated_at
+before') then create trigger trg_advisor_conversations_updated_at
 before update on public.advisor_conversations
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 alter table public.knowledge_sources enable row level security;
 alter table public.knowledge_documents enable row level security;

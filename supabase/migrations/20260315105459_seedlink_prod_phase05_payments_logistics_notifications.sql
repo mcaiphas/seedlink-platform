@@ -149,30 +149,35 @@ create index idx_notification_preferences_user_id on public.notification_prefere
 create index idx_audit_logs_actor_user_id on public.audit_logs(actor_user_id);
 create index idx_audit_logs_entity_type on public.audit_logs(entity_type);
 
-create trigger trg_payment_gateways_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_payment_gateways_updated_at
+before') then create trigger trg_payment_gateways_updated_at
 before update on public.payment_gateways
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_payment_transactions_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_payment_transactions_updated_at
+before') then create trigger trg_payment_transactions_updated_at
 before update on public.payment_transactions
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_wallets_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_wallets_updated_at
+before') then create trigger trg_wallets_updated_at
 before update on public.wallets
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_delivery_requests_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_delivery_requests_updated_at
+before') then create trigger trg_delivery_requests_updated_at
 before update on public.delivery_requests
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_notification_preferences_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_notification_preferences_updated_at
+before') then create trigger trg_notification_preferences_updated_at
 before update on public.notification_preferences
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 insert into public.payment_gateways (name, code, provider_type, supported_currencies, is_active)
 values

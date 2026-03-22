@@ -177,32 +177,38 @@ create index idx_farm_activities_farm_id on public.farm_activities(farm_id);
 create index idx_farm_activities_field_id on public.farm_activities(field_id);
 create index idx_farm_activities_performed_by on public.farm_activities(performed_by);
 
-create trigger trg_fields_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_fields_updated_at
+before') then create trigger trg_fields_updated_at
 before update on public.fields
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_planting_records_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_planting_records_updated_at
+before') then create trigger trg_planting_records_updated_at
 before update on public.planting_records
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_harvest_records_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_harvest_records_updated_at
+before') then create trigger trg_harvest_records_updated_at
 before update on public.harvest_records
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_soil_tests_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_soil_tests_updated_at
+before') then create trigger trg_soil_tests_updated_at
 before update on public.soil_tests
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_crop_recommendations_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_crop_recommendations_updated_at
+before') then create trigger trg_crop_recommendations_updated_at
 before update on public.crop_recommendations
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_farm_activities_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_farm_activities_updated_at
+before') then create trigger trg_farm_activities_updated_at
 before update on public.farm_activities
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;

@@ -214,20 +214,23 @@ as $$
   limit match_count;
 $$;
 
-create trigger trg_knowledge_ingestion_jobs_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_knowledge_ingestion_jobs_updated_at
+before') then create trigger trg_knowledge_ingestion_jobs_updated_at
 before update on public.knowledge_ingestion_jobs
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_website_crawl_targets_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_website_crawl_targets_updated_at
+before') then create trigger trg_website_crawl_targets_updated_at
 before update on public.website_crawl_targets
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
-create trigger trg_advisor_tools_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_tools_updated_at
+before') then create trigger trg_advisor_tools_updated_at
 before update on public.advisor_tools
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 alter table public.knowledge_ingestion_jobs enable row level security;
 alter table public.website_crawl_targets enable row level security;

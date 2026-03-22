@@ -41,10 +41,11 @@ create index if not exists idx_customer_credit_accounts_status
   on public.customer_credit_accounts(account_status);
 
 drop trigger if exists trg_customer_credit_accounts_updated_at on public.customer_credit_accounts;
-create trigger trg_customer_credit_accounts_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_credit_accounts_updated_at
+before') then create trigger trg_customer_credit_accounts_updated_at
 before update on public.customer_credit_accounts
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 2) CUSTOMER ACCOUNT LEDGER
@@ -130,10 +131,11 @@ create index if not exists idx_payments_provider_txn
   on public.payments(provider_transaction_id);
 
 drop trigger if exists trg_payments_updated_at on public.payments;
-create trigger trg_payments_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_payments_updated_at
+before') then create trigger trg_payments_updated_at
 before update on public.payments
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 4) PAYMENT ALLOCATIONS
@@ -192,10 +194,11 @@ create index if not exists idx_carts_abandoned_at
   on public.carts(abandoned_at);
 
 drop trigger if exists trg_carts_updated_at on public.carts;
-create trigger trg_carts_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_carts_updated_at
+before') then create trigger trg_carts_updated_at
 before update on public.carts
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 6) ABANDONED CART FOLLOW-UP LOG
@@ -299,10 +302,11 @@ create index if not exists idx_orders_approval_status
   on public.orders(approval_status);
 
 drop trigger if exists trg_orders_updated_at on public.orders;
-create trigger trg_orders_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_orders_updated_at
+before') then create trigger trg_orders_updated_at
 before update on public.orders
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 9) HELPER FUNCTION: RECALCULATE CREDIT AVAILABLE
@@ -347,7 +351,8 @@ end;
 $$;
 
 drop trigger if exists trg_apply_credit_ledger_effect on public.customer_credit_ledger;
-create trigger trg_apply_credit_ledger_effect
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_apply_credit_ledger_effect
+after') then create trigger trg_apply_credit_ledger_effect
 after insert on public.customer_credit_ledger
 for each row
-execute function public.apply_credit_ledger_effect();
+ execute function public.apply_credit_ledger_effect(); end if; end 8999;

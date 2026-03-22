@@ -32,10 +32,11 @@ alter table public.roles
   add column if not exists updated_at timestamptz not null default now();
 
 drop trigger if exists trg_roles_updated_at on public.roles;
-create trigger trg_roles_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_roles_updated_at
+before') then create trigger trg_roles_updated_at
 before update on public.roles
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 2) PERMISSIONS
@@ -57,10 +58,11 @@ create index if not exists idx_permissions_module
   on public.permissions(module);
 
 drop trigger if exists trg_permissions_updated_at on public.permissions;
-create trigger trg_permissions_updated_at
+do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_permissions_updated_at
+before') then create trigger trg_permissions_updated_at
 before update on public.permissions
 for each row
-execute function public.set_updated_at();
+ execute function public.set_updated_at(); end if; end 8999;
 
 -- =========================================================
 -- 3) ROLE PERMISSIONS
