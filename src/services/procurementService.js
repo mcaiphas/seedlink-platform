@@ -36,21 +36,12 @@ function applySearch(query, search, searchColumns = []) {
   const term = String(search || "").trim();
   if (!term || !searchColumns.length) return query;
 
-  const orClause = searchColumns
-    .map((col) => `${col}.ilike.%${term}%`)
-    .join(",");
-
+  const orClause = searchColumns.map((col) => `${col}.ilike.%${term}%`).join(",");
   return query.or(orClause);
 }
 
 function applyCommonFilters(query, options = {}, config = {}) {
-  const {
-    status,
-    paymentStatus,
-    supplierId,
-    dateFrom,
-    dateTo,
-  } = options;
+  const { status, paymentStatus, supplierId, dateFrom, dateTo } = options;
 
   const {
     statusColumn = "status",
@@ -90,9 +81,7 @@ async function getList(tableName, options = {}, config = {}) {
   const { from, to } = normalizePagination(page, perPage);
 
   try {
-    let query = supabase
-      .from(tableName)
-      .select(config.select || "*", { count: "exact" });
+    let query = supabase.from(tableName).select(config.select || "*", { count: "exact" });
 
     query = applySearch(query, search, config.searchColumns || []);
     query = applyCommonFilters(query, options, config);
@@ -127,20 +116,12 @@ async function getList(tableName, options = {}, config = {}) {
 }
 
 async function getSingle(tableName, id, select = "*") {
-  const { data, error } = await supabase
-    .from(tableName)
-    .select(select)
-    .eq("id", id)
-    .single();
-
+  const { data, error } = await supabase.from(tableName).select(select).eq("id", id).single();
   if (error) throw error;
   return data;
 }
 
 export const procurementService = {
-  // -------------------------------------------------------
-  // Suppliers
-  // -------------------------------------------------------
   async getSuppliers(options = {}) {
     return getList("suppliers", options, {
       searchColumns: ["supplier_name", "supplier_code", "contact_person", "email"],
@@ -156,12 +137,7 @@ export const procurementService = {
   },
 
   async createSupplier(payload) {
-    const { data, error } = await supabase
-      .from("suppliers")
-      .insert(payload)
-      .select()
-      .single();
-
+    const { data, error } = await supabase.from("suppliers").insert(payload).select().single();
     if (error) throw error;
     return data;
   },
@@ -181,9 +157,6 @@ export const procurementService = {
     return data;
   },
 
-  // -------------------------------------------------------
-  // Purchase Orders
-  // -------------------------------------------------------
   async getPurchaseOrders(options = {}) {
     return getList("purchase_orders", options, {
       searchColumns: ["po_number"],
@@ -197,7 +170,11 @@ export const procurementService = {
   },
 
   async getPurchaseOrderById(poId) {
-    const po = await getSingle("purchase_orders", poId, "*, suppliers(id, supplier_name, supplier_code)");
+    const po = await getSingle(
+      "purchase_orders",
+      poId,
+      "*, suppliers(id, supplier_name, supplier_code)"
+    );
 
     const { data: items, error: itemsError } = await supabase
       .from("purchase_order_items")
@@ -230,17 +207,14 @@ export const procurementService = {
         tenant_id: po.tenant_id,
         purchase_order_id: po.id,
         line_total: Math.max(
-          (Number(item.quantity || 0) * Number(item.unit_cost || 0)) -
+          Number(item.quantity || 0) * Number(item.unit_cost || 0) -
             Number(item.discount_amount || 0) +
             Number(item.tax_amount || 0),
           0
         ),
       }));
 
-      const { error: itemError } = await supabase
-        .from("purchase_order_items")
-        .insert(rows);
-
+      const { error: itemError } = await supabase.from("purchase_order_items").insert(rows);
       if (itemError) throw itemError;
 
       await supabase.rpc("recalculate_purchase_order_totals", {
@@ -280,17 +254,14 @@ export const procurementService = {
           tenant_id: po.tenant_id,
           purchase_order_id: po.id,
           line_total: Math.max(
-            (Number(item.quantity || 0) * Number(item.unit_cost || 0)) -
+            Number(item.quantity || 0) * Number(item.unit_cost || 0) -
               Number(item.discount_amount || 0) +
               Number(item.tax_amount || 0),
             0
           ),
         }));
 
-        const { error: itemError } = await supabase
-          .from("purchase_order_items")
-          .insert(rows);
-
+        const { error: itemError } = await supabase.from("purchase_order_items").insert(rows);
         if (itemError) throw itemError;
       }
     }
@@ -332,14 +303,18 @@ export const procurementService = {
     return data;
   },
 
-  // -------------------------------------------------------
-  // Supplier Invoices
-  // -------------------------------------------------------
   async getSupplierInvoices(options = {}) {
     return getList("supplier_invoices", options, {
       searchColumns: ["invoice_number", "reference"],
       defaultSort: { column: "invoice_date", ascending: false },
-      amountFields: ["subtotal", "tax_total", "discount_total", "total_amount", "amount_paid", "balance_due"],
+      amountFields: [
+        "subtotal",
+        "tax_total",
+        "discount_total",
+        "total_amount",
+        "amount_paid",
+        "balance_due",
+      ],
       statusColumn: "status",
       supplierColumn: "supplier_id",
       dateColumn: "invoice_date",
@@ -384,17 +359,14 @@ export const procurementService = {
         tenant_id: invoice.tenant_id,
         supplier_invoice_id: invoice.id,
         line_total: Math.max(
-          (Number(item.quantity || 0) * Number(item.unit_cost || 0)) -
+          Number(item.quantity || 0) * Number(item.unit_cost || 0) -
             Number(item.discount_amount || 0) +
             Number(item.tax_amount || 0),
           0
         ),
       }));
 
-      const { error: itemError } = await supabase
-        .from("supplier_invoice_items")
-        .insert(rows);
-
+      const { error: itemError } = await supabase.from("supplier_invoice_items").insert(rows);
       if (itemError) throw itemError;
 
       await supabase.rpc("recalculate_supplier_invoice_totals", {
@@ -434,17 +406,14 @@ export const procurementService = {
           tenant_id: invoice.tenant_id,
           supplier_invoice_id: invoice.id,
           line_total: Math.max(
-            (Number(item.quantity || 0) * Number(item.unit_cost || 0)) -
+            Number(item.quantity || 0) * Number(item.unit_cost || 0) -
               Number(item.discount_amount || 0) +
               Number(item.tax_amount || 0),
             0
           ),
         }));
 
-        const { error: itemError } = await supabase
-          .from("supplier_invoice_items")
-          .insert(rows);
-
+        const { error: itemError } = await supabase.from("supplier_invoice_items").insert(rows);
         if (itemError) throw itemError;
       }
     }
@@ -465,40 +434,268 @@ export const procurementService = {
     return data;
   },
 
-  // -------------------------------------------------------
-  // Procurement Dashboard Helpers
-  // -------------------------------------------------------
-  async getProcurementDashboard() {
-    const [suppliersRes, poRes, invoicesRes] = await Promise.all([
-      supabase.from("suppliers").select("id, status, credit_limit"),
-      supabase.from("purchase_orders").select("id, status, total_amount"),
-      supabase.from("supplier_invoices").select("id, status, total_amount, balance_due"),
-    ]);
+  async getProcurementDashboard(filters = {}) {
+    const { dateFrom, dateTo, supplierId, status, currencyCode } = filters;
 
-    if (suppliersRes.error) throw suppliersRes.error;
-    if (poRes.error) throw poRes.error;
-    if (invoicesRes.error) throw invoicesRes.error;
+    const applyDashboardFilters = (query, dateColumn) => {
+      let next = query;
 
-    const suppliers = suppliersRes.data || [];
-    const purchaseOrders = poRes.data || [];
-    const supplierInvoices = invoicesRes.data || [];
+      if (supplierId) next = next.eq("supplier_id", supplierId);
+      if (currencyCode) next = next.eq("currency_code", currencyCode);
+      if (status) next = next.eq("status", status);
+      if (dateFrom) next = next.gte(dateColumn, dateFrom);
+      if (dateTo) next = next.lte(dateColumn, dateTo);
 
-    return {
-      activeSuppliers: suppliers.filter((s) => s.status === "active").length,
-      openPurchaseOrders: purchaseOrders.filter((p) =>
-        ["draft", "submitted", "approved", "partially_received"].includes(p.status)
-      ).length,
-      pendingSupplierInvoices: supplierInvoices.filter((i) =>
-        ["draft", "posted", "partially_paid", "overdue"].includes(i.status)
-      ).length,
-      totalProcurementValue: purchaseOrders.reduce(
+      return next;
+    };
+
+    try {
+      let suppliersQuery = supabase.from("suppliers").select("id, supplier_name, status");
+
+      let purchaseOrdersQuery = supabase.from("purchase_orders").select(`
+        id,
+        supplier_id,
+        po_number,
+        order_date,
+        expected_delivery_date,
+        total_amount,
+        currency_code,
+        status,
+        payment_status,
+        suppliers:supplier_id (
+          supplier_name
+        )
+      `);
+
+      let supplierInvoicesQuery = supabase.from("supplier_invoices").select(`
+        id,
+        supplier_id,
+        purchase_order_id,
+        invoice_number,
+        invoice_date,
+        due_date,
+        total_amount,
+        amount_paid,
+        balance_due,
+        currency_code,
+        status,
+        suppliers:supplier_id (
+          supplier_name
+        )
+      `);
+
+      purchaseOrdersQuery = applyDashboardFilters(purchaseOrdersQuery, "order_date");
+      supplierInvoicesQuery = applyDashboardFilters(supplierInvoicesQuery, "invoice_date");
+
+      const [suppliersRes, purchaseOrdersRes, supplierInvoicesRes] = await Promise.all([
+        suppliersQuery,
+        purchaseOrdersQuery,
+        supplierInvoicesQuery,
+      ]);
+
+      if (suppliersRes.error) throw suppliersRes.error;
+      if (purchaseOrdersRes.error) throw purchaseOrdersRes.error;
+      if (supplierInvoicesRes.error) throw supplierInvoicesRes.error;
+
+      const suppliers = suppliersRes.data || [];
+      const purchaseOrders = purchaseOrdersRes.data || [];
+      const supplierInvoices = supplierInvoicesRes.data || [];
+
+      const activeSuppliers = suppliers.filter((s) => s.status === "active").length;
+
+      const openPurchaseOrders = purchaseOrders.filter((po) =>
+        ["draft", "submitted", "approved", "partially_received"].includes(po.status)
+      ).length;
+
+      const pendingSupplierInvoices = supplierInvoices.filter((inv) =>
+        ["draft", "posted", "partially_paid", "overdue"].includes(inv.status)
+      ).length;
+
+      const totalProcurementValue = purchaseOrders.reduce(
         (sum, row) => sum + Number(row.total_amount || 0),
         0
-      ),
-      totalInvoiceExposure: supplierInvoices.reduce(
+      );
+
+      const totalInvoiceExposure = supplierInvoices.reduce(
         (sum, row) => sum + Number(row.balance_due || 0),
         0
-      ),
-    };
+      );
+
+      const overdueSupplierInvoices = supplierInvoices.filter(
+        (inv) => inv.status === "overdue"
+      ).length;
+
+      const receivedThisPeriod = purchaseOrders
+        .filter((po) => ["received", "partially_received"].includes(po.status))
+        .reduce((sum, row) => sum + Number(row.total_amount || 0), 0);
+
+      const avgPoValue =
+        purchaseOrders.length > 0 ? totalProcurementValue / purchaseOrders.length : 0;
+
+      const poStatusOrder = [
+        "draft",
+        "submitted",
+        "approved",
+        "partially_received",
+        "received",
+        "cancelled",
+        "closed",
+      ];
+
+      const purchaseOrderStatusBreakdown = poStatusOrder
+        .map((poStatus) => {
+          const rows = purchaseOrders.filter((po) => po.status === poStatus);
+          return {
+            status: poStatus,
+            count: rows.length,
+            amount: rows.reduce((sum, row) => sum + Number(row.total_amount || 0), 0),
+          };
+        })
+        .filter((row) => row.count > 0 || row.amount > 0);
+
+      const invoiceStatusOrder = [
+        "draft",
+        "posted",
+        "partially_paid",
+        "paid",
+        "overdue",
+        "cancelled",
+      ];
+
+      const supplierInvoiceStatusBreakdown = invoiceStatusOrder
+        .map((invoiceStatus) => {
+          const rows = supplierInvoices.filter((inv) => inv.status === invoiceStatus);
+          return {
+            status: invoiceStatus,
+            count: rows.length,
+            amount: rows.reduce((sum, row) => sum + Number(row.total_amount || 0), 0),
+          };
+        })
+        .filter((row) => row.count > 0 || row.amount > 0);
+
+      const recentPurchaseOrders = [...purchaseOrders]
+        .sort((a, b) => new Date(b.order_date || 0) - new Date(a.order_date || 0))
+        .slice(0, 10)
+        .map((po) => ({
+          id: po.id,
+          po_number: po.po_number,
+          supplier_name: po.suppliers?.supplier_name || "-",
+          order_date: po.order_date,
+          expected_delivery_date: po.expected_delivery_date,
+          total_amount: Number(po.total_amount || 0),
+          currency_code: po.currency_code,
+          status: po.status,
+          payment_status: po.payment_status,
+        }));
+
+      const recentSupplierInvoices = [...supplierInvoices]
+        .sort((a, b) => new Date(b.invoice_date || 0) - new Date(a.invoice_date || 0))
+        .slice(0, 10)
+        .map((inv) => ({
+          id: inv.id,
+          invoice_number: inv.invoice_number,
+          supplier_name: inv.suppliers?.supplier_name || "-",
+          invoice_date: inv.invoice_date,
+          due_date: inv.due_date,
+          total_amount: Number(inv.total_amount || 0),
+          balance_due: Number(inv.balance_due || 0),
+          currency_code: inv.currency_code,
+          status: inv.status,
+        }));
+
+      const supplierSpendMap = new Map();
+
+      purchaseOrders.forEach((po) => {
+        const supplierKey = po.supplier_id;
+        const supplierName = po.suppliers?.supplier_name || "Unknown Supplier";
+        const amount = Number(po.total_amount || 0);
+
+        if (!supplierSpendMap.has(supplierKey)) {
+          supplierSpendMap.set(supplierKey, {
+            supplier_id: supplierKey,
+            supplier_name: supplierName,
+            total_spend: 0,
+          });
+        }
+
+        supplierSpendMap.get(supplierKey).total_spend += amount;
+      });
+
+      const topSuppliersBySpend = [...supplierSpendMap.values()]
+        .sort((a, b) => b.total_spend - a.total_spend)
+        .slice(0, 10);
+
+      const monthMap = new Map();
+
+      const ensureMonth = (period) => {
+        if (!monthMap.has(period)) {
+          monthMap.set(period, {
+            period,
+            purchase_order_value: 0,
+            invoiced_value: 0,
+            paid_value: 0,
+          });
+        }
+        return monthMap.get(period);
+      };
+
+      purchaseOrders.forEach((po) => {
+        if (!po.order_date) return;
+        const period = String(po.order_date).slice(0, 7);
+        const row = ensureMonth(period);
+        row.purchase_order_value += Number(po.total_amount || 0);
+      });
+
+      supplierInvoices.forEach((inv) => {
+        if (!inv.invoice_date) return;
+        const period = String(inv.invoice_date).slice(0, 7);
+        const row = ensureMonth(period);
+        row.invoiced_value += Number(inv.total_amount || 0);
+        row.paid_value += Number(inv.amount_paid || 0);
+      });
+
+      const monthlyProcurementTrend = [...monthMap.values()].sort((a, b) =>
+        a.period.localeCompare(b.period)
+      );
+
+      return {
+        summary: {
+          activeSuppliers,
+          openPurchaseOrders,
+          pendingSupplierInvoices,
+          totalProcurementValue,
+          totalInvoiceExposure,
+          overdueSupplierInvoices,
+          receivedThisPeriod,
+          avgPoValue,
+        },
+        purchaseOrderStatusBreakdown,
+        supplierInvoiceStatusBreakdown,
+        recentPurchaseOrders,
+        recentSupplierInvoices,
+        topSuppliersBySpend,
+        monthlyProcurementTrend,
+      };
+    } catch (error) {
+      console.error("Failed to fetch procurement dashboard:", error);
+      return {
+        summary: {
+          activeSuppliers: 0,
+          openPurchaseOrders: 0,
+          pendingSupplierInvoices: 0,
+          totalProcurementValue: 0,
+          totalInvoiceExposure: 0,
+          overdueSupplierInvoices: 0,
+          receivedThisPeriod: 0,
+          avgPoValue: 0,
+        },
+        purchaseOrderStatusBreakdown: [],
+        supplierInvoiceStatusBreakdown: [],
+        recentPurchaseOrders: [],
+        recentSupplierInvoices: [],
+        topSuppliersBySpend: [],
+        monthlyProcurementTrend: [],
+      };
+    }
   },
 };

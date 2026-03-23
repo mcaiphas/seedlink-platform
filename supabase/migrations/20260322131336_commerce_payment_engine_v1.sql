@@ -45,6 +45,8 @@ create index if not exists idx_payment_transactions_provider_reference on public
 -- ---------------------------------------------------------
 -- 3. Create payment record for an order
 -- ---------------------------------------------------------
+drop function if exists public.create_payment_for_order(uuid, text, text, text, uuid, text);
+
 create or replace function public.create_payment_for_order(
   p_order_id uuid,
   p_payment_method text default 'card',

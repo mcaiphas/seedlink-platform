@@ -102,11 +102,11 @@ create unique index if not exists uq_shopping_carts_active_customer
 on public.shopping_carts(customer_id)
 where status = 'active' and customer_id is not null;
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_shopping_carts_updated_at
-before') then create trigger trg_shopping_carts_updated_at
+drop trigger if exists trg_shopping_carts_updated_at on public.shopping_carts;
+create trigger trg_shopping_carts_updated_at
 before update on public.shopping_carts
 for each row
- execute function public.set_current_timestamp_updated_at(); end if; end $$;
+execute function public.set_current_timestamp_updated_at();
 
 -- =========================================================
 -- 2. CART ITEMS
@@ -139,7 +139,11 @@ create table if not exists public.cart_items (
 create index if not exists idx_cart_items_cart_id on public.cart_items(cart_id);
 create index if not exists idx_cart_items_product_id on public.cart_items(product_id);
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_cart_items_updated_at') then create trigger trg_cart_items_updated_at before update on public.cart_items for each row execute function public.set_current_timestamp_updated_at(); end if; end $$;;
+drop trigger if exists trg_cart_items_updated_at on public.cart_items;
+create trigger trg_cart_items_updated_at
+before update on public.cart_items
+for each row
+execute function public.set_current_timestamp_updated_at();
 
 -- =========================================================
 -- 3. SALES ORDERS
@@ -228,11 +232,11 @@ create index if not exists idx_sales_orders_fulfillment_status on public.sales_o
 create index if not exists idx_sales_orders_tenant_id on public.sales_orders(tenant_id);
 create index if not exists idx_sales_orders_cart_id on public.sales_orders(cart_id);
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_sales_orders_updated_at
-before') then create trigger trg_sales_orders_updated_at
+drop trigger if exists trg_sales_orders_updated_at on public.sales_orders;
+create trigger trg_sales_orders_updated_at
 before update on public.sales_orders
 for each row
- execute function public.set_current_timestamp_updated_at(); end if; end $$;
+execute function public.set_current_timestamp_updated_at();
 
 -- now that sales_orders exists, wire converted_to_order_id FK if not already present
 do $$
@@ -282,11 +286,11 @@ create table if not exists public.sales_order_lines (
 create index if not exists idx_sales_order_lines_order_id on public.sales_order_lines(sales_order_id);
 create index if not exists idx_sales_order_lines_product_id on public.sales_order_lines(product_id);
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_sales_order_lines_updated_at
-before') then create trigger trg_sales_order_lines_updated_at
+drop trigger if exists trg_sales_order_lines_updated_at on public.sales_order_lines;
+create trigger trg_sales_order_lines_updated_at
 before update on public.sales_order_lines
 for each row
- execute function public.set_current_timestamp_updated_at(); end if; end $$;
+execute function public.set_current_timestamp_updated_at();
 
 -- =========================================================
 -- 7. TOTAL RECALCULATION HELPERS
@@ -349,11 +353,11 @@ begin
 end;
 $$;
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_cart_items_recalculate_totals
-after') then create trigger trg_cart_items_recalculate_totals
+drop trigger if exists trg_cart_items_recalculate_totals on public.cart_items;
+create trigger trg_cart_items_recalculate_totals
 after insert or update or delete on public.cart_items
 for each row
- execute function public.trg_recalculate_cart_totals(); end if; end $$;
+execute function public.trg_recalculate_cart_totals();
 
 drop function if exists public.recalculate_sales_order_totals(uuid);
 
@@ -413,11 +417,11 @@ begin
 end;
 $$;
 
-do $$ begin if not exists (select 1 from pg_trigger where tgname = 'trg_sales_order_lines_recalculate_totals
-after') then create trigger trg_sales_order_lines_recalculate_totals
+drop trigger if exists trg_sales_order_lines_recalculate_totals on public.sales_order_lines;
+create trigger trg_sales_order_lines_recalculate_totals
 after insert or update or delete on public.sales_order_lines
 for each row
- execute function public.trg_recalculate_sales_order_totals(); end if; end $$;
+execute function public.trg_recalculate_sales_order_totals();
 
 -- =========================================================
 -- 9. OPTIONAL CHECKOUT HELPERS
