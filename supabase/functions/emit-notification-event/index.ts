@@ -1,13 +1,42 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const body = await req.json();
-    const { company_id, event_type, entity_type, entity_id, source_module, payload = {}, triggered_by_user_id = null } = body;
+    const {
+      company_id,
+      event_type,
+      entity_type,
+      entity_id,
+      source_module,
+      payload = {},
+      triggered_by_user_id = null,
+    } = body;
 
-    const recipientUserId = payload?.user_id ? String(payload.user_id) : null; if ((!company_id && !recipientUserId) || !event_type || !entity_type || !entity_id || !source_module) {
-      return new Response(JSON.stringify({ success: false, error: "company_id, event_type, entity_type, entity_id, and source_module are required" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    const recipientUserId =
+      payload && typeof payload === "object" && payload.user_id
+        ? String(payload.user_id)
+        : null;
+
+    if ((!company_id && !recipientUserId) || !event_type || !entity_type || !entity_id || !source_module) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Either company_id or payload.user_id is required, along with event_type, entity_type, entity_id, and source_module",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const supabase = createClient(
@@ -34,12 +63,12 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ success: true, event: data }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
