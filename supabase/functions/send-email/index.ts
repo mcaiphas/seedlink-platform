@@ -1,15 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const { to, subject, body, provider = "stub", config = {} } = await req.json();
 
     if (!to || !subject || !body) {
-      return new Response(JSON.stringify({ success: false, error: "to, subject, and body are required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "to, subject, and body are required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     if (provider === "resend") {
@@ -28,33 +41,42 @@ serve(async (req) => {
 
       if (error) throw new Error(error.message);
 
-      return new Response(JSON.stringify({
-        success: true,
-        provider: "resend",
-        provider_message_id: data?.id ?? null
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          provider: "resend",
+          provider_message_id: data?.id ?? null,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      provider,
-      provider_message_id: crypto.randomUUID(),
-      message: "Email accepted by stub sender",
-      preview: { to, subject, body }
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        provider,
+        provider_message_id: crypto.randomUUID(),
+        message: "Email accepted by stub sender",
+        preview: { to, subject, body },
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: err instanceof Error ? err.message : String(err)
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
