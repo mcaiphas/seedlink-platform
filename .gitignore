@@ -8,3 +8,5 @@ build/
 .DS_Store
 supabase/snippets/
 supabase/_backup/
+.vscode/
+*.bak
