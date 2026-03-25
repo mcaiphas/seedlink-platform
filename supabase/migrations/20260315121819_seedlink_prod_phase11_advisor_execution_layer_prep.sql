@@ -199,47 +199,61 @@ create index idx_advisor_usage_records_user_id on public.advisor_usage_records(u
 create index idx_advisor_escalation_rules_advisor_profile_id on public.advisor_escalation_rules(advisor_profile_id);
 create index idx_advisor_run_events_execution_run_id on public.advisor_run_events(execution_run_id);
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_ai_providers_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_ai_providers_updated_at
 before') then create trigger trg_ai_providers_updated_at
 before update on public.ai_providers
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_ai_models_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_ai_models_updated_at
 before') then create trigger trg_ai_models_updated_at
 before update on public.ai_models
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_prompt_templates_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_prompt_templates_updated_at
 before') then create trigger trg_advisor_prompt_templates_updated_at
 before update on public.advisor_prompt_templates
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_profile_model_configs_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_profile_model_configs_updated_at
 before') then create trigger trg_advisor_profile_model_configs_updated_at
 before update on public.advisor_profile_model_configs
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_guardrails_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_guardrails_updated_at
 before') then create trigger trg_advisor_guardrails_updated_at
 before update on public.advisor_guardrails
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_execution_runs_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_execution_runs_updated_at
 before') then create trigger trg_advisor_execution_runs_updated_at
 before update on public.advisor_execution_runs
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_escalation_rules_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_advisor_escalation_rules_updated_at
 before') then create trigger trg_advisor_escalation_rules_updated_at
 before update on public.advisor_escalation_rules
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.ai_providers enable row level security;
 alter table public.ai_models enable row level security;

@@ -49,11 +49,13 @@ create unique index if not exists uq_product_categories_sku_prefix
   where sku_prefix is not null;
 
 drop trigger if exists trg_product_categories_updated_at on public.product_categories;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_categories_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_categories_updated_at
 before') then create trigger trg_product_categories_updated_at
 before update on public.product_categories
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 2) NEW TABLE: product_subcategories
@@ -85,22 +87,26 @@ create index if not exists idx_product_subcategories_category_id
   on public.product_subcategories(category_id);
 
 drop trigger if exists trg_product_subcategories_updated_at on public.product_subcategories;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_subcategories_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_subcategories_updated_at
 before') then create trigger trg_product_subcategories_updated_at
 before update on public.product_subcategories
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 3) ENRICH EXISTING TABLE: product_collections
 -- Keep existing structure, just ensure updated_at trigger
 -- =========================================================
 drop trigger if exists trg_product_collections_updated_at on public.product_collections;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_collections_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_collections_updated_at
 before') then create trigger trg_product_collections_updated_at
 before update on public.product_collections
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 4) NEW TABLE: product_pack_sizes
@@ -126,11 +132,13 @@ create index if not exists idx_product_pack_sizes_sort_order
   on public.product_pack_sizes(sort_order);
 
 drop trigger if exists trg_product_pack_sizes_updated_at on public.product_pack_sizes;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_pack_sizes_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_pack_sizes_updated_at
 before') then create trigger trg_product_pack_sizes_updated_at
 before update on public.product_pack_sizes
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 5) ENRICH EXISTING TABLE: products
@@ -164,11 +172,13 @@ create index if not exists idx_products_organization_id
   on public.products(organization_id);
 
 drop trigger if exists trg_products_updated_at on public.products;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_products_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_products_updated_at
 before') then create trigger trg_products_updated_at
 before update on public.products
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 6) NEW TABLE: product_variants
@@ -209,11 +219,13 @@ create index if not exists idx_product_variants_depot_id
   on public.product_variants(depot_id);
 
 drop trigger if exists trg_product_variants_updated_at on public.product_variants;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_variants_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_variants_updated_at
 before') then create trigger trg_product_variants_updated_at
 before update on public.product_variants
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 7) ENRICH EXISTING TABLE: product_attributes
@@ -226,11 +238,13 @@ create index if not exists idx_product_attributes_applies_to_category_id
   on public.product_attributes(applies_to_category_id);
 
 drop trigger if exists trg_product_attributes_updated_at on public.product_attributes;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_attributes_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_attributes_updated_at
 before') then create trigger trg_product_attributes_updated_at
 before update on public.product_attributes
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 8) NEW TABLE: product_variant_attribute_values
@@ -277,11 +291,13 @@ create table if not exists public.seed_product_details (
 );
 
 drop trigger if exists trg_seed_product_details_updated_at on public.seed_product_details;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_seed_product_details_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_seed_product_details_updated_at
 before') then create trigger trg_seed_product_details_updated_at
 before update on public.seed_product_details
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 10) NEW TABLE: product_pricing_history
@@ -335,11 +351,13 @@ create index if not exists idx_inventory_batches_batch_number
   on public.inventory_batches(batch_number);
 
 drop trigger if exists trg_inventory_batches_updated_at on public.inventory_batches;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_batches_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_batches_updated_at
 before') then create trigger trg_inventory_batches_updated_at
 before update on public.inventory_batches
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 12) NEW TABLE: product_import_jobs
@@ -398,11 +416,13 @@ create unique index if not exists uq_course_classifications_code
 -- Keep current field names, add updated_at trigger only
 -- =========================================================
 drop trigger if exists trg_marketplace_commodities_updated_at on public.marketplace_commodities;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_commodities_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_commodities_updated_at
 before') then create trigger trg_marketplace_commodities_updated_at
 before update on public.marketplace_commodities
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 -- =========================================================
 -- 16) NEW TABLE: marketplace_commodity_grades

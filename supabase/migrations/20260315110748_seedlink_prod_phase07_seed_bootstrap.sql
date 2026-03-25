@@ -78,39 +78,17 @@ create index if not exists idx_coupon_codes_code on public.coupon_codes(code);
 create index if not exists idx_courses_category_id on public.courses(category_id);
 
 drop trigger if exists trg_system_settings_updated_at on public.system_settings;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_system_settings_updated_at
-before') then create trigger trg_system_settings_updated_at
-before update on public.system_settings
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-drop trigger if exists trg_notification_templates_updated_at on public.notification_templates;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_notification_templates_updated_at
-before') then create trigger trg_notification_templates_updated_at
-before update on public.notification_templates
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-drop trigger if exists trg_addresses_updated_at on public.addresses;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_addresses_updated_at
-before') then create trigger trg_addresses_updated_at
-before update on public.addresses
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-drop trigger if exists trg_coupon_codes_updated_at on public.coupon_codes;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_coupon_codes_updated_at
-before') then create trigger trg_coupon_codes_updated_at
-before update on public.coupon_codes
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-drop trigger if exists trg_course_categories_updated_at on public.course_categories;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_course_categories_updated_at
-before') then create trigger trg_course_categories_updated_at
-before update on public.course_categories
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if to_regclass('public.system_settings') is not null
+     and not exists (select 1 from pg_trigger where tgname = 'trg_system_settings_updated_at') then
+    create trigger trg_system_settings_updated_at
+    before update on public.system_settings
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
 alter table public.system_settings enable row level security;
 alter table public.notification_templates enable row level security;
