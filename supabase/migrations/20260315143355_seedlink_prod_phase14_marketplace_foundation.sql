@@ -314,53 +314,69 @@ create index idx_marketplace_payouts_settlement_id on public.marketplace_payouts
 create index idx_marketplace_disputes_trade_id on public.marketplace_disputes(trade_id);
 create index idx_marketplace_price_observations_commodity_id on public.marketplace_price_observations(commodity_id);
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_commodities_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_commodities_updated_at
 before') then create trigger trg_marketplace_commodities_updated_at
 before update on public.marketplace_commodities
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_listings_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_listings_updated_at
 before') then create trigger trg_marketplace_listings_updated_at
 before update on public.marketplace_listings
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_buyer_requests_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_buyer_requests_updated_at
 before') then create trigger trg_marketplace_buyer_requests_updated_at
 before update on public.marketplace_buyer_requests
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_offers_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_offers_updated_at
 before') then create trigger trg_marketplace_offers_updated_at
 before update on public.marketplace_offers
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_trades_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_trades_updated_at
 before') then create trigger trg_marketplace_trades_updated_at
 before update on public.marketplace_trades
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_settlements_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_settlements_updated_at
 before') then create trigger trg_marketplace_settlements_updated_at
 before update on public.marketplace_settlements
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_payouts_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_payouts_updated_at
 before') then create trigger trg_marketplace_payouts_updated_at
 before update on public.marketplace_payouts
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_disputes_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_marketplace_disputes_updated_at
 before') then create trigger trg_marketplace_disputes_updated_at
 before update on public.marketplace_disputes
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.marketplace_commodities enable row level security;
 alter table public.marketplace_listing_statuses enable row level security;

@@ -510,107 +510,141 @@ create index idx_fulfillment_batches_order_id on public.fulfillment_batches(orde
 create index idx_shipment_packages_fulfillment_batch_id on public.shipment_packages(fulfillment_batch_id);
 create index idx_shipment_package_items_shipment_package_id on public.shipment_package_items(shipment_package_id);
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_subcategories_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_subcategories_updated_at
 before') then create trigger trg_product_subcategories_updated_at
 before update on public.product_subcategories
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_attributes_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_attributes_updated_at
 before') then create trigger trg_product_attributes_updated_at
 before update on public.product_attributes
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_pack_sizes_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_pack_sizes_updated_at
 before') then create trigger trg_product_pack_sizes_updated_at
 before update on public.product_pack_sizes
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_variants_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_variants_updated_at
 before') then create trigger trg_product_variants_updated_at
 before update on public.product_variants
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_suppliers_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_suppliers_updated_at
 before') then create trigger trg_suppliers_updated_at
 before update on public.suppliers
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_depots_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_depots_updated_at
 before') then create trigger trg_depots_updated_at
 before update on public.depots
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_depot_zones_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_depot_zones_updated_at
 before') then create trigger trg_depot_zones_updated_at
 before update on public.depot_zones
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_storage_bins_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_storage_bins_updated_at
 before') then create trigger trg_storage_bins_updated_at
 before update on public.storage_bins
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_batches_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_batches_updated_at
 before') then create trigger trg_inventory_batches_updated_at
 before update on public.inventory_batches
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_stock_transfers_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_stock_transfers_updated_at
 before') then create trigger trg_stock_transfers_updated_at
 before update on public.stock_transfers
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_orders_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_purchase_orders_updated_at
 before') then create trigger trg_purchase_orders_updated_at
 before update on public.purchase_orders
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_goods_receipts_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_goods_receipts_updated_at
 before') then create trigger trg_goods_receipts_updated_at
 before update on public.goods_receipts
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_invoices_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_invoices_updated_at
 before') then create trigger trg_customer_invoices_updated_at
 before update on public.customer_invoices
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_invoices_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_invoices_updated_at
 before') then create trigger trg_supplier_invoices_updated_at
 before update on public.supplier_invoices
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_pick_waves_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_pick_waves_updated_at
 before') then create trigger trg_pick_waves_updated_at
 before update on public.pick_waves
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_pick_tasks_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_pick_tasks_updated_at
 before') then create trigger trg_pick_tasks_updated_at
 before update on public.pick_tasks
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_fulfillment_batches_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_fulfillment_batches_updated_at
 before') then create trigger trg_fulfillment_batches_updated_at
 before update on public.fulfillment_batches
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.product_subcategories enable row level security;
 alter table public.product_attributes enable row level security;

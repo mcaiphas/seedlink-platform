@@ -552,11 +552,13 @@ end;
 $$;
 
 drop trigger if exists trg_auto_generate_invoice_from_order on public.orders;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_order
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_order
 after') then create trigger trg_auto_generate_invoice_from_order
 after update on public.orders
 for each row
- execute function public.auto_generate_invoice_from_order(); end if; end 8999;
+ execute function public.auto_generate_invoice_from_order(); end if; end
+$$;
 
 -- =========================================================
 -- HELPER: PAYMENT CALLBACK UPDATES ORDER
@@ -590,11 +592,13 @@ end;
 $$;
 
 drop trigger if exists trg_auto_generate_invoice_from_payment on public.payments;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_payment
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_auto_generate_invoice_from_payment
 after') then create trigger trg_auto_generate_invoice_from_payment
 after update on public.payments
 for each row
- execute function public.auto_generate_invoice_from_payment(); end if; end 8999;
+ execute function public.auto_generate_invoice_from_payment(); end if; end
+$$;
 
 -- =========================================================
 -- HELPER: AUTO-POST COGS WHEN CUSTOMER INVOICE BECOMES PAID
@@ -658,8 +662,10 @@ end;
 $$;
 
 drop trigger if exists trg_post_customer_invoice_cogs_journal on public.customer_invoices;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_customer_invoice_cogs_journal
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_post_customer_invoice_cogs_journal
 after') then create trigger trg_post_customer_invoice_cogs_journal
 after update on public.customer_invoices
 for each row
- execute function public.post_customer_invoice_cogs_journal(); end if; end 8999;
+ execute function public.post_customer_invoice_cogs_journal(); end if; end
+$$;

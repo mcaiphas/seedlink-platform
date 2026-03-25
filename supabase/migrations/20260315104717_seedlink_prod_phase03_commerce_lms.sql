@@ -228,77 +228,93 @@ create index idx_certificates_course_id on public.certificates(course_id);
 create index idx_enrollments_user_id on public.enrollments(user_id);
 create index idx_enrollments_course_id on public.enrollments(course_id);
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_categories_updated_at
-before') then create trigger trg_product_categories_updated_at
-before update on public.product_categories
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_product_categories_updated_at') then
+    create trigger trg_product_categories_updated_at
+    before update on public.product_categories
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_product_collections_updated_at
-before') then create trigger trg_product_collections_updated_at
-before update on public.product_collections
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_products_updated_at') then
+    create trigger trg_products_updated_at
+    before update on public.products
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_products_updated_at
-before') then create trigger trg_products_updated_at
-before update on public.products
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_orders_updated_at') then
+    create trigger trg_orders_updated_at
+    before update on public.orders
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_carts_updated_at
-before') then create trigger trg_carts_updated_at
-before update on public.carts
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_order_items_updated_at') then
+    create trigger trg_order_items_updated_at
+    before update on public.order_items
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_cart_items_updated_at
-before') then create trigger trg_cart_items_updated_at
-before update on public.cart_items
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_courses_updated_at') then
+    create trigger trg_courses_updated_at
+    before update on public.courses
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_orders_updated_at
-before') then create trigger trg_orders_updated_at
-before update on public.orders
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_course_modules_updated_at') then
+    create trigger trg_course_modules_updated_at
+    before update on public.course_modules
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_subscription_plans_updated_at
-before') then create trigger trg_subscription_plans_updated_at
-before update on public.subscription_plans
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_lessons_updated_at') then
+    create trigger trg_lessons_updated_at
+    before update on public.lessons
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_subscriptions_updated_at
-before') then create trigger trg_subscriptions_updated_at
-before update on public.subscriptions
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_course_modules_updated_at
-before') then create trigger trg_course_modules_updated_at
-before update on public.course_modules
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_lessons_updated_at
-before') then create trigger trg_lessons_updated_at
-before update on public.lessons
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_courses_updated_at
-before') then create trigger trg_courses_updated_at
-before update on public.courses
-for each row
- execute function public.set_updated_at(); end if; end 8999;
-
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_enrollments_updated_at
-before') then create trigger trg_enrollments_updated_at
-before update on public.enrollments
-for each row
- execute function public.set_updated_at(); end if; end 8999;
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'trg_enrollments_updated_at') then
+    create trigger trg_enrollments_updated_at
+    before update on public.enrollments
+    for each row
+    execute function public.set_updated_at();
+  end if;
+end
+$$;
 
 insert into public.product_categories (name, slug, description, sort_order)
 values

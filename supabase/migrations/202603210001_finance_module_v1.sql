@@ -89,10 +89,12 @@ create index if not exists idx_credit_control_hold_orders on public.credit_contr
 create index if not exists idx_credit_control_customer_name_trgm on public.credit_control using gin (customer_name gin_trgm_ops);
 
 drop trigger if exists trg_credit_control_set_updated_at on public.credit_control;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_credit_control_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_credit_control_set_updated_at
 before') then create trigger trg_credit_control_set_updated_at
 before update on public.credit_control
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.credit_control enable row level security;
 
@@ -143,10 +145,12 @@ create index if not exists idx_customer_aging_customer_name_trgm on public.custo
 create index if not exists idx_customer_aging_invoice_number_trgm on public.customer_aging using gin (invoice_number gin_trgm_ops);
 
 drop trigger if exists trg_customer_aging_set_updated_at on public.customer_aging;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_aging_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_aging_set_updated_at
 before') then create trigger trg_customer_aging_set_updated_at
 before update on public.customer_aging
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.customer_aging enable row level security;
 
@@ -197,10 +201,12 @@ create index if not exists idx_supplier_aging_supplier_name_trgm on public.suppl
 create index if not exists idx_supplier_aging_invoice_number_trgm on public.supplier_aging using gin (invoice_number gin_trgm_ops);
 
 drop trigger if exists trg_supplier_aging_set_updated_at on public.supplier_aging;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_aging_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_aging_set_updated_at
 before') then create trigger trg_supplier_aging_set_updated_at
 before update on public.supplier_aging
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.supplier_aging enable row level security;
 
@@ -347,10 +353,12 @@ create index if not exists idx_customer_credit_notes_customer_name_trgm on publi
 create index if not exists idx_customer_credit_notes_reference_trgm on public.customer_credit_notes using gin (reference gin_trgm_ops);
 
 drop trigger if exists trg_customer_credit_notes_set_updated_at on public.customer_credit_notes;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_credit_notes_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_credit_notes_set_updated_at
 before') then create trigger trg_customer_credit_notes_set_updated_at
 before update on public.customer_credit_notes
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.customer_credit_notes enable row level security;
 
@@ -418,10 +426,12 @@ create index if not exists idx_supplier_credit_notes_supplier_name_trgm on publi
 create index if not exists idx_supplier_credit_notes_reference_trgm on public.supplier_credit_notes using gin (reference gin_trgm_ops);
 
 drop trigger if exists trg_supplier_credit_notes_set_updated_at on public.supplier_credit_notes;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_credit_notes_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_credit_notes_set_updated_at
 before') then create trigger trg_supplier_credit_notes_set_updated_at
 before update on public.supplier_credit_notes
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.supplier_credit_notes enable row level security;
 
@@ -489,10 +499,12 @@ create index if not exists idx_refunds_customer_name_trgm on public.refunds usin
 create index if not exists idx_refunds_reference_trgm on public.refunds using gin (reference gin_trgm_ops);
 
 drop trigger if exists trg_refunds_set_updated_at on public.refunds;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_refunds_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_refunds_set_updated_at
 before') then create trigger trg_refunds_set_updated_at
 before update on public.refunds
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.refunds enable row level security;
 
@@ -557,10 +569,12 @@ create index if not exists idx_supplier_payments_supplier_name_trgm on public.su
 create index if not exists idx_supplier_payments_reference_trgm on public.supplier_payments using gin (reference gin_trgm_ops);
 
 drop trigger if exists trg_supplier_payments_set_updated_at on public.supplier_payments;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_payments_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_payments_set_updated_at
 before') then create trigger trg_supplier_payments_set_updated_at
 before update on public.supplier_payments
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.supplier_payments enable row level security;
 
@@ -607,10 +621,12 @@ create index if not exists idx_customer_statements_statement_date on public.cust
 create index if not exists idx_customer_statements_customer_name_trgm on public.customer_statements using gin (customer_name gin_trgm_ops);
 
 drop trigger if exists trg_customer_statements_set_updated_at on public.customer_statements;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_statements_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_customer_statements_set_updated_at
 before') then create trigger trg_customer_statements_set_updated_at
 before update on public.customer_statements
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.customer_statements enable row level security;
 
@@ -657,10 +673,12 @@ create index if not exists idx_supplier_statements_statement_date on public.supp
 create index if not exists idx_supplier_statements_supplier_name_trgm on public.supplier_statements using gin (supplier_name gin_trgm_ops);
 
 drop trigger if exists trg_supplier_statements_set_updated_at on public.supplier_statements;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_statements_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_supplier_statements_set_updated_at
 before') then create trigger trg_supplier_statements_set_updated_at
 before update on public.supplier_statements
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.supplier_statements enable row level security;
 
@@ -710,10 +728,12 @@ create index if not exists idx_communication_logs_recipient_trgm on public.commu
 create index if not exists idx_communication_logs_subject_trgm on public.communication_logs using gin (subject gin_trgm_ops);
 
 drop trigger if exists trg_communication_logs_set_updated_at on public.communication_logs;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_communication_logs_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_communication_logs_set_updated_at
 before') then create trigger trg_communication_logs_set_updated_at
 before update on public.communication_logs
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.communication_logs enable row level security;
 
@@ -772,10 +792,12 @@ create index if not exists idx_notification_templates_name_trgm on public.notifi
 create index if not exists idx_notification_templates_code_trgm on public.notification_templates using gin (code gin_trgm_ops);
 
 drop trigger if exists trg_notification_templates_set_updated_at on public.notification_templates;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_notification_templates_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_notification_templates_set_updated_at
 before') then create trigger trg_notification_templates_set_updated_at
 before update on public.notification_templates
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.notification_templates enable row level security;
 
@@ -821,10 +843,12 @@ create index if not exists idx_operations_finance_reference_trgm on public.opera
 create index if not exists idx_operations_finance_description_trgm on public.operations_finance using gin (description gin_trgm_ops);
 
 drop trigger if exists trg_operations_finance_set_updated_at on public.operations_finance;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_operations_finance_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_operations_finance_set_updated_at
 before') then create trigger trg_operations_finance_set_updated_at
 before update on public.operations_finance
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.operations_finance enable row level security;
 
@@ -871,10 +895,12 @@ create index if not exists idx_inventory_valuation_product_name_trgm on public.i
 create index if not exists idx_inventory_valuation_sku_trgm on public.inventory_valuation using gin (sku gin_trgm_ops);
 
 drop trigger if exists trg_inventory_valuation_set_updated_at on public.inventory_valuation;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_valuation_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_inventory_valuation_set_updated_at
 before') then create trigger trg_inventory_valuation_set_updated_at
 before update on public.inventory_valuation
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.inventory_valuation enable row level security;
 
@@ -922,10 +948,12 @@ create index if not exists idx_commerce_accounting_reference_trgm on public.comm
 create index if not exists idx_commerce_accounting_account_code on public.commerce_accounting(account_code);
 
 drop trigger if exists trg_commerce_accounting_set_updated_at on public.commerce_accounting;
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_commerce_accounting_set_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_commerce_accounting_set_updated_at
 before') then create trigger trg_commerce_accounting_set_updated_at
 before update on public.commerce_accounting
-for each row  execute function public.set_updated_at(); end if; end 8999;
+for each row  execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.commerce_accounting enable row level security;
 

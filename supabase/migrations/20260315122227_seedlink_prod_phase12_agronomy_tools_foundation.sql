@@ -262,59 +262,77 @@ create index idx_irrigation_plans_field_id on public.irrigation_plans(field_id);
 create index idx_irrigation_plan_events_plan_id on public.irrigation_plan_events(irrigation_plan_id);
 create index idx_agronomy_tool_templates_tool_id on public.agronomy_tool_templates(tool_id);
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tools_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tools_updated_at
 before') then create trigger trg_agronomy_tools_updated_at
 before update on public.agronomy_tools
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tool_runs_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tool_runs_updated_at
 before') then create trigger trg_agronomy_tool_runs_updated_at
 before update on public.agronomy_tool_runs
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_fertiliser_recommendations_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_fertiliser_recommendations_updated_at
 before') then create trigger trg_fertiliser_recommendations_updated_at
 before update on public.fertiliser_recommendations
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_lime_recommendations_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_lime_recommendations_updated_at
 before') then create trigger trg_lime_recommendations_updated_at
 before update on public.lime_recommendations
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_spray_programs_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_spray_programs_updated_at
 before') then create trigger trg_spray_programs_updated_at
 before update on public.spray_programs
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_crop_calendar_plans_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_crop_calendar_plans_updated_at
 before') then create trigger trg_crop_calendar_plans_updated_at
 before update on public.crop_calendar_plans
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_yield_estimator_runs_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_yield_estimator_runs_updated_at
 before') then create trigger trg_yield_estimator_runs_updated_at
 before update on public.yield_estimator_runs
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_irrigation_plans_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_irrigation_plans_updated_at
 before') then create trigger trg_irrigation_plans_updated_at
 before update on public.irrigation_plans
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tool_templates_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_agronomy_tool_templates_updated_at
 before') then create trigger trg_agronomy_tool_templates_updated_at
 before update on public.agronomy_tool_templates
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
 
 alter table public.agronomy_tools enable row level security;
 alter table public.agronomy_tool_runs enable row level security;

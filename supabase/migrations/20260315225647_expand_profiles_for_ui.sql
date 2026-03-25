@@ -34,8 +34,10 @@ $$;
 
 drop trigger if exists trg_profiles_updated_at on public.profiles;
 
-do 8999 begin if not exists (select 1 from pg_trigger where tgname = 'trg_profiles_updated_at
+do $$
+begin if not exists (select 1 from pg_trigger where tgname = 'trg_profiles_updated_at
 before') then create trigger trg_profiles_updated_at
 before update on public.profiles
 for each row
- execute function public.set_updated_at(); end if; end 8999;
+ execute function public.set_updated_at(); end if; end
+$$;
