@@ -1,0 +1,72 @@
+[
+  {
+    "template": {
+      "body": "Welcome to Seedlink. Your account has been created successfully.",
+      "channel": "email",
+      "code": "welcome_user_email",
+      "event_type": null,
+      "is_active": true,
+      "status": "active",
+      "subject": "Welcome to Seedlink",
+      "template_key": null,
+      "title": "Welcome to Seedlink",
+      "variables_json": []
+    }
+  },
+  {
+    "template": {
+      "body": "Your order has been received and is being processed.",
+      "channel": "in_app",
+      "code": "order_created_in_app",
+      "event_type": null,
+      "is_active": true,
+      "status": "active",
+      "subject": null,
+      "template_key": null,
+      "title": "Order received",
+      "variables_json": []
+    }
+  },
+  {
+    "template": {
+      "body": "Your payment has been received successfully.",
+      "channel": "email",
+      "code": "payment_success_email",
+      "event_type": null,
+      "is_active": true,
+      "status": "active",
+      "subject": "Payment successful",
+      "template_key": null,
+      "title": "Payment successful",
+      "variables_json": []
+    }
+  },
+  {
+    "template": {
+      "body": "You have been successfully enrolled in your course.",
+      "channel": "email",
+      "code": "course_enrollment_email",
+      "event_type": null,
+      "is_active": true,
+      "status": "active",
+      "subject": "Course enrollment confirmed",
+      "template_key": null,
+      "title": "Enrollment confirmed",
+      "variables_json": []
+    }
+  },
+  {
+    "template": {
+      "body": "Your delivery status has been updated.",
+      "channel": "in_app",
+      "code": "delivery_status_in_app",
+      "event_type": null,
+      "is_active": true,
+      "status": "active",
+      "subject": null,
+      "template_key": null,
+      "title": "Delivery update",
+      "variables_json": []
+    }
+  }
+]

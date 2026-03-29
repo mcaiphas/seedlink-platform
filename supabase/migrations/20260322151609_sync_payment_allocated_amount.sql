@@ -1,3 +1,6 @@
+alter table public.payments
+  add column if not exists allocated_amount numeric(15,2) not null default 0;
+
 begin;
 
 create or replace function public.refresh_payment_allocated_amount(p_payment_id uuid)

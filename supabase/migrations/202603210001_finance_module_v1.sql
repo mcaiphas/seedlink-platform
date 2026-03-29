@@ -282,20 +282,29 @@ alter table public.customer_credit_notes
   add column if not exists updated_by uuid,
   add column if not exists updated_at timestamptz not null default now();
 
-alter table public.supplier_credit_notes
-  add column if not exists tenant_id uuid,
-  add column if not exists supplier_name text,
-  add column if not exists credit_note_number text,
-  add column if not exists reference text,
-  add column if not exists source_invoice_id uuid,
-  add column if not exists reason text,
-  add column if not exists tax_amount numeric(15,2) not null default 0,
-  add column if not exists currency_code text not null default 'ZAR',
-  add column if not exists approved_at timestamptz,
-  add column if not exists approved_by uuid,
-  add column if not exists created_by uuid,
-  add column if not exists updated_by uuid,
-  add column if not exists updated_at timestamptz not null default now();
+do $fn$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'supplier_credit_notes'
+  ) then
+    alter table public.supplier_credit_notes
+      add column if not exists tenant_id uuid,
+      add column if not exists supplier_name text,
+      add column if not exists credit_note_number text,
+      add column if not exists reference text,
+      add column if not exists source_invoice_id uuid,
+      add column if not exists reason text,
+      add column if not exists tax_amount numeric(15,2) not null default 0,
+      add column if not exists currency_code text not null default 'ZAR',
+      add column if not exists approved_at timestamptz,
+      add column if not exists approved_by uuid,
+      add column if not exists created_by uuid,
+      add column if not exists updated_by uuid,
+      add column if not exists updated_at timestamptz not null default now();
+  end if;
+end
+$fn$;
 
 do $fn$
 begin

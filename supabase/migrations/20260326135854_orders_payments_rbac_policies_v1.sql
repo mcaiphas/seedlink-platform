@@ -91,103 +91,123 @@ using (
 -- QUOTES
 -- ---------------------------------------------------------
 
-alter table public.quotes enable row level security;
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.tables
+    where table_schema = 'public'
+      and table_name = 'quotes'
+  ) then
+    alter table public.quotes enable row level security;
 
-drop policy if exists quotes_select_rbac on public.quotes;
-create policy quotes_select_rbac
-on public.quotes
-for select
-to authenticated
-using (
-  public.current_user_has_permission('quotes:view', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists quotes_select_rbac on public.quotes;
+    create policy quotes_select_rbac
+    on public.quotes
+    for select
+    to authenticated
+    using (
+      public.current_user_has_permission('quotes:view', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists quotes_insert_rbac on public.quotes;
-create policy quotes_insert_rbac
-on public.quotes
-for insert
-to authenticated
-with check (
-  public.current_user_has_permission('quotes:create', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists quotes_insert_rbac on public.quotes;
+    create policy quotes_insert_rbac
+    on public.quotes
+    for insert
+    to authenticated
+    with check (
+      public.current_user_has_permission('quotes:create', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists quotes_update_rbac on public.quotes;
-create policy quotes_update_rbac
-on public.quotes
-for update
-to authenticated
-using (
-  public.current_user_has_permission('quotes:update', null)
-  or public.current_user_has_permission('quotes:approve', null)
-  or public.is_platform_admin()
-)
-with check (
-  public.current_user_has_permission('quotes:update', null)
-  or public.current_user_has_permission('quotes:approve', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists quotes_update_rbac on public.quotes;
+    create policy quotes_update_rbac
+    on public.quotes
+    for update
+    to authenticated
+    using (
+      public.current_user_has_permission('quotes:update', null)
+      or public.current_user_has_permission('quotes:approve', null)
+      or public.is_platform_admin()
+    )
+    with check (
+      public.current_user_has_permission('quotes:update', null)
+      or public.current_user_has_permission('quotes:approve', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists quotes_delete_rbac on public.quotes;
-create policy quotes_delete_rbac
-on public.quotes
-for delete
-to authenticated
-using (
-  public.current_user_has_permission('quotes:approve', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists quotes_delete_rbac on public.quotes;
+    create policy quotes_delete_rbac
+    on public.quotes
+    for delete
+    to authenticated
+    using (
+      public.current_user_has_permission('quotes:approve', null)
+      or public.is_platform_admin()
+    );
+  end if;
+end $$;
 
 -- ---------------------------------------------------------
 -- PROFORMA INVOICES
 -- ---------------------------------------------------------
 
-alter table public.proforma_invoices enable row level security;
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.tables
+    where table_schema = 'public'
+      and table_name = 'proforma_invoices'
+  ) then
+    alter table public.proforma_invoices enable row level security;
 
-drop policy if exists proformas_select_rbac on public.proforma_invoices;
-create policy proformas_select_rbac
-on public.proforma_invoices
-for select
-to authenticated
-using (
-  public.current_user_has_permission('proformas:view', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists proformas_select_rbac on public.proforma_invoices;
+    create policy proformas_select_rbac
+    on public.proforma_invoices
+    for select
+    to authenticated
+    using (
+      public.current_user_has_permission('proformas:view', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists proformas_insert_rbac on public.proforma_invoices;
-create policy proformas_insert_rbac
-on public.proforma_invoices
-for insert
-to authenticated
-with check (
-  public.current_user_has_permission('proformas:create', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists proformas_insert_rbac on public.proforma_invoices;
+    create policy proformas_insert_rbac
+    on public.proforma_invoices
+    for insert
+    to authenticated
+    with check (
+      public.current_user_has_permission('proformas:create', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists proformas_update_rbac on public.proforma_invoices;
-create policy proformas_update_rbac
-on public.proforma_invoices
-for update
-to authenticated
-using (
-  public.current_user_has_permission('proformas:update', null)
-  or public.is_platform_admin()
-)
-with check (
-  public.current_user_has_permission('proformas:update', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists proformas_update_rbac on public.proforma_invoices;
+    create policy proformas_update_rbac
+    on public.proforma_invoices
+    for update
+    to authenticated
+    using (
+      public.current_user_has_permission('proformas:update', null)
+      or public.is_platform_admin()
+    )
+    with check (
+      public.current_user_has_permission('proformas:update', null)
+      or public.is_platform_admin()
+    );
 
-drop policy if exists proformas_delete_rbac on public.proforma_invoices;
-create policy proformas_delete_rbac
-on public.proforma_invoices
-for delete
-to authenticated
-using (
-  public.current_user_has_permission('proformas:update', null)
-  or public.is_platform_admin()
-);
+    drop policy if exists proformas_delete_rbac on public.proforma_invoices;
+    create policy proformas_delete_rbac
+    on public.proforma_invoices
+    for delete
+    to authenticated
+    using (
+      public.current_user_has_permission('proformas:update', null)
+      or public.is_platform_admin()
+    );
+  end if;
+end $$;
 
 -- ---------------------------------------------------------
 -- PAYMENTS
